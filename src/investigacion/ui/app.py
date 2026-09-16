@@ -122,7 +122,13 @@ def _mostrar_detalle_evento(caso: Caso) -> None:
     with datos:
         st.markdown("**Datos normalizados**")
         for etiqueta, valor in _campos_evento(evento):
-            st.markdown(f"- **{etiqueta}:** {valor}")
+            if etiqueta == "Contenido":
+                # El contenido crudo se muestra literal: contiene sintaxis de
+                # comandos (variables `$`, rutas) que no debe interpretarse.
+                st.markdown(f"- **{etiqueta}:**")
+                st.code(valor)
+            else:
+                st.markdown(f"- **{etiqueta}:** {valor}")
     with procedencia:
         st.markdown("**Procedencia**")
         for etiqueta, valor in procedencia_evento(caso, evento):

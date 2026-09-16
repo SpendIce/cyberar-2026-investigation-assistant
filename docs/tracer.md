@@ -35,6 +35,13 @@ uv run python -m investigacion.importar \
 modalidad de un nodo privado, mismo contrato ADR-0011). Sin `--modelo` la CLI
 conserva su comportamiento anterior: sólo importación.
 
+`--modelo-respaldo` compone el fallback del ADR-0011: si el motor primario
+declara inferencia no disponible (nodo privado caído, timeout o respuesta
+malformada), `InferenciaConRespaldo` reintenta contra el modelo local del
+endpoint `--ollama-url-respaldo` (por defecto `http://localhost:11434`). La
+modalidad persistida es la del motor que efectivamente respondió; sólo si
+ambos fallan el caso queda en modo degradado con ambos motivos en `errores`.
+
 La salida JSON informa `caso_id`, eventos, hallazgos, modalidad de inferencia,
 errores de validación, SHA-256 del original conservado y la ruta de SQLite.
 Quedan registrados en el caso los hashes del binario, reglas, configuración y

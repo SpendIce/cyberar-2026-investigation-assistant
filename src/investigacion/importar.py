@@ -14,6 +14,7 @@ from pathlib import Path
 from investigacion.adaptadores.controlados import InferenciaNoDisponibleControlada
 from investigacion.adaptadores.hayabusa import EvidenciaHayabusa
 from investigacion.adaptadores.ollama import InferenciaOllama
+from investigacion.adaptadores.respaldo import InferenciaConRespaldo
 from investigacion.adaptadores.sqlite import RepositorioSQLite
 from investigacion.errores import ErrorDeImportacion
 from investigacion.modelos import ModalidadInferencia, Origen
@@ -37,12 +38,29 @@ def main() -> None:
         default=ModalidadInferencia.MODELO_LOCAL,
         help="Modalidad declarada del endpoint Ollama",
     )
+    parser.add_argument(
+        "--modelo-respaldo",
+        help="Modelo local al que recurrir si el motor primario no está disponible",
+    )
+    parser.add_argument(
+        "--ollama-url-respaldo", default="http://localhost:11434",
+        help="Endpoint Ollama del modelo de respaldo",
+    )
     args = parser.parse_args()
     motor_inferencia: MotorDeInferencia
     if args.modelo:
         motor_inferencia = InferenciaOllama(
             args.modelo, base_url=args.ollama_url, modalidad=args.modalidad
         )
+        if args.modelo_respaldo:
+            motor_inferencia = InferenciaConRespaldo(
+                motor_inferencia,
+                InferenciaOllama(
+                    args.modelo_respaldo,
+                    base_url=args.ollama_url_respaldo,
+                    modalidad=ModalidadInferencia.MODELO_LOCAL,
+                ),
+            )
     else:
         motor_inferencia = InferenciaNoDisponibleControlada()
     modulo = ModuloDeInvestigacion(

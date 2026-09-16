@@ -17,11 +17,11 @@ uv run mypy src        # tipado estricto
 La suite ordinaria (`uv run pytest`) usa siempre dobles deterministas —
 `EvidenciaControlada`, `InferenciaControlada`, transporte HTTP sustituido,
 `RepositorioEnMemoria` — nunca Hayabusa ni un modelo Ollama real. Corrió
-**64 pruebas pasadas y 4 omitidas** al cerrar el issue #6 (ver
+**68 pruebas pasadas y 4 omitidas** al cerrar el issue #6 (ver
 "Pruebas opt-in" más abajo para activar las que faltan). Con las cuatro
 opt-in activadas (Hayabusa real, Ollama real en sus dos pruebas y el
 tracer completo) corren
-**68 de 68**.
+**72 de 72**.
 
 ## Composición de la suite
 
@@ -34,6 +34,7 @@ tracer completo) corren
 | `test_evtx_real.py` | Prueba de contrato opt-in: Hayabusa real + SQLite sobre un EVTX público, verificado contra un lector XML independiente (#3). |
 | `test_importacion_evtx.py` | Normalización determinista de la salida de Hayabusa: timestamps, campos ausentes, agrupamiento por regla, errores de importación explícitos (#3). |
 | `test_inferencia_ollama.py` | **Nuevo (#4).** Adaptador `InferenciaOllama` con transporte HTTP sustituido: sin red. |
+| `test_inferencia_respaldo.py` | **Nuevo (#6).** Motor compuesto `InferenciaConRespaldo` (ADR-0011): el respaldo local responde cuando el primario no está disponible, la modalidad expuesta es la del motor que respondió y la falla de ambos reporta los dos motivos. |
 | `test_inferencia_ollama_real.py` | **Nuevo (#4).** Prueba de contrato end-to-end opt-in contra un Ollama real. |
 | `test_manipulacion_ollama_real.py` | **Nuevo (#4).** Prueba de contrato opt-in del caso D (manipulación) contra un Ollama real: ningún hallazgo persistido cita la técnica o el evento inventados por una instrucción insertada. |
 | `test_tracer_real.py` | **Nuevo (#6).** Prueba de integración opt-in del tracer real completo: importación Hayabusa, persistencia SQLite, inferencia Ollama, validación y navegación Streamlit hallazgo → evidencia, sin dobles (ver `docs/tracer.md`). |
@@ -67,7 +68,7 @@ Esta prueba se escribió primero, se vio fallar (el hallazgo se aceptaba sin
 validar la técnica) y sólo después se implementó el chequeo en
 `validacion.py` — TDD estricto, como exige el spec.
 
-### `test_inferencia_ollama.py` (12 pruebas, sin red)
+### `test_inferencia_ollama.py` (13 pruebas, sin red)
 
 Todas inyectan un `transporte` falso — una función `(url, cuerpo, timeout) ->
 dict` — en `InferenciaOllama`, en vez de abrir una conexión real. Cubren:
@@ -84,6 +85,8 @@ dict` — en `InferenciaOllama`, en vez de abrir una conexión real. Cubren:
   estructurado antes de incorporarse al caso";
 - un mensaje ausente en la respuesta del servidor también es
   `InferenciaNoDisponible`;
+- un envoltorio HTTP malformado (cuerpo 200 que no puede decodificarse)
+  se traduce igual a `InferenciaNoDisponible`, en vez de abortar la CLI;
 - la `modalidad` configurada (`NODO_PRIVADO` o `MODELO_LOCAL`) se expone tal
   cual en el puerto;
 - el prompt enviado sólo contiene los `uid` de los eventos realmente
@@ -232,8 +235,7 @@ o `ollama ps` para liberar lo que quede residente después.
 - El benchmark y la evaluación corrieron con aceleración GPU disponible; el
   piso de aceptación en CPU pura (la notebook de presentación) sigue sin
   medirse — documentado como limitación abierta en ADR-0014.
-- No hay prueba que confirme el comportamiento cuando el nodo privado
-  (`ModalidadInferencia.NODO_PRIVADO`) falla y debería recaer en el modelo
-  local reducido; hoy `InferenciaOllama` es un único motor por instancia, y
-  la composición de fallback entre dos instancias es responsabilidad de
-  quien construya `ModuloDeInvestigacion`, sin cobertura propia todavía.
+- El fallback nodo privado → modelo local (`InferenciaConRespaldo`,
+  ADR-0011) está cubierto por `test_inferencia_respaldo.py` con dobles,
+  pero no hay una corrida opt-in que ejercite un nodo privado real caído
+  delante de un Ollama local real.

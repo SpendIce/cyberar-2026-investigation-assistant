@@ -217,7 +217,8 @@ class InferenciaOllama:
         }
         try:
             datos = self._transporte(f"{self._base_url}/api/chat", cuerpo, self._timeout)
-        except (urllib.error.URLError, OSError, TimeoutError) as exc:
+        except (urllib.error.URLError, OSError, TimeoutError,
+                json.JSONDecodeError, UnicodeDecodeError) as exc:
             raise InferenciaNoDisponible(
                 f"nodo Ollama '{self._base_url}' no disponible: {exc}"
             ) from exc
