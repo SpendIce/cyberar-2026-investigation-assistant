@@ -4,9 +4,10 @@
 endpoint `/api/chat` de un servidor Ollama, con salida restringida por
 esquema JSON (`format`). El mismo adaptador sirve al nodo privado y al
 modelo local reducido: sólo cambian `base_url`, `modelo` y `modalidad`
-(ADR-0011). El catálogo local ATT&CK (`docs/attack/catalogo.json`) fija qué
-técnicas puede citar el modelo y `ValidadorDeReferencias` rechaza, además de
-referencias inexistentes, cualquier técnica fuera de ese catálogo.
+(ADR-0011). El catálogo local ATT&CK
+(`src/investigacion/datos/catalogo_attack.json`) fija qué técnicas puede
+citar el modelo y `ValidadorDeReferencias` rechaza, además de referencias
+inexistentes, cualquier técnica fuera de ese catálogo.
 
 ## Preparación
 

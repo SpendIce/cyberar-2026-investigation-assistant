@@ -15,8 +15,7 @@ Uso:
 
 from __future__ import annotations
 
-import argparse
-import json
+import os
 import platform
 import statistics
 import subprocess
@@ -24,18 +23,10 @@ import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-import sys
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from investigacion.adaptadores.ollama import InferenciaOllama
+from _comun import RAIZ, calentar, escribir_reporte, montar, parser_base
 from investigacion.catalogo_attack import cargar_catalogo
 from investigacion.errores import HallazgoInvalido, InferenciaNoDisponible
 from investigacion.sembrado import eventos_sembrados
-from investigacion.validacion import ValidadorDeReferencias
-
-RAIZ = Path(__file__).resolve().parents[1]
-MODELOS_DEFECTO = ["llama3.2:3b", "qwen2.5:7b-instruct"]
 
 
 @dataclass
@@ -73,6 +64,12 @@ def _memoria_reportada(modelo: str) -> str | None:
     return None
 
 
+def _cpus_disponibles() -> int:
+    if hasattr(os, "sched_getaffinity"):
+        return len(os.sched_getaffinity(0))
+    return os.cpu_count() or 0
+
+
 def _info_hardware() -> dict[str, str]:
     memoria_total = "desconocida"
     try:
@@ -85,23 +82,16 @@ def _info_hardware() -> dict[str, str]:
     return {
         "plataforma": platform.platform(),
         "procesador": platform.processor() or platform.machine(),
-        "cpus_logicas": str(len(getattr(__import__("os"), "sched_getaffinity", lambda _: range(0))(0)) or 0),
+        "cpus_logicas": str(_cpus_disponibles()),
         "memoria_total": memoria_total,
     }
 
 
 def _correr_modelo(modelo: str, repeticiones: int, base_url: str) -> ResultadoModelo:
     eventos = eventos_sembrados()
-    catalogo = cargar_catalogo()
-    validador = ValidadorDeReferencias(catalogo=catalogo)
-    motor = InferenciaOllama(modelo, base_url=base_url, catalogo=catalogo)
+    motor, validador, catalogo = montar(modelo, base_url)
     referencias_existentes = {evento.uid for evento in eventos}
-
-    # Corrida de calentamiento: no se mide, sólo carga el modelo en Ollama.
-    try:
-        motor.proponer("calentamiento", eventos)
-    except InferenciaNoDisponible:
-        pass
+    calentar(motor, eventos)
 
     corridas: list[MedicionCorrida] = []
     for indice in range(1, repeticiones + 1):
@@ -196,14 +186,9 @@ def _resumen_markdown(hardware: dict[str, str], resultados: list[ResultadoModelo
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--modelos", nargs="+", default=MODELOS_DEFECTO)
-    parser.add_argument("--repeticiones", type=int, default=3)
-    parser.add_argument("--base-url", default="http://localhost:11434")
-    parser.add_argument(
-        "--salida", type=Path, default=RAIZ / "docs" / "benchmarks" / "resultados-modelos"
-    )
-    argumentos = parser.parse_args()
+    argumentos = parser_base(
+        __doc__, RAIZ / "docs" / "benchmarks" / "resultados-modelos"
+    ).parse_args()
 
     hardware = _info_hardware()
     resultados = [
@@ -226,12 +211,8 @@ def main() -> None:
             for r in resultados
         ],
     }
-    argumentos.salida.parent.mkdir(parents=True, exist_ok=True)
-    argumentos.salida.with_suffix(".json").write_text(
-        json.dumps(reporte, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
     markdown = _resumen_markdown(hardware, resultados)
-    argumentos.salida.with_suffix(".md").write_text(markdown, encoding="utf-8")
+    escribir_reporte(argumentos.salida, reporte, markdown)
     print(markdown)
 
 

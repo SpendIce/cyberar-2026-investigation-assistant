@@ -4,10 +4,10 @@ El mismo contrato Ollama sirve al nodo privado y al modelo local reducido
 (ADR-0011); sólo cambia el modelo, el `base_url` y la `modalidad` declarada.
 El modelo no recibe shell, red ni herramientas: únicamente la evidencia ya
 seleccionada por código y la lista de técnicas del catálogo local fijado
-(ADR-0001, docs/attack/catalogo.json). La salida se exige restringida por un
-esquema JSON (`format`); una respuesta que no cumple ese esquema, o que no
-puede obtenerse por caída o timeout del nodo, se trata como inferencia no
-disponible y activa el fallback (ADR-0009).
+(ADR-0001, `investigacion/datos/catalogo_attack.json`). La salida se exige
+restringida por un esquema JSON (`format`); una respuesta que no cumple ese
+esquema, o que no puede obtenerse por caída o timeout del nodo, se trata
+como inferencia no disponible y activa el fallback (ADR-0009).
 """
 
 from __future__ import annotations

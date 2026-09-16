@@ -43,7 +43,8 @@ opt-in activadas (Hayabusa real + Ollama real en sus dos pruebas) corren
 ### `test_catalogo_attack.py`
 
 Prueba `investigacion.catalogo_attack.cargar_catalogo`, no un archivo de
-datos suelto: que el catálogo por defecto (`docs/attack/catalogo.json`)
+datos suelto: que el catálogo por defecto
+(`src/investigacion/datos/catalogo_attack.json`)
 carga con versión, fecha y procedencia; que reconoce técnicas presentes
 (`T1021.002`, `T1569.002`) y rechaza una inventada (`T9999`); que puede
 cargarse desde una ruta arbitraria para pruebas aisladas; y que una ruta

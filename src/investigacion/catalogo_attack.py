@@ -1,6 +1,8 @@
 """Catálogo local ATT&CK: subconjunto fijado con versión, fecha y procedencia.
 
-El MVP limita las técnicas candidatas a este subconjunto local (ADR-0014).
+El MVP limita las técnicas candidatas a este subconjunto local (ADR-0014),
+distribuido como dato del paquete para que la ruta no dependa del árbol del
+repositorio.
 Validar que un identificador pertenece al catálogo no demuestra que la
 técnica esté correctamente aplicada; esa pertinencia requiere evidencia y
 revisión humana.
@@ -13,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
 
-RUTA_CATALOGO_DEFECTO = Path(__file__).resolve().parents[2] / "docs" / "attack" / "catalogo.json"
+RUTA_CATALOGO_DEFECTO = Path(__file__).resolve().parent / "datos" / "catalogo_attack.json"
 
 
 @dataclass(frozen=True)
