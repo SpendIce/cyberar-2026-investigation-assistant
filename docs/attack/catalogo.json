@@ -1,0 +1,27 @@
+{
+  "version": "ATT&CK Enterprise v15.1 (subconjunto local)",
+  "fecha": "2026-01-01",
+  "procedencia": "Copia local fijada a mano desde https://attack.mitre.org/resources/attack-data-and-tools/ para el escenario PsExec/PowerShell del MVP; ver docs/adr/0014-eleccion-modelo-local-ollama.md.",
+  "tecnicas": [
+    {
+      "id": "T1021.002",
+      "nombre": "Remote Services: SMB/Windows Admin Shares"
+    },
+    {
+      "id": "T1569.002",
+      "nombre": "System Services: Service Execution"
+    },
+    {
+      "id": "T1059.001",
+      "nombre": "Command and Scripting Interpreter: PowerShell"
+    },
+    {
+      "id": "T1078",
+      "nombre": "Valid Accounts"
+    },
+    {
+      "id": "T1003.001",
+      "nombre": "OS Credential Dumping: LSASS Memory"
+    }
+  ]
+}
