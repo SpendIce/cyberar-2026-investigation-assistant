@@ -1,5 +1,14 @@
 # Agent instructions
 
+## Commands
+
+```bash
+uv sync          # instala dependencias y el paquete local
+uv run investigacion   # ejecuta la aplicación mínima
+uv run pytest    # ejecuta la suite de pruebas
+uv run mypy src  # verifica los tipos
+```
+
 ## Agent skills
 
 ### Issue tracker
