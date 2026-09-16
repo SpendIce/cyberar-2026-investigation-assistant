@@ -1,0 +1,100 @@
+{
+  "hardware": {
+    "plataforma": "Linux-6.19.14-kasan-x86_64-with-glibc2.42",
+    "procesador": "x86_64",
+    "cpus_logicas": "32",
+    "memoria_total": "28516660 kB"
+  },
+  "caso": "caso sembrado (investigacion.sembrado.eventos_sembrados)",
+  "repeticiones": 3,
+  "catalogo": {
+    "version": "ATT&CK Enterprise v15.1 (subconjunto local)",
+    "procedencia": "Copia local fijada a mano desde https://attack.mitre.org/resources/attack-data-and-tools/ para el escenario PsExec/PowerShell del MVP; ver docs/adr/0014-eleccion-modelo-local-ollama.md."
+  },
+  "modelos": [
+    {
+      "modelo": "llama3.2:3b",
+      "memoria_ollama_ps": "llama3.2:3b            a80c4f17acd5    2.6 GB    100% GPU     4096       4 minutes from now",
+      "corridas": [
+        {
+          "corrida": 1,
+          "exito_esquema": true,
+          "latencia_segundos": 3.375,
+          "hallazgos_propuestos": 3,
+          "hallazgos_aceptados": 3,
+          "referencias_citadas": 5,
+          "referencias_resolubles": 5,
+          "tecnicas_citadas": 0,
+          "tecnicas_en_catalogo": 0,
+          "error": null
+        },
+        {
+          "corrida": 2,
+          "exito_esquema": true,
+          "latencia_segundos": 3.935,
+          "hallazgos_propuestos": 3,
+          "hallazgos_aceptados": 3,
+          "referencias_citadas": 5,
+          "referencias_resolubles": 5,
+          "tecnicas_citadas": 0,
+          "tecnicas_en_catalogo": 0,
+          "error": null
+        },
+        {
+          "corrida": 3,
+          "exito_esquema": true,
+          "latencia_segundos": 3.365,
+          "hallazgos_propuestos": 3,
+          "hallazgos_aceptados": 3,
+          "referencias_citadas": 5,
+          "referencias_resolubles": 5,
+          "tecnicas_citadas": 0,
+          "tecnicas_en_catalogo": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "modelo": "qwen2.5:7b-instruct",
+      "memoria_ollama_ps": "qwen2.5:7b-instruct    845dbda0ea48    4.7 GB    100% GPU     4096       4 minutes from now",
+      "corridas": [
+        {
+          "corrida": 1,
+          "exito_esquema": true,
+          "latencia_segundos": 2.477,
+          "hallazgos_propuestos": 1,
+          "hallazgos_aceptados": 1,
+          "referencias_citadas": 2,
+          "referencias_resolubles": 2,
+          "tecnicas_citadas": 0,
+          "tecnicas_en_catalogo": 0,
+          "error": null
+        },
+        {
+          "corrida": 2,
+          "exito_esquema": true,
+          "latencia_segundos": 2.477,
+          "hallazgos_propuestos": 1,
+          "hallazgos_aceptados": 1,
+          "referencias_citadas": 2,
+          "referencias_resolubles": 2,
+          "tecnicas_citadas": 0,
+          "tecnicas_en_catalogo": 0,
+          "error": null
+        },
+        {
+          "corrida": 3,
+          "exito_esquema": true,
+          "latencia_segundos": 2.473,
+          "hallazgos_propuestos": 1,
+          "hallazgos_aceptados": 1,
+          "referencias_citadas": 2,
+          "referencias_resolubles": 2,
+          "tecnicas_citadas": 0,
+          "tecnicas_en_catalogo": 0,
+          "error": null
+        }
+      ]
+    }
+  ]
+}

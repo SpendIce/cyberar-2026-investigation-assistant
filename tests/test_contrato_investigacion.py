@@ -121,6 +121,18 @@ def test_una_referencia_inexistente_rechaza_el_hallazgo_y_no_lo_persiste() -> No
     assert modulo.consultar_caso(caso.id).hallazgos == ()
 
 
+def test_una_tecnica_fuera_del_catalogo_rechaza_el_hallazgo_y_no_lo_persiste() -> None:
+    propuesta = _propuesta(referencias_eventos=("ev-1",), tecnicas_candidatas=("T9999",))
+    modulo = _modulo((_evento("ev-1"),), propuestas=(propuesta,))
+    caso = modulo.crear_caso(Origen(ruta="fixtures/psexec.evtx", procedencia="laboratorio"))
+
+    investigado = modulo.investigar_caso(caso.id)
+
+    assert investigado.hallazgos == ()
+    assert any("T9999" in error for error in investigado.errores)
+    assert modulo.consultar_caso(caso.id).hallazgos == ()
+
+
 def test_un_hallazgo_invalido_no_descarta_los_hallazgos_validos() -> None:
     valida = _propuesta(hipotesis="Válida", referencias_eventos=("ev-1",))
     invalida = _propuesta(hipotesis="Inventada", referencias_eventos=("ev-inexistente",))
