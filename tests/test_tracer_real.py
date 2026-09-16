@@ -17,11 +17,10 @@ from streamlit.testing.v1 import AppTest
 from investigacion.adaptadores.sqlite import RepositorioSQLite
 
 APP = Path(__file__).resolve().parents[1] / "src" / "investigacion" / "ui" / "app.py"
-REQUIERE = ("HAYABUSA_BIN", "OLLAMA_MODELO_PRUEBA")
 
 
 @pytest.mark.skipif(
-    not all(os.environ.get(nombre) for nombre in REQUIERE),
+    not (os.environ.get("HAYABUSA_BIN") and os.environ.get("OLLAMA_MODELO_PRUEBA")),
     reason="requiere HAYABUSA_BIN, OLLAMA_MODELO_PRUEBA, Ollama corriendo y el fixture público",
 )
 def test_tracer_real_evtx_hallazgo_evidencia(tmp_path, monkeypatch):

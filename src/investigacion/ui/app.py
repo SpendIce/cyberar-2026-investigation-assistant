@@ -56,10 +56,6 @@ def _cerrar_evento() -> None:
     st.session_state["evento_abierto"] = None
 
 
-def _cerrar_caso() -> None:
-    st.session_state["evento_abierto"] = None
-
-
 def _caso_persistido(directorio_datos: str) -> Caso:
     repositorio = RepositorioSQLite(Path(directorio_datos) / "casos.sqlite")
     identificadores = repositorio.listar()
@@ -73,7 +69,7 @@ def _caso_persistido(directorio_datos: str) -> Caso:
         "Caso persistido",
         options=identificadores,
         key="caso-persistido",
-        on_change=_cerrar_caso,
+        on_change=_cerrar_evento,
     )
     caso = repositorio.obtener(caso_id)
     if caso is None:  # el caso desapareció entre listar() y obtener()
