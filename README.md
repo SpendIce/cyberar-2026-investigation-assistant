@@ -25,5 +25,12 @@ La interfaz Streamlit abre el mismo caso sembrado sin servicios externos: muestr
 
 El adaptador Hayabusa y el repositorio SQLite permiten importar un EVTX mediante
 `ModuloDeInvestigacion`, conservar su original y consultar una cronología verificable.
-La CLI de importación funciona sin inferencia; la conexión con la interfaz corresponde
-a la integración del tracer (#6). Ver [preparación, comandos y pruebas](docs/evidencia.md).
+Ver [preparación, comandos y pruebas](docs/evidencia.md).
+
+## Tracer real EVTX → hallazgo → evidencia (#6)
+
+Un único comando (`python -m investigacion.importar` con `--modelo`) crea un caso
+real desde el fixture EVTX acordado: Hayabusa, normalización, persistencia SQLite,
+inferencia estructurada contra Ollama y validación. La interfaz Streamlit abre los
+casos persistidos con `INVESTIGACION_DATOS` y permite navegar cada hallazgo hasta
+la evidencia citada. Ver [docs/tracer.md](docs/tracer.md).

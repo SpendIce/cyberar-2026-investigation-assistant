@@ -22,6 +22,18 @@
     {
       "id": "T1003.001",
       "nombre": "OS Credential Dumping: LSASS Memory"
+    },
+    {
+      "id": "T1543.003",
+      "nombre": "Create or Modify System Process: Windows Service"
+    },
+    {
+      "id": "T1134.001",
+      "nombre": "Access Token Manipulation: Token Impersonation/Theft"
+    },
+    {
+      "id": "T1134.002",
+      "nombre": "Access Token Manipulation: Create Process with Token"
     }
   ]
 }
