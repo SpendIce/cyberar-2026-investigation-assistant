@@ -70,6 +70,16 @@ resultado a través del mismo contrato que usa la interfaz
 (`crear_caso` → `investigar_caso` → `consultar_caso`), no funciones internas.
 `OLLAMA_BASE_URL` permite apuntar a otro endpoint.
 
+Del mismo modo, `tests/test_manipulacion_ollama_real.py` corre el caso D del
+spec #1 (una instrucción insertada en un campo de evidencia) contra un
+Ollama real y comprueba que ningún hallazgo persistido cite la técnica o el
+evento que esa instrucción pedía inventar — independientemente de si el
+modelo obedeció o no. Detalle en `docs/pruebas.md`.
+
+Estas pruebas cargan un modelo completo en memoria/GPU. Verificar con
+`ollama ps` que no quede residente después, y liberarlo con
+`ollama stop <modelo>` si hace falta.
+
 ## Elección de modelo y límites
 
 La comparación entre modelos candidatos, su metodología y sus limitaciones
