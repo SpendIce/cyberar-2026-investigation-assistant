@@ -21,9 +21,7 @@ from investigacion.ui.presentacion import (
     referencias_no_resueltas,
 )
 
-_EXPORTACION: dict[
-    str, tuple[FormatoExportacion, str, str, str]
-] = {
+_EXPORTACION: dict[str, tuple[FormatoExportacion, str, str, str]] = {
     "Markdown": (FormatoExportacion.MARKDOWN, "md", "text/markdown", "markdown"),
     "JSON": (FormatoExportacion.JSON, "json", "application/json", "json"),
 }

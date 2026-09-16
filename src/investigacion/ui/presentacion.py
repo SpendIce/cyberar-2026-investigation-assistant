@@ -49,7 +49,9 @@ def referencias_no_resueltas(caso: Caso, hallazgo: Hallazgo) -> tuple[str, ...]:
 def procedencia_evento(caso: Caso, evento: Evento) -> tuple[tuple[str, str], ...]:
     """Etiquetas de procedencia para abrir un evento sin abandonar el caso."""
     versiones = (
-        ", ".join(f"{clave} {valor}" for clave, valor in sorted(caso.origen.versiones.items()))
+        ", ".join(
+            f"{clave} {valor}" for clave, valor in sorted(caso.origen.versiones.items())
+        )
         or "no declaradas"
     )
     return (
