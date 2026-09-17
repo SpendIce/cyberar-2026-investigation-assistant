@@ -34,3 +34,10 @@ real desde el fixture EVTX acordado: Hayabusa, normalización, persistencia SQLi
 inferencia estructurada contra Ollama y validación. La interfaz Streamlit abre los
 casos persistidos con `INVESTIGACION_DATOS` y permite navegar cada hallazgo hasta
 la evidencia citada. Ver [docs/tracer.md](docs/tracer.md).
+
+## Informe reproducible (#10)
+
+`python -m investigacion.informe --datos datos --caso <id> --formato markdown`
+exporta el estado validado y persistido de un caso a Markdown o JSON (`--formato
+json`), hacia `--salida <archivo>` o stdout. Lee únicamente `casos.sqlite`:
+nunca vuelve a ejecutar la inferencia durante la exportación.

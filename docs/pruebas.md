@@ -39,6 +39,7 @@ tracer completo) corren
 | `test_manipulacion_ollama_real.py` | **Nuevo (#4).** Prueba de contrato opt-in del caso D (manipulación) contra un Ollama real: ningún hallazgo persistido cita la técnica o el evento inventados por una instrucción insertada. |
 | `test_tracer_real.py` | **Nuevo (#6).** Prueba de integración opt-in del tracer real completo: importación Hayabusa, persistencia SQLite, inferencia Ollama, validación y navegación Streamlit hallazgo → evidencia, sin dobles (ver `docs/tracer.md`). |
 | `test_interfaz_streamlit.py` / `test_presentacion.py` | Smoke test del recorrido principal en Streamlit y del adaptador de presentación; la lógica de dominio no se revalida aquí. |
+| `test_informe_reproducible.py` | **Nuevo (#10).** Prueba de aceptación del informe reproducible: abre el Markdown y el JSON del mismo caso persistido, verifica los campos críticos (hash, procedencia, versiones, modalidad, referencias, limitaciones, advertencias), el determinismo de exportar dos veces y que la exportación no invoca el modelo; además recorre el CLI `python -m investigacion.informe` de extremo a extremo. |
 | `casos_evaluacion.py` | No es un archivo de pruebas (no empieza con `test_`): son las fixtures del caso B (control legítimo) y del caso D (manipulación), reutilizadas por `test_manipulacion_ollama_real.py` y por `scripts/evaluar_escenarios.py`. |
 
 ## Detalle de lo nuevo en el issue #4

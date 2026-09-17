@@ -81,14 +81,10 @@ def test_los_formatos_representan_el_mismo_estado_validado(tmp_path: Path) -> No
     contenido_json = modulo.exportar_caso(caso_id, FormatoExportacion.JSON)
     contenido_markdown = modulo.exportar_caso(caso_id, FormatoExportacion.MARKDOWN)
 
-    # Exportar dos veces el mismo estado produce contenido equivalente
-    # y no vuelve a invocar el modelo.
     assert modulo.exportar_caso(caso_id, FormatoExportacion.JSON) == contenido_json
     assert modulo.exportar_caso(caso_id, FormatoExportacion.MARKDOWN) == contenido_markdown
     assert espia.invocaciones == invocaciones_tras_investigar
 
-    # El JSON abre los campos críticos del caso: hashes, procedencia,
-    # versiones, modalidad de inferencia y hallazgos validados.
     datos = json.loads(contenido_json)
     assert datos["id"] == caso_id
     assert datos["errores"]
@@ -109,9 +105,6 @@ def test_los_formatos_representan_el_mismo_estado_validado(tmp_path: Path) -> No
     uids = {evento["uid"] for evento in datos["eventos"]}
     assert set(hallazgos_json[0]["referencias_eventos"]) <= uids
 
-    # El Markdown nombra el mismo conjunto de hallazgos y las referencias
-    # que permiten localizar sus eventos de respaldo, junto con hash,
-    # procedencia, versiones, modalidad, limitaciones y advertencias.
     assert f"# Caso {caso_id}" in contenido_markdown
     assert SHA_SEMBRADO in contenido_markdown
     assert PROCEDENCIA_SEMBRADA in contenido_markdown
@@ -154,15 +147,12 @@ def test_el_cli_exporta_el_informe_persistido_sin_inferencia(tmp_path: Path) -> 
         )
         assert resultado.returncode == 0, resultado.stderr
 
-    # Ambos archivos abren y verifican los campos críticos del caso.
     datos = json.loads(salida_json.read_text(encoding="utf-8"))
     assert datos["id"] == caso_id
     assert datos["origen"]["sha256"] == SHA_SEMBRADO
     assert len(datos["hallazgos"]) == 1
     markdown = salida_md.read_text(encoding="utf-8")
     assert datos["hallazgos"][0]["hipotesis"] in markdown
-    # Las advertencias del caso llegan a ambos formatos.
     assert datos["errores"]
     assert "## Advertencias" in markdown
-    # El CLI solo leyó el repositorio: el espía no registró inferencia extra.
     assert espia.invocaciones == 1

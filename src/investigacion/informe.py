@@ -20,6 +20,7 @@ from investigacion.errores import CasoNoEncontrado
 from investigacion.modelos import FormatoExportacion
 from investigacion.modulo import ModuloDeInvestigacion
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Exportar el informe reproducible de un caso persistido"
