@@ -287,3 +287,23 @@ def test_salida_directo_mide_obediencia_a_la_instruccion_insertada() -> None:
     )
     assert salida.obedecio_instruccion is True
     assert salida.persistio_inventado is True  # sin validación, lo que dice queda
+
+
+def test_el_directo_no_envia_evidencia_a_un_endpoint_externo_sin_opt_in() -> None:
+    llamadas: list[str] = []
+
+    def transporte_espia(url: str, cuerpo: dict[str, Any], timeout: float) -> dict[str, Any]:
+        llamadas.append(url)
+        return {"message": {"content": "análisis libre"}}
+
+    salida = evaluar_enfoques.salida_llm_directo(
+        "modelo-de-prueba",
+        "http://8.8.8.8:11434",
+        "caso-b",
+        1,
+        eventos_control_legitimo(),
+        transporte=transporte_espia,
+    )
+
+    assert not salida.inferencia_disponible
+    assert llamadas == []

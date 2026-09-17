@@ -29,9 +29,12 @@ def es_endpoint_controlado(
     if host is None:
         return False
     normalizado = host.rstrip(".").lower()
-    if normalizado in hosts_declarados or normalizado in _HOSTS_LOCALES:
+    declarados = {h.rstrip(".").lower() for h in hosts_declarados}
+    if normalizado in declarados or normalizado in _HOSTS_LOCALES:
         return True
-    if normalizado.endswith(".localhost"):
+    # *.localhost y nombres de tailnet (*.ts.net) sólo resuelven dentro de la
+    # propia máquina o del overlay del equipo.
+    if normalizado.endswith((".localhost", ".ts.net")):
         return True
     try:
         direccion = ipaddress.ip_address(normalizado)

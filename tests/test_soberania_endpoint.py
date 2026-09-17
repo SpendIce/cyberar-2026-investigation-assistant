@@ -54,7 +54,9 @@ def _transporte_ok(llamadas: list[str]) -> Any:
         "http://192.168.1.20:11434",
         "http://169.254.10.10:11434",
         "http://100.64.7.8:11434",  # CGNAT: overlay tipo Tailscale del equipo
+        "http://nodo.tail1234.ts.net:11434",  # nombre de tailnet del equipo
         "http://host.docker.internal:11434",
+        "http://LOCALHOST.:11434",
     ],
 )
 def test_los_endpoints_de_infraestructura_controlada_no_requieren_opt_in(url: str) -> None:
@@ -95,6 +97,11 @@ def test_los_endpoints_externos_se_rechazan_sin_opt_in(url: str) -> None:
 def test_un_host_declarado_como_propio_cuenta_como_controlado() -> None:
     url = "http://8.8.8.8:11434"
     assert es_endpoint_controlado(url, hosts_declarados=frozenset({"8.8.8.8"}))
+    # Los hosts declarados se comparan normalizados a minúsculas.
+    assert es_endpoint_controlado(
+        "http://nodo.es-público.example:11434",
+        hosts_declarados=frozenset({"NODO.ES-PÚBLICO.EXAMPLE."}),
+    )
 
     motor = InferenciaOllama(
         "modelo",

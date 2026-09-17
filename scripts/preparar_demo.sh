@@ -46,8 +46,9 @@ fi
 echo "== Modelo local precargado =="
 if curl -sf -m 5 "$OLLAMA_URL/api/version" >/dev/null 2>&1; then
     ok "endpoint Ollama accesible ($OLLAMA_URL)"
-    if curl -sf -m 10 "$OLLAMA_URL/api/generate" -d "{\"model\":\"$MODELO\",\"keep_alive\":\"15m\",\"prompt\":\"\",\"stream\":false}" >/dev/null 2>&1 \
-       || docker exec ollama-eval ollama list 2>/dev/null | grep -q "$MODELO"; then
+    if curl -sf -m 10 "$OLLAMA_URL/api/show" -d "{\"model\":\"$MODELO\"}" >/dev/null 2>&1; then
+        ok "modelo $MODELO descargado/precargado"
+    elif docker exec ollama-eval ollama list 2>/dev/null | grep -q "$MODELO"; then
         ok "modelo $MODELO descargado/precargado"
     else
         mal "modelo $MODELO descargado"
