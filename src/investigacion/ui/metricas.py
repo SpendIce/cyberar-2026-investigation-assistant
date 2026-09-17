@@ -82,6 +82,62 @@ def hosts_del_caso(caso: Caso) -> tuple[str, ...]:
     return tuple(sorted({e.host for e in caso.eventos if e.host}))
 
 
+_CAMPOS_REMOTOS = (
+    "IpAddress",
+    "SourceIp",
+    "DestinationIp",
+    "DestinationHostname",
+    "WorkstationName",
+    "SourceHostname",
+    "TargetServerName",
+    "ComputerName",
+)
+
+_VALORES_NO_REMOTOS = {"-", "127.0.0.1", "::1", "localhost", "0.0.0.0", "::"}
+
+
+def campos_de(evento: Any) -> dict[str, Any]:
+    """`AllFieldInfo` preservado dentro del `contenido` del evento."""
+    try:
+        contenido = json.loads(evento.contenido or "")
+    except (TypeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(contenido, dict):
+        return {}
+    campos = contenido.get("campos")
+    return campos if isinstance(campos, dict) else {}
+
+
+def topologia_hosts(caso: Caso) -> dict[str, set[str]]:
+    """Host observado -> endpoints remotos referenciados por sus eventos.
+
+    Las aristas son referencias observadas en campos de la evidencia, no
+    dirección de ataque: un `IpAddress` en un logon type 3 es el origen
+    remoto, un `DestinationHostname` es un destino. Se dibujan sin flecha.
+    """
+    topologia: dict[str, set[str]] = {}
+    for evento in caso.eventos:
+        host = evento.host or "host desconocido"
+        campos = campos_de(evento)
+        for clave in _CAMPOS_REMOTOS:
+            valor = campos.get(clave)
+            if isinstance(valor, (list, tuple)):
+                valores = tuple(str(item) for item in valor)
+            elif isinstance(valor, str):
+                valores = tuple(valor.split(","))
+            else:
+                continue
+            for remoto in valores:
+                remoto = remoto.strip()
+                if (
+                    remoto
+                    and remoto.casefold() not in _VALORES_NO_REMOTOS
+                    and remoto.casefold() != host.casefold()
+                ):
+                    topologia.setdefault(host, set()).add(remoto)
+    return topologia
+
+
 def mapa_attack() -> dict[str, Any]:
     """El asset de display táctica→técnica generado desde las reglas fijadas."""
     ruta = Path(__file__).resolve().parent.parent / "datos" / "mapa_attack.json"

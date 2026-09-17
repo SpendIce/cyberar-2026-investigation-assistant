@@ -1,61 +1,70 @@
 # Guion de la demo — tres minutos (issue #12)
 
-Recorrido: importación → hallazgo → evidencia → ambigüedad → ATT&CK →
-exportación → fallback. Cada bloque tiene su comando y su plan B.
+Recorrido: galería → alta (sin ejecutar) → pestañas del caso → números Sigma →
+matriz ATT&CK → hipótesis IA → con/sin contexto → exportación → fallback.
+Cada bloque tiene su plan B.
 
 ## Antes de empezar (operador, fuera del tiempo)
 
-- `scripts/preparar_demo.sh` en verde; modelo precargado (`ollama ps`
-  muestra `qwen2.5:7b-instruct` residente).
+- `scripts/preparar_demo.sh` en verde.
 - Streamlit abierto: `INVESTIGACION_DATOS=datos uv run streamlit run src/investigacion/ui/app.py`.
+- La galería ya está poblada: ~20 casos del dataset público
+  EVTX-ATTACK-SAMPLES pre-procesados (Hayabusa real + inferencia externa
+  declarada como tal), más los casos ancla del proyecto.
 - Pestaña de respaldo lista: `docs/demo/respaldo/informe.md` abierto en el
   editor, identificado como corrida guardada.
 
 ## 0:00–0:20 — Qué es y qué no es
 
-"Asistente privado de investigación: la evidencia no sale de infraestructura
-propia, y cada afirmación del modelo queda validada antes de persistir."
+"Asistente privado de investigación sobre registros Windows: cada afirmación
+del modelo queda validada por código antes de persistir, y la evidencia
+conserva su cadena de custodia." Mostrar la galería: badges de modalidad de
+inferencia (modelo externo / modelo local / modo degradado) y escenario.
 
-## 0:20–0:50 — Importación y cronología
+## 0:20–0:45 — Alta (se muestra, no se ejecuta)
 
-- Mostrar el caso importado en Streamlit: procedencia, SHA-256 del EVTX
-  original conservado, cronología ordenada con `uid` estables.
-- Plan B (importación en vivo si sobra tiempo): `python -m investigacion.importar
-  --evtx tests/fixtures/publico/eventos.evtx --procedencia <fixture>
-  --hayabusa <binario> --datos datos`.
+- Botón "＋ Nuevo caso": se abre el modal con drag & drop de EVTX, campo de
+  procedencia y campo de contexto del ambiente.
+- "El pipeline corre Hayabusa y después el modelo; la inferencia insume
+  minutos en CPU local, así que por tiempo no la ejecutamos en vivo — la
+  galería entera se generó con este mismo pipeline esta noche."
+- Cerrar el modal sin importar.
 
-## 0:50–1:30 — Hallazgo, evidencia y ambigüedad
+## 0:45–1:30 — Caso, cronología y números Sigma
 
-- Abrir el hallazgo: hipótesis + referencias navegables a los eventos
-  (`ev-*`) + procedencia del mapeo ATT&CK (regla vs modelo).
-- Ambigüedad: mostrar el control legítimo — PsExec/PowerShell/SMB también
-  aparecen en administración legítima; el hallazgo incluye explicaciones
-  alternativas y evidencia faltante, no un veredicto.
-- "El modelo propone hipótesis; el código valida referencias, técnicas del
-  catálogo y lenguaje concluyente."
+- Abrir un caso rico (p.ej. "PsExec + SMB + Meterpreter").
+- Pestaña Resumen: métricas, fuente, SHA-256, custodia.
+- Pestaña Cronología: línea de tiempo visual por canal con detecciones
+  marcadas + tabla navegable; abrir un evento para mostrar campos
+  normalizados y procedencia.
+- Pestaña Hallazgos: números Sigma (eventos con detección, reglas que
+  activaron, técnicas heredadas) y matriz ATT&CK con chips por táctica,
+  distinguiendo azul "heredado de regla" vs violeta "sugerida por el modelo".
 
-## 1:30–2:10 — Fallback y custodia
+## 1:30–2:10 — Hipótesis IA y contexto
 
-- Fallback: "si el nodo de inferencia cae, el caso persiste en modo
-  degradado con cronología y evidencia intactas" — mostrar la modalidad y
-  las advertencias registradas en el caso (o correr
-  `scripts/prueba_humo_offline.sh` si se quiere mostrar en vivo).
-- Custodia: `python -m investigacion.informe --verificar docs/demo/respaldo/informe.md`
-  → "Informe íntegro". Mencionar que el estado del caso también está
-  encadenado: una edición directa de la base se detecta al verificar.
+- Pestaña "Hipótesis IA": badge persistente "generado por IA", interpretación
+  propuesta, razón del vínculo, explicaciones alternativas, evidencia
+  faltante, limitaciones. "Todo esto es revisable; nada es veredicto."
+- Comparación con/sin contexto: abrir las dos variantes del caso LSASS
+  ("sin contexto" / "con contexto") — la misma evidencia, narrativa distinta.
+  El contexto declarado viaja al prompt como contexto, no como instrucción.
 
-## 2:10–2:45 — Exportación y valor medido
+## 2:10–2:40 — Exportación y custodia
 
-- `python -m investigacion.informe --datos datos --caso <id> --salida informe.md`
-  → informe + `informe.md.sha256` + sección Integridad con el sello del caso.
-- Cierre con el resultado del #11: ante la instrucción insertada, el LLM
-  directo obedeció 3/3 y persistió datos inventados 3/3; el pipeline 0/3
-  con 12/12 técnicas respaldadas. Números en `docs/evaluacion/resultados-enfoques.md`.
+- Botón "Exportar…" en la pestaña Exportar: modal con informe
+  (Markdown/HTML/JSON), eventos normalizados y artefactos conservados
+  (EVTX original, JSONL de Hayabusa) byte a byte.
+- Custodia: `python -m investigacion.informe --verificar
+  docs/demo/respaldo/informe.md` → "Informe íntegro".
 
-## 2:45–3:00 — Reserva
+## 2:40–3:00 — Fallback y cierre
 
-Preguntas, o mostrar el adaptador MCP (`investigacion-mcp --datos datos`)
-si el jurado pregunta por integración con asistentes institucionales.
+- Abrir un caso "solo Hayabusa": modalidad degradada, cronología y
+  detecciones intactas, sin hipótesis del modelo. "Si el motor cae, el caso
+  sigue siendo navegable."
+- Cierre con los números del #11: LLM directo obedeció la inyección 3/3;
+  el pipeline 0/3 con 12/12 técnicas respaldadas.
 
 ## Si algo falla
 

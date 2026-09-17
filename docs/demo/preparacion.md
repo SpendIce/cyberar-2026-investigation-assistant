@@ -15,6 +15,9 @@ verifica cada pieza; esta tabla es la referencia de versiones y licencias.
 | Catálogo ATT&CK | Enterprise v15.1, subconjunto local de 8 técnicas | copia fijada en `src/investigacion/datos/catalogo_attack.json` desde [attack.mitre.org](https://attack.mitre.org/resources/attack-data-and-tools/) | Términos de uso MITRE ATT&CK |
 | Fixture EVTX | sha256 `971915aa…8f2cd4` | [hayabusa-sample-evtx](https://github.com/Yamato-Security/hayabusa-sample-evtx/tree/0845333ecb4afcf64c55c6e10946383f168f308c/DeepBlueCLI) `DeepBlueCLI` @ `0845333` | GPL-3.0 (mismo repositorio) |
 | Control legítimo | `eventos_control_legitimo()` | generado en código (`escenarios.py`) | propio |
+| Galería EVTX | dataset completo | [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) | dataset público de muestras |
+| Inferencia de la galería | `deepseek-v4-flash` vía opencode Zen | endpoint externo `https://opencode.ai/zen/v1`, requiere `OPENCODE_API_KEY` y opt-in explícito | por proveedor |
+| Mapa ATT&CK de display | 334 técnicas desde 4.287 reglas | generado por `scripts/generar_mapa_attack.py` desde las reglas Hayabusa fijadas | derivado de GPL-3.0 |
 
 ## Instrucciones de preparación
 
@@ -30,8 +33,33 @@ verifica cada pieza; esta tabla es la referencia de versiones y licencias.
    commiteado; regeneración en "Respaldo" más abajo).
 5. `scripts/preparar_demo.sh` — debe salir con "Todo listo para la demo.".
 
-El arranque no depende de ningún servicio cloud: la aplicación, Streamlit,
-SQLite y Ollama corren localmente, y el respaldo no requiere ni Ollama.
+## Galería pre-procesada
+
+Los casos de la galería se importaron con Hayabusa 4.1.0 sobre EVTX del
+dataset público EVTX-ATTACK-SAMPLES y se investigaron con `deepseek-v4-flash`
+a través del endpoint externo opencode Zen (`scripts/preprocesar_zen.py`).
+Cada caso declara la modalidad `modelo_externo` y registra en sus
+advertencias que la evidencia salió a un endpoint fuera de la infraestructura
+controlada — se presenta como lo que es: pre-procesado externo sobre datos
+públicos. El pipeline completo también corre 100% local con Ollama, solo que
+más lento (~5-6 min por caso en CPU).
+
+Para regenerar la galería:
+
+```bash
+OPENCODE_API_KEY=... python scripts/preprocesar_zen.py \
+  --manifiesto <manifiesto.json> \
+  --hayabusa ~/tools/hayabusa-4.1.0/hayabusa-4.1.0-lin-x64-musl \
+  --datos datos
+```
+
+El manifiesto es una lista JSON de `{evtx, procedencia, nombre?, contexto?,
+solo_hayabusa?}`; `solo_hayabusa` importa sin inferir (casos de modo
+degradado para el beat de fallback).
+
+El arranque en vivo no depende de ningún servicio cloud: la aplicación,
+Streamlit, SQLite y Ollama corren localmente, y el respaldo no requiere ni
+Ollama. La inferencia externa sólo se usó para preparar la galería.
 
 ## Respaldo de presentación
 

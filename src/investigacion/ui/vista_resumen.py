@@ -5,7 +5,11 @@ from __future__ import annotations
 import streamlit as st
 
 from investigacion.modelos import Caso
-from investigacion.ui.metricas import hosts_del_caso, numeros_sigma
+from investigacion.ui.metricas import (
+    hosts_del_caso,
+    numeros_sigma,
+    topologia_hosts,
+)
 from investigacion.ui.presentacion import estado_caso
 from investigacion.ui.servicio import ServicioDeCasos
 
@@ -31,6 +35,26 @@ def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
         st.markdown(f"**Contexto declarado por el operador:** {caso.contexto}")
     else:
         st.caption("Sin contexto declarado: la narrativa se apoya sólo en la evidencia.")
+
+    topologia = topologia_hosts(caso)
+    if topologia:
+        st.subheader("Topología observada")
+        lineas = [
+            "digraph {",
+            'rankdir="LR";',
+            'node [shape=box style=filled fillcolor="#1f2937" fontcolor="#e5e7eb"];',
+            'edge [color="#9d9da8" dir=none];',
+        ]
+        for host, remotos in topologia.items():
+            for remoto in sorted(remotos):
+                lineas.append(f'"{host}" -> "{remoto}";')
+        lineas.append("}")
+        st.graphviz_chart("\n".join(lineas))
+        st.caption(
+            "Aristas sin dirección: son referencias observadas en campos de "
+            "la evidencia (IPs de origen, destinos, workstations). Una "
+            "referencia no implica compromiso ni dirección de ataque."
+        )
 
     if caso.errores:
         st.warning(
