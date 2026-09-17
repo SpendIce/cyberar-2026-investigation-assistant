@@ -22,10 +22,15 @@ class InferenciaConRespaldo:
             raise ValueError("se requiere al menos un motor de inferencia")
         self._motores = motores
         self._ultimo_exitoso = motores[0]
+        self._advertencias: tuple[str, ...] = ()
 
     @property
     def modalidad(self) -> ModalidadInferencia:
         return self._ultimo_exitoso.modalidad
+
+    @property
+    def advertencias(self) -> tuple[str, ...]:
+        return self._advertencias
 
     def proponer(
         self, caso_id: str, evidencia: tuple[Evento, ...]
@@ -35,8 +40,10 @@ class InferenciaConRespaldo:
             try:
                 propuestas = motor.proponer(caso_id, evidencia)
             except InferenciaNoDisponible as exc:
-                errores.append(str(exc))
+                errores.append(f"{motor.modalidad.value} no disponible: {exc}")
                 continue
             self._ultimo_exitoso = motor
+            self._advertencias = tuple(errores)
             return propuestas
+        self._advertencias = ()
         raise InferenciaNoDisponible("; ".join(errores))
