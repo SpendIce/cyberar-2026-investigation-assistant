@@ -46,6 +46,7 @@ def _a_markdown(caso: Caso) -> str:
                 f"### {hallazgo.hipotesis}",
                 "",
                 f"- Referencias: {', '.join(hallazgo.referencias_eventos) or 'ninguna'}",
+                f"- Razón del vínculo: {hallazgo.razon_vinculo or 'no declarada'}",
                 f"- Técnicas candidatas: "
                 f"{', '.join(hallazgo.tecnicas_candidatas) or 'ninguna'}",
                 f"- Procedencia del mapeo: {hallazgo.procedencia_mapeo.value}",
@@ -63,6 +64,6 @@ def _a_markdown(caso: Caso) -> str:
             lineas.append(f"- Limitaciones: {limitaciones}")
         lineas.append("")
     if caso.errores:
-        lineas.extend(["## Errores", ""])
+        lineas.extend(["## Advertencias", ""])
         lineas.extend(f"- {error}" for error in caso.errores)
     return "\n".join(lineas).rstrip() + "\n"
