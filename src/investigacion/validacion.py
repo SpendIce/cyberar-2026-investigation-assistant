@@ -13,17 +13,33 @@ from investigacion.modelos import (
 )
 
 
-_VEREDICTOS_PROHIBIDOS = (
-    "equipo comprometido",
+_AFIRMACIONES_CONCLUYENTES = (
+    "comprometid",
     "ataque confirmado",
     "actividad maliciosa confirmada",
+    "intrusión confirmada",
+    "compromiso confirmado",
+    "malware confirmado",
 )
 
 
-def contiene_lenguaje_de_veredicto(texto: str) -> bool:
+def contiene_lenguaje_concluyente(texto: str) -> bool:
     """Detecta las afirmaciones concluyentes prohibidas por el contrato del MVP."""
     normalizado = texto.casefold()
-    return any(frase in normalizado for frase in _VEREDICTOS_PROHIBIDOS)
+    return any(frase in normalizado for frase in _AFIRMACIONES_CONCLUYENTES)
+
+
+def prosa_revisable(propuesta: PropuestaHallazgo | Hallazgo) -> str:
+    """Todo el texto libre de una propuesta o hallazgo, para revisarlo junto."""
+    return "\n".join(
+        (
+            propuesta.hipotesis,
+            propuesta.razon_vinculo,
+            *propuesta.explicaciones_alternativas,
+            *propuesta.evidencia_faltante,
+            *propuesta.limitaciones,
+        )
+    )
 
 
 class ValidadorDeReferencias:
@@ -40,11 +56,9 @@ class ValidadorDeReferencias:
     def validar(
         self, caso_id: str, propuesta: PropuestaHallazgo, eventos: tuple[Evento, ...]
     ) -> Hallazgo:
-        if contiene_lenguaje_de_veredicto(
-            f"{propuesta.hipotesis}\n{propuesta.razon_vinculo}"
-        ):
+        if contiene_lenguaje_concluyente(prosa_revisable(propuesta)):
             raise HallazgoInvalido(
-                "lenguaje de veredicto incompatible con una hipótesis revisable"
+                "lenguaje concluyente incompatible con una hipótesis revisable"
             )
         existentes = {evento.uid for evento in eventos}
         faltantes = [ref for ref in propuesta.referencias_eventos if ref not in existentes]

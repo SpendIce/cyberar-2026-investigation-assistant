@@ -3,7 +3,7 @@
 El control legítimo se define en `investigacion.escenarios` para que la
 aplicación y esta evaluación reutilicen exactamente los mismos eventos. No
 proviene de Hayabusa ni de una VM real. La verdad de referencia no vive aquí:
-está separada en `docs/evaluacion/ground-truth-escenarios.json` y nunca se
+está separada en `docs/evaluacion/verdad-referencia-escenarios.json` y nunca se
 entrega al modelo.
 
 ## Caso B — Control legítimo

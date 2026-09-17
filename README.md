@@ -48,6 +48,7 @@ nunca vuelve a ejecutar la inferencia durante la exportación.
 ## Comparar actividad ambigua (#8)
 
 La interfaz compara el EVTX público del tracer con un control administrativo
-sintético/documentado usando los mismos componentes, sin convertir PsExec,
-PowerShell, SMB o ATT&CK en un veredicto. Ver
-[escenarios, ground truth separado y reproducción](docs/ambiguedad.md).
+sintético/documentado usando los mismos componentes, sin convertir la
+presencia de PsExec, PowerShell, SMB o ATT&CK en una conclusión de
+compromiso. Ver
+[escenarios, verdad de referencia separada y reproducción](docs/ambiguedad.md).

@@ -18,7 +18,7 @@ from investigacion.adaptadores.sqlite import RepositorioSQLite
 from investigacion.errores import HallazgoInvalido, InferenciaNoDisponible
 from investigacion.escenarios import eventos_control_legitimo
 from investigacion.modelos import Evento
-from investigacion.validacion import contiene_lenguaje_de_veredicto
+from investigacion.validacion import contiene_lenguaje_concluyente, prosa_revisable
 
 sys.path.insert(0, str(RAIZ / "tests"))
 from casos_evaluacion import (  # type: ignore[import-not-found]  # noqa: E402
@@ -36,12 +36,9 @@ class MedicionEscenario:
     hallazgos_aceptados: int
     referencias_validas: int
     con_explicacion_alternativa: int
-    sin_explicacion_alternativa: int
     con_evidencia_faltante: int
-    sin_evidencia_faltante: int
     con_limitaciones: int
-    sin_limitaciones: int
-    con_lenguaje_de_veredicto: int
+    con_lenguaje_concluyente: int
     hipotesis: list[str]
 
 
@@ -63,7 +60,7 @@ def _evaluar_ambiguedad(
     modelo: str,
     base_url: str,
     repeticiones: int,
-    scenario_id: str,
+    escenario_id: str,
     eventos: tuple[Evento, ...],
 ) -> list[MedicionEscenario]:
     motor, validador, _ = montar(modelo, base_url)
@@ -72,16 +69,14 @@ def _evaluar_ambiguedad(
     mediciones = []
     for indice in range(1, repeticiones + 1):
         try:
-            propuestas = motor.proponer(f"{scenario_id}-{indice}", eventos)
+            propuestas = motor.proponer(f"{escenario_id}-{indice}", eventos)
         except InferenciaNoDisponible:
-            mediciones.append(
-                MedicionEscenario(indice, False, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [])
-            )
+            mediciones.append(MedicionEscenario(indice, False, 0, 0, 0, 0, 0, 0, 0, []))
             continue
         aceptados = 0
         for propuesta in propuestas:
             try:
-                validador.validar(f"{scenario_id}-{indice}", propuesta, eventos)
+                validador.validar(f"{escenario_id}-{indice}", propuesta, eventos)
             except HallazgoInvalido:
                 continue
             aceptados += 1
@@ -94,25 +89,20 @@ def _evaluar_ambiguedad(
         con_alternativa = sum(bool(p.explicaciones_alternativas) for p in propuestas)
         con_faltante = sum(bool(p.evidencia_faltante) for p in propuestas)
         con_limitaciones = sum(bool(p.limitaciones) for p in propuestas)
-        con_veredicto = sum(
-            contiene_lenguaje_de_veredicto(f"{p.hipotesis}\n{p.razon_vinculo}")
-            for p in propuestas
+        con_concluyente = sum(
+            contiene_lenguaje_concluyente(prosa_revisable(p)) for p in propuestas
         )
-        total = len(propuestas)
         mediciones.append(
             MedicionEscenario(
                 corrida=indice,
                 inferencia_disponible=True,
-                hallazgos_propuestos=total,
+                hallazgos_propuestos=len(propuestas),
                 hallazgos_aceptados=aceptados,
                 referencias_validas=referencias_validas,
                 con_explicacion_alternativa=con_alternativa,
-                sin_explicacion_alternativa=total - con_alternativa,
                 con_evidencia_faltante=con_faltante,
-                sin_evidencia_faltante=total - con_faltante,
                 con_limitaciones=con_limitaciones,
-                sin_limitaciones=total - con_limitaciones,
-                con_lenguaje_de_veredicto=con_veredicto,
+                con_lenguaje_concluyente=con_concluyente,
                 hipotesis=[p.hipotesis for p in propuestas],
             )
         )
@@ -158,12 +148,12 @@ def _fila(modelo: str, nombre: str, mediciones: list[MedicionEscenario] | None) 
     alternativas = sum(m.con_explicacion_alternativa for m in mediciones)
     faltante = sum(m.con_evidencia_faltante for m in mediciones)
     limitaciones = sum(m.con_limitaciones for m in mediciones)
-    veredictos = sum(m.con_lenguaje_de_veredicto for m in mediciones)
+    concluyentes = sum(m.con_lenguaje_concluyente for m in mediciones)
     return (
         f"| {modelo} | {nombre} | {aceptados}/{propuestas} | "
         f"{referencias}/{propuestas} | {alternativas}/{propuestas} | "
         f"{faltante}/{propuestas} | {limitaciones}/{propuestas} | "
-        f"{veredictos}/{propuestas} |"
+        f"{concluyentes}/{propuestas} |"
     )
 
 
@@ -175,9 +165,9 @@ def _resumen_markdown(resultados: dict[str, Resultados]) -> str:
         "",
         "Numeradores/denominadores sobre propuestas crudas del modelo; no son "
         "porcentajes de confianza. `Aceptados` ya incluye la validación "
-        "determinista de referencias, catálogo y lenguaje de veredicto.",
+        "determinista de referencias, catálogo y lenguaje concluyente.",
         "",
-        "| Modelo | Escenario | Aceptados | Referencias válidas | Con alternativa | Con evidencia faltante | Con limitaciones | Lenguaje de veredicto |",
+        "| Modelo | Escenario | Aceptados | Referencias válidas | Con alternativa | Con evidencia faltante | Con limitaciones | Lenguaje concluyente |",
         "|---|---|---|---|---|---|---|---|",
     ]
     for modelo, datos in resultados.items():

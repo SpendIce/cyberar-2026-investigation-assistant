@@ -5,11 +5,12 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 from streamlit.testing.v1 import AppTest
 
-from investigacion.adaptadores.controlados import EvidenciaControlada, InferenciaControlada
-from investigacion.adaptadores.ollama import construir_prompt
+from investigacion.adaptadores.controlados import InferenciaControlada
+from investigacion.adaptadores.ollama import InferenciaOllama
 from investigacion.adaptadores.sqlite import RepositorioSQLite
 from investigacion.catalogo_attack import CatalogoAttack, Tecnica
 from investigacion.escenarios import (
@@ -17,6 +18,7 @@ from investigacion.escenarios import (
     ESCENARIO_LEGITIMO,
     ESCENARIO_SOSPECHOSO,
     EscenarioComparacion,
+    evidencia_control_legitimo,
     eventos_control_legitimo,
     guardar_comparacion,
     origen_control_legitimo,
@@ -26,7 +28,6 @@ from investigacion.modelos import (
     EstadoRevision,
     Hallazgo,
     ModalidadInferencia,
-    Origen,
     ProcedenciaMapeo,
     PropuestaHallazgo,
 )
@@ -34,7 +35,7 @@ from investigacion.modulo import ModuloDeInvestigacion
 
 RAIZ = Path(__file__).resolve().parents[1]
 APP = RAIZ / "src" / "investigacion" / "ui" / "app.py"
-GROUND_TRUTH = RAIZ / "docs" / "evaluacion" / "ground-truth-escenarios.json"
+VERDAD_REFERENCIA = RAIZ / "docs" / "evaluacion" / "verdad-referencia-escenarios.json"
 
 
 def _catalogo() -> CatalogoAttack:
@@ -81,30 +82,45 @@ def _textos(at: AppTest) -> str:
     return "\n".join(str(elemento.value) for grupo in colecciones for elemento in grupo)
 
 
-def test_ground_truth_permanece_fuera_del_payload_del_modelo() -> None:
-    verdad = json.loads(GROUND_TRUTH.read_text(encoding="utf-8"))
-    prompt = construir_prompt(eventos_control_legitimo(), _catalogo())
-    payload = json.loads(prompt)
+def test_verdad_de_referencia_permanece_fuera_de_la_solicitud_al_modelo() -> None:
+    verdad = json.loads(VERDAD_REFERENCIA.read_text(encoding="utf-8"))
+    capturado: dict[str, Any] = {}
 
-    assert set(payload) == {"eventos", "uids_citables", "tecnicas_permitidas"}
-    assert "expected_context" not in prompt
-    assert "known_operator_context" not in prompt
-    for escenario in verdad["escenarios"]:
-        assert escenario["scenario_id"] not in prompt
-        assert escenario["expected_context"] not in prompt
+    def transporte_espia(url: str, cuerpo: dict[str, Any], timeout: float) -> dict[str, Any]:
+        capturado["cuerpo"] = cuerpo
+        return {"message": {"content": json.dumps({"hallazgos": []})}}
 
-
-def test_control_legitimo_conserva_ground_truth_separado() -> None:
-    caso = _caso("caso-b")
-    serializado = json.dumps(
-        {"origen": caso.origen.__dict__, "eventos": [e.__dict__ for e in caso.eventos]},
-        default=dict,
+    motor = InferenciaOllama(
+        "modelo-de-prueba", catalogo=_catalogo(), transporte=transporte_espia
     )
+    motor.proponer("caso-b", eventos_control_legitimo())
+
+    mensaje_usuario = capturado["cuerpo"]["messages"][1]["content"]
+    assert set(json.loads(mensaje_usuario)) == {
+        "eventos", "uids_citables", "tecnicas_permitidas"
+    }
+    solicitud = json.dumps(capturado["cuerpo"], ensure_ascii=False).casefold()
+    reveladores = (
+        "escenario_id", "contexto_esperado", "fundamento",
+        "contexto_operador_conocido", "procedencia",
+    )
+    for escenario in verdad["escenarios"]:
+        for clave in escenario:
+            assert clave.casefold() not in solicitud
+        for clave in reveladores:
+            assert str(escenario[clave]).casefold() not in solicitud
+
+
+def test_control_legitimo_conserva_verdad_de_referencia_separada() -> None:
+    caso = _caso("caso-b")
+    serializado_eventos = json.dumps(
+        [evento.__dict__ for evento in caso.eventos], default=dict
+    ).casefold()
 
     assert caso.origen.versiones["captura"] == "sintetica"
-    assert "expected_context" not in serializado
-    assert "legitimate" not in serializado
-    assert ESCENARIO_LEGITIMO in GROUND_TRUTH.read_text(encoding="utf-8")
+    assert "contexto_esperado" not in serializado_eventos
+    assert "legitimo" not in serializado_eventos
+    assert ESCENARIO_LEGITIMO in VERDAD_REFERENCIA.read_text(encoding="utf-8")
 
 
 def test_dos_escenarios_persistidos_se_comparan_desde_la_misma_interfaz(
@@ -140,7 +156,8 @@ def test_dos_escenarios_persistidos_se_comparan_desde_la_misma_interfaz(
     assert "Explicaciones alternativas:** No declarada por el modelo" in textos
     assert "Evidencia faltante / incertidumbre:** No especificada" in textos
     assert "Limitaciones:** No especificada" in textos
-    assert "Pendiente de revisión humana" in textos
+    assert "Estado de revisión:** pendiente" in textos
+    assert "pendientes de revisión humana" in textos
     for caso_id in ("caso-a", "caso-b"):
         caso = repositorio.obtener(caso_id)
         assert caso is not None
@@ -151,28 +168,31 @@ def test_dos_escenarios_persistidos_se_comparan_desde_la_misma_interfaz(
         )
 
 
-def test_lenguaje_de_veredicto_no_se_persiste_ni_se_muestra(
+def test_lenguaje_concluyente_no_se_persiste_ni_se_muestra(
     tmp_path: Path, monkeypatch,
 ) -> None:
-    propuesta = PropuestaHallazgo(
+    concluyente = PropuestaHallazgo(
         hipotesis="Ataque confirmado por PowerShell",
         referencias_eventos=("ctl-2",),
         razon_vinculo="PSEXESVC presente",
     )
+    concluyente_en_otro_campo = PropuestaHallazgo(
+        hipotesis="Ejecución de servicio remoto a revisar",
+        referencias_eventos=("ctl-2",),
+        razon_vinculo="PSEXESVC seguido de PowerShell",
+        explicaciones_alternativas=("Ninguna: la intrusión confirmada es evidente",),
+    )
     origen = origen_control_legitimo()
     repositorio = RepositorioSQLite(tmp_path / "casos.sqlite")
     modulo = ModuloDeInvestigacion(
-        EvidenciaControlada(
-            eventos_control_legitimo(), sha256=origen.sha256 or "",
-            nombre=origen.nombre or "control", versiones=origen.versiones,
-        ),
-        InferenciaControlada((propuesta,)),
+        evidencia_control_legitimo(),
+        InferenciaControlada((concluyente, concluyente_en_otro_campo)),
         repositorio,
         generador_de_ids=lambda: "caso-rechazado",
     )
     caso = modulo.investigar_caso(modulo.crear_caso(origen).id)
     assert caso.hallazgos == ()
-    assert any("lenguaje de veredicto" in error for error in caso.errores)
+    assert any("lenguaje concluyente" in error for error in caso.errores)
 
     legado = _caso(
         "caso-legado",
@@ -191,10 +211,7 @@ def test_abstencion_no_se_transforma_en_ataque(tmp_path: Path) -> None:
     origen = origen_control_legitimo()
     repositorio = RepositorioSQLite(tmp_path / "casos.sqlite")
     modulo = ModuloDeInvestigacion(
-        EvidenciaControlada(
-            eventos_control_legitimo(), sha256=origen.sha256 or "",
-            nombre=origen.nombre or "control", versiones=origen.versiones,
-        ),
+        evidencia_control_legitimo(),
         InferenciaControlada(()),
         repositorio,
         generador_de_ids=lambda: "caso-sin-hallazgos",

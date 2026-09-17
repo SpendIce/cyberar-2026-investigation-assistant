@@ -32,7 +32,7 @@ from investigacion.ui.presentacion import (
     procedencia_evento,
     referencias_no_resueltas,
 )
-from investigacion.validacion import contiene_lenguaje_de_veredicto
+from investigacion.validacion import contiene_lenguaje_concluyente, prosa_revisable
 
 _EXPORTACION: dict[str, tuple[FormatoExportacion, str, str, str]] = {
     "Markdown": (FormatoExportacion.MARKDOWN, "md", "text/markdown", "markdown"),
@@ -111,7 +111,7 @@ def _mostrar_escenario(escenario: EscenarioComparacion | None) -> None:
         return
     st.subheader(escenario.titulo)
     st.caption(
-        f"Escenario: {escenario.scenario_id} · Tipo de evidencia: "
+        f"Escenario: {escenario.escenario_id} · Tipo de evidencia: "
         f"{escenario.tipo_evidencia}"
     )
     st.markdown(escenario.descripcion)
@@ -188,8 +188,7 @@ def _mostrar_hallazgos(caso: Caso) -> None:
         return
     for indice, hallazgo in enumerate(caso.hallazgos):
         st.markdown(f"### Hipótesis {indice + 1}")
-        formulacion = f"{hallazgo.hipotesis}\n{hallazgo.razon_vinculo}"
-        if contiene_lenguaje_de_veredicto(formulacion):
+        if contiene_lenguaje_concluyente(prosa_revisable(hallazgo)):
             st.error(
                 "Formulación no mostrada: utilizó lenguaje concluyente incompatible "
                 "con una hipótesis pendiente de revisión."
@@ -202,31 +201,21 @@ def _mostrar_hallazgos(caso: Caso) -> None:
             + (", ".join(hallazgo.tecnicas_candidatas) or "ninguna")
         )
         st.markdown(f"**Procedencia del mapeo:** {hallazgo.procedencia_mapeo.value}")
-        st.markdown("**Estado:** Pendiente de revisión humana")
-        st.markdown(
-            "**Explicaciones alternativas:** "
-            + (
-                "; ".join(hallazgo.explicaciones_alternativas)
-                if hallazgo.explicaciones_alternativas
-                else "No declarada por el modelo"
-            )
-        )
-        st.markdown(
-            "**Evidencia faltante / incertidumbre:** "
-            + (
-                "; ".join(hallazgo.evidencia_faltante)
-                if hallazgo.evidencia_faltante
-                else "No especificada"
-            )
-        )
-        st.markdown(
-            "**Limitaciones:** "
-            + (
-                "; ".join(hallazgo.limitaciones)
-                if hallazgo.limitaciones
-                else "No especificada"
-            )
-        )
+        st.markdown(f"**Estado de revisión:** {hallazgo.estado_revision.value}")
+        for etiqueta, valores, vacio in (
+            (
+                "Explicaciones alternativas",
+                hallazgo.explicaciones_alternativas,
+                "No declarada por el modelo",
+            ),
+            (
+                "Evidencia faltante / incertidumbre",
+                hallazgo.evidencia_faltante,
+                "No especificada",
+            ),
+            ("Limitaciones", hallazgo.limitaciones, "No especificada"),
+        ):
+            st.markdown(f"**{etiqueta}:** " + ("; ".join(valores) if valores else vacio))
         st.markdown("**Evidencia observada:**")
         for evento in eventos_referenciados(caso, hallazgo):
             columnas = st.columns([3, 3, 3])

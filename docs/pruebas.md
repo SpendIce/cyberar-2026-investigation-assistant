@@ -38,10 +38,10 @@ tracer completo) corren
 | `test_inferencia_ollama_real.py` | **Nuevo (#4).** Prueba de contrato end-to-end opt-in contra un Ollama real. |
 | `test_manipulacion_ollama_real.py` | **Nuevo (#4).** Prueba de contrato opt-in del caso D (manipulación) contra un Ollama real: ningún hallazgo persistido cita la técnica o el evento inventados por una instrucción insertada. |
 | `test_tracer_real.py` | **Nuevo (#6).** Prueba de integración opt-in del tracer real completo: importación Hayabusa, persistencia SQLite, inferencia Ollama, validación y navegación Streamlit hallazgo → evidencia, sin dobles (ver `docs/tracer.md`). |
-| `test_ambiguedad.py` | **Nuevo (#8).** Separación del ground truth y el prompt, comparación A/B persistida en la misma UI, campos de incertidumbre visibles, referencias resolubles, rechazo/ocultamiento de veredictos y abstención válida. |
+| `test_ambiguedad.py` | **Nuevo (#8).** Separación de la verdad de referencia y la solicitud al modelo (capturada con transporte espía), comparación A/B persistida en la misma UI, campos de incertidumbre visibles, referencias resolubles, rechazo/ocultamiento de lenguaje concluyente y abstención válida. |
 | `test_interfaz_streamlit.py` / `test_presentacion.py` | Smoke test del recorrido principal en Streamlit y del adaptador de presentación; la lógica de dominio no se revalida aquí. |
 | `test_informe_reproducible.py` | **Nuevo (#10).** Prueba de aceptación del informe reproducible: abre el Markdown y el JSON del mismo caso persistido, verifica los campos críticos (hash, procedencia, versiones, modalidad, referencias, limitaciones, advertencias), el determinismo de exportar dos veces y que la exportación no invoca el modelo; además recorre el CLI `python -m investigacion.informe` de extremo a extremo. |
-| `casos_evaluacion.py` | No es un archivo de pruebas (no empieza con `test_`): reexporta el control legítimo compartido y define el caso D (manipulación), reutilizados por las evaluaciones. El ground truth A/B vive en un JSON separado. |
+| `casos_evaluacion.py` | No es un archivo de pruebas (no empieza con `test_`): reexporta el control legítimo compartido y define el caso D (manipulación), reutilizados por las evaluaciones. La verdad de referencia A/B vive en un JSON separado. |
 
 ## Detalle de lo nuevo en el issue #4
 
@@ -186,12 +186,16 @@ no debe convertirse "en una prueba unitaria"):
   veces sobre el caso sospechoso sembrado y mide latencia, cumplimiento de
   esquema, referencias resolubles y técnicas dentro del catálogo, guardando
   el resultado en `docs/benchmarks/resultados-modelos.{json,md}`.
-- **`scripts/evaluar_escenarios.py`** corre el caso B (control legítimo,
-  `tests/casos_evaluacion.eventos_control_legitimo`) y el caso D
-  (manipulación, `eventos_manipulados`) y mide, como numerador/denominador:
-  cuántos hallazgos aceptados en el caso legítimo carecen de una explicación
-  alternativa, cuántas veces el modelo obedeció la instrucción insertada y
-  cuántas veces eso sobrevivió la validación. Resultado en
+- **`scripts/evaluar_escenarios.py`** corre el caso A (EVTX público ya
+  persistido por el tracer, sólo si se indican `--datos` y
+  `--caso-sospechoso`), el caso B (control legítimo,
+  `investigacion.escenarios.eventos_control_legitimo`) y el caso D
+  (manipulación, `tests/casos_evaluacion.eventos_manipulados`) y mide, como
+  numerador/denominador sobre propuestas crudas: hallazgos aceptados tras la
+  validación determinista, referencias válidas, presencia de explicaciones
+  alternativas, evidencia faltante, limitaciones y lenguaje concluyente;
+  además cuántas veces el modelo obedeció la instrucción insertada del caso D
+  y cuántas veces eso sobrevivió la validación. Resultado en
   `docs/evaluacion/resultados-escenarios.{json,md}`.
 
 Ambas mediciones sustentan la elección de modelo documentada en
@@ -218,7 +222,7 @@ o `ollama ps` para liberar lo que quede residente después.
   sistema reduce la fuerza de su conclusión) — caso C del spec #1 — sigue
   sin una prueba ni una evaluación contra `InferenciaOllama`.
 - El caso B usa evidencia controlada sintética
-  (`tests/casos_evaluacion.eventos_control_legitimo`), no telemetría
+  (`investigacion.escenarios.eventos_control_legitimo`), no telemetría
   capturada de una VM real ejecutando una operación autorizada, que es lo
   que pide el spec #1 para el control legítimo definitivo.
 - La validación de técnicas (`ValidadorDeReferencias`) comprueba

@@ -22,17 +22,23 @@ interno. Es un **control sintético/documentado**. Su hash se calcula sobre la
 serialización canónica de los eventos y su origen declara
 `captura: sintetica`. No se presenta como EVTX real.
 
-No había una VM Windows apropiada en este entorno para generar una captura
-legítima real. Obtenerla sigue pendiente; no bloquea la demostración honesta
-del control actual.
+El `contenido` de los eventos describe sólo lo observable: no incluye
+anotaciones como "script firmado" o "recurso conocido en CMDB", porque ese
+contexto de autorización revelaría la respuesta esperada al modelo
+(ADR-0004). La correlación con el ticket y la cuenta de servicio queda como
+trabajo del analista, igual que en el escenario A.
 
-## Ground truth separado
+No había una VM Windows apropiada en este entorno para generar una captura
+legítima real. Obtenerla sigue pendiente (ADR-0015); no bloquea la
+demostración honesta del control actual.
+
+## Verdad de referencia separada
 
 La verdad de referencia vive en
-`docs/evaluacion/ground-truth-escenarios.json`. Contiene `scenario_id`,
-contexto esperado, fundamento, contexto conocido, evidencia relevante y
-procedencia. No se carga en `Caso`, `Evento`, SQLite ni
-`construir_prompt()`.
+`docs/evaluacion/verdad-referencia-escenarios.json`. Contiene
+`escenario_id`, contexto esperado, fundamento, contexto del operador
+conocido, evidencia relevante esperada y procedencia. No se carga en `Caso`,
+`Evento`, SQLite ni `construir_prompt()`.
 
 El payload de Ollama contiene únicamente:
 
@@ -40,7 +46,8 @@ El payload de Ollama contiene únicamente:
 - UID permitidos;
 - subconjunto local de técnicas ATT&CK.
 
-`tests/test_ambiguedad.py` carga el ground truth e inspecciona el payload para
+`tests/test_ambiguedad.py` carga la verdad de referencia e inspecciona la
+solicitud capturada al modelo para
 demostrar que no aparecen sus campos, identificadores ni etiquetas esperadas.
 Los rótulos descriptivos de la interfaz se guardan aparte en
 `datos/escenarios-comparacion.json` y tampoco llegan al modelo.
@@ -76,17 +83,20 @@ Un campo vacío se muestra como “No declarada por el modelo” o “No
 especificada”. Una abstención se muestra como ausencia de hipótesis validadas,
 sin convertirla en actividad legítima ni en ataque.
 
-## Controles contra veredictos
+## Controles contra lenguaje concluyente
 
 El prompt declara explícitamente que PsExec, PowerShell y SMB son tecnologías
 de doble uso. Pide alternativas administrativas compatibles, evidencia
 faltante y limitaciones, y permite `hallazgos: []`.
 
-`ValidadorDeReferencias` rechaza las formulaciones exactas “equipo
-comprometido”, “ataque confirmado” y “actividad maliciosa confirmada”. La UI
-también oculta esas formulaciones si abre un caso legado que hubiera evitado la
-validación. Esto impide el lenguaje concluyente prohibido; no intenta decidir
-si la actividad es ataque o administración legítima.
+`ValidadorDeReferencias` rechaza las afirmaciones concluyentes
+(“comprometido/a”, “ataque confirmado”, “actividad maliciosa confirmada”,
+“intrusión confirmada”, “compromiso confirmado”, “malware confirmado”) en
+cualquier campo de texto libre de la propuesta, no sólo en la hipótesis. La
+UI también oculta esas formulaciones si abre un caso legado que hubiera
+evitado la validación. Es una lista corta de afirmaciones prohibidas, no un
+clasificador: una reformulación equivalente puede evadirla, así que el estado
+permanece `pendiente` y la decisión sigue siendo humana.
 
 ## Evaluación con Ollama
 
@@ -100,7 +110,7 @@ uv run python scripts/evaluar_escenarios.py \
 
 Por corrida y escenario registra propuestas y hallazgos aceptados, referencias
 válidas, presencia/ausencia de explicaciones alternativas, evidencia faltante,
-limitaciones y lenguaje de veredicto. Conserva el caso D como regresión de
+limitaciones y lenguaje concluyente. Conserva el caso D como regresión de
 manipulación. Informa numeradores/denominadores, no confianza.
 
 Ollama no estaba instalado ni escuchando en `localhost:11434` durante este

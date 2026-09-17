@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from investigacion.adaptadores.controlados import EvidenciaControlada
 from investigacion.adaptadores.ollama import InferenciaOllama
 from investigacion.adaptadores.sqlite import RepositorioSQLite
 from investigacion.escenarios import (
@@ -19,7 +18,7 @@ from investigacion.escenarios import (
     ESCENARIO_LEGITIMO,
     ESCENARIO_SOSPECHOSO,
     EscenarioComparacion,
-    eventos_control_legitimo,
+    evidencia_control_legitimo,
     guardar_comparacion,
     origen_control_legitimo,
 )
@@ -40,21 +39,14 @@ def main() -> None:
     sospechoso = repositorio.obtener(args.caso_sospechoso)
     if sospechoso is None:
         parser.error(f"caso sospechoso inexistente: {args.caso_sospechoso}")
-    if sospechoso.origen.versiones.get("hayabusa") != "4.1.0":
-        parser.error(
-            "el caso sospechoso debe provenir del tracer real con Hayabusa 4.1.0"
-        )
+    if "hayabusa" not in sospechoso.origen.versiones:
+        parser.error("el caso sospechoso debe provenir del tracer real con Hayabusa")
     if not sospechoso.origen.sha256 or not sospechoso.eventos:
         parser.error("el caso sospechoso no conserva hash y eventos verificables")
 
     origen = origen_control_legitimo()
     modulo = ModuloDeInvestigacion(
-        EvidenciaControlada(
-            eventos_control_legitimo(),
-            sha256=origen.sha256 or "",
-            nombre=origen.nombre or "control-legitimo-sintetico",
-            versiones=origen.versiones,
-        ),
+        evidencia_control_legitimo(),
         InferenciaOllama(args.modelo, base_url=args.ollama_url),
         repositorio,
         generador_de_ids=lambda: ID_CONTROL,
@@ -65,17 +57,17 @@ def main() -> None:
         args.datos / ARCHIVO_COMPARACION,
         (
             EscenarioComparacion(
-                scenario_id=ESCENARIO_SOSPECHOSO,
+                escenario_id=ESCENARIO_SOSPECHOSO,
                 caso_id=sospechoso.id,
                 titulo="Escenario A — actividad PsExec/PowerShell a investigar",
                 descripcion=(
                     "EVTX público real procesado por Hayabusa. Las detecciones y "
-                    "las hipótesis no constituyen un veredicto de compromiso."
+                    "las hipótesis no constituyen una conclusión de compromiso."
                 ),
                 tipo_evidencia="EVTX público real",
             ),
             EscenarioComparacion(
-                scenario_id=ESCENARIO_LEGITIMO,
+                escenario_id=ESCENARIO_LEGITIMO,
                 caso_id=control.id,
                 titulo="Escenario B — operación administrativa documentada",
                 descripcion=(

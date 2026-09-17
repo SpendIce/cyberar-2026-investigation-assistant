@@ -115,5 +115,6 @@ los eventos del EVTX**, y una salida vacía no prueba ausencia de actividad.
   transporta la evidencia: conservar el almacén y sus rutas, o reimportar.
 - El manifiesto de procedencia y los nombres del escenario son material de
   evaluación; no deben enviarse al modelo como respuesta esperada.
-- El fixture verifica importación y trazabilidad. No completa la comparación
-  sospechoso/legítimo ni el ground truth separado requeridos por #8.
+- El fixture verifica importación y trazabilidad. La comparación
+  sospechoso/legítimo y la verdad de referencia separada de #8 se documentan
+  en `docs/ambiguedad.md`.
