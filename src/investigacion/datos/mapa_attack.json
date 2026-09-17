@@ -1,0 +1,1116 @@
+{
+  "procedencia": "tags attack.t* y attack.<tactica> de las reglas del release fijado",
+  "tecnicas": {
+    "T1001.003": [],
+    "T1003": [
+      "persistence"
+    ],
+    "T1003.001": [
+      "collection",
+      "execution",
+      "impact"
+    ],
+    "T1003.002": [
+      "collection",
+      "execution"
+    ],
+    "T1003.003": [],
+    "T1003.004": [
+      "execution"
+    ],
+    "T1003.005": [
+      "execution"
+    ],
+    "T1003.006": [
+      "execution"
+    ],
+    "T1005": [
+      "collection",
+      "execution"
+    ],
+    "T1006": [],
+    "T1007": [
+      "discovery",
+      "execution"
+    ],
+    "T1008": [
+      "persistence"
+    ],
+    "T1010": [
+      "discovery"
+    ],
+    "T1012": [
+      "discovery",
+      "execution",
+      "exfiltration",
+      "persistence"
+    ],
+    "T1016": [
+      "discovery"
+    ],
+    "T1018": [
+      "discovery",
+      "execution",
+      "persistence",
+      "reconnaissance"
+    ],
+    "T1020": [
+      "collection",
+      "exfiltration"
+    ],
+    "T1021": [
+      "discovery",
+      "execution"
+    ],
+    "T1021.001": [
+      "execution",
+      "persistence"
+    ],
+    "T1021.002": [
+      "collection",
+      "discovery",
+      "execution",
+      "exfiltration",
+      "persistence"
+    ],
+    "T1021.003": [
+      "execution"
+    ],
+    "T1021.004": [
+      "execution"
+    ],
+    "T1021.005": [],
+    "T1021.006": [
+      "execution"
+    ],
+    "T1027": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1027.001": [],
+    "T1027.002": [],
+    "T1027.003": [],
+    "T1027.004": [
+      "execution"
+    ],
+    "T1027.005": [
+      "execution",
+      "impact"
+    ],
+    "T1027.009": [],
+    "T1027.010": [
+      "execution",
+      "persistence"
+    ],
+    "T1033": [
+      "discovery",
+      "persistence"
+    ],
+    "T1035": [
+      "persistence"
+    ],
+    "T1036": [
+      "execution",
+      "persistence"
+    ],
+    "T1036.002": [
+      "execution"
+    ],
+    "T1036.003": [
+      "execution",
+      "persistence"
+    ],
+    "T1036.004": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1036.005": [
+      "execution",
+      "persistence"
+    ],
+    "T1036.007": [],
+    "T1037.001": [
+      "persistence"
+    ],
+    "T1039": [
+      "collection",
+      "exfiltration"
+    ],
+    "T1040": [
+      "discovery"
+    ],
+    "T1041": [
+      "exfiltration"
+    ],
+    "T1046": [
+      "discovery",
+      "execution",
+      "reconnaissance"
+    ],
+    "T1047": [
+      "discovery",
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1048": [
+      "collection",
+      "execution",
+      "exfiltration"
+    ],
+    "T1048.001": [
+      "exfiltration"
+    ],
+    "T1048.003": [
+      "exfiltration"
+    ],
+    "T1049": [
+      "discovery"
+    ],
+    "T1050": [
+      "persistence"
+    ],
+    "T1053": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1053.002": [
+      "execution",
+      "persistence"
+    ],
+    "T1053.005": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1055": [
+      "discovery",
+      "execution"
+    ],
+    "T1055.001": [
+      "execution"
+    ],
+    "T1055.002": [],
+    "T1055.003": [
+      "execution"
+    ],
+    "T1055.011": [],
+    "T1055.012": [
+      "execution"
+    ],
+    "T1056": [
+      "collection"
+    ],
+    "T1056.001": [
+      "collection"
+    ],
+    "T1056.002": [
+      "collection"
+    ],
+    "T1057": [
+      "discovery",
+      "execution"
+    ],
+    "T1059": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1059.001": [
+      "collection",
+      "discovery",
+      "execution",
+      "exfiltration",
+      "impact",
+      "persistence"
+    ],
+    "T1059.003": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1059.005": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1059.006": [
+      "execution",
+      "persistence"
+    ],
+    "T1059.007": [
+      "collection",
+      "execution",
+      "persistence"
+    ],
+    "T1068": [
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1069": [
+      "discovery",
+      "execution"
+    ],
+    "T1069.001": [
+      "discovery",
+      "execution"
+    ],
+    "T1069.002": [
+      "discovery",
+      "execution"
+    ],
+    "T1070": [
+      "impact",
+      "persistence"
+    ],
+    "T1070.001": [],
+    "T1070.003": [],
+    "T1070.004": [
+      "impact"
+    ],
+    "T1070.005": [],
+    "T1070.006": [],
+    "T1070.008": [],
+    "T1071": [
+      "execution"
+    ],
+    "T1071.001": [
+      "execution",
+      "exfiltration"
+    ],
+    "T1071.004": [
+      "execution",
+      "exfiltration",
+      "impact",
+      "persistence"
+    ],
+    "T1072": [
+      "execution"
+    ],
+    "T1074.001": [
+      "collection"
+    ],
+    "T1078": [
+      "persistence"
+    ],
+    "T1078.001": [
+      "persistence"
+    ],
+    "T1078.002": [
+      "persistence"
+    ],
+    "T1078.003": [
+      "persistence"
+    ],
+    "T1082": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1083": [
+      "discovery",
+      "execution",
+      "impact"
+    ],
+    "T1086": [
+      "execution"
+    ],
+    "T1087": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1087.001": [
+      "discovery",
+      "execution"
+    ],
+    "T1087.002": [
+      "discovery",
+      "execution",
+      "exfiltration"
+    ],
+    "T1090": [
+      "execution",
+      "exfiltration"
+    ],
+    "T1090.001": [],
+    "T1090.002": [
+      "exfiltration"
+    ],
+    "T1090.003": [],
+    "T1090.004": [],
+    "T1091": [],
+    "T1095": [
+      "execution"
+    ],
+    "T1098": [
+      "execution",
+      "persistence"
+    ],
+    "T1102": [
+      "exfiltration"
+    ],
+    "T1102.001": [],
+    "T1102.002": [],
+    "T1104": [
+      "execution"
+    ],
+    "T1105": [
+      "execution",
+      "exfiltration",
+      "persistence"
+    ],
+    "T1106": [
+      "discovery",
+      "execution"
+    ],
+    "T1110": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1110.001": [],
+    "T1110.002": [],
+    "T1110.003": [],
+    "T1112": [
+      "discovery",
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1113": [
+      "collection"
+    ],
+    "T1114": [
+      "collection",
+      "discovery",
+      "execution"
+    ],
+    "T1114.001": [
+      "collection"
+    ],
+    "T1114.003": [
+      "collection",
+      "exfiltration"
+    ],
+    "T1115": [
+      "collection"
+    ],
+    "T1119": [
+      "collection"
+    ],
+    "T1120": [
+      "discovery"
+    ],
+    "T1123": [
+      "collection"
+    ],
+    "T1124": [
+      "discovery"
+    ],
+    "T1125": [
+      "collection"
+    ],
+    "T1127": [
+      "execution",
+      "persistence"
+    ],
+    "T1127.001": [
+      "execution"
+    ],
+    "T1129": [
+      "execution",
+      "persistence"
+    ],
+    "T1132.001": [
+      "exfiltration"
+    ],
+    "T1133": [
+      "execution",
+      "persistence"
+    ],
+    "T1134": [],
+    "T1134.001": [],
+    "T1134.002": [
+      "execution"
+    ],
+    "T1134.003": [],
+    "T1134.004": [],
+    "T1134.005": [
+      "persistence"
+    ],
+    "T1135": [
+      "discovery",
+      "execution"
+    ],
+    "T1136.001": [
+      "execution",
+      "persistence"
+    ],
+    "T1136.002": [
+      "execution",
+      "persistence"
+    ],
+    "T1137": [
+      "persistence"
+    ],
+    "T1137.002": [
+      "persistence"
+    ],
+    "T1137.003": [
+      "persistence"
+    ],
+    "T1137.006": [
+      "persistence"
+    ],
+    "T1140": [
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1176": [
+      "execution",
+      "persistence"
+    ],
+    "T1176.001": [
+      "persistence"
+    ],
+    "T1185": [
+      "collection"
+    ],
+    "T1187": [
+      "collection",
+      "persistence"
+    ],
+    "T1189": [],
+    "T1190": [
+      "execution",
+      "persistence"
+    ],
+    "T1195": [],
+    "T1195.001": [],
+    "T1195.002": [
+      "collection",
+      "execution",
+      "persistence"
+    ],
+    "T1197": [
+      "execution",
+      "exfiltration",
+      "persistence"
+    ],
+    "T1200": [],
+    "T1201": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1202": [
+      "execution"
+    ],
+    "T1203": [
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1204": [
+      "execution"
+    ],
+    "T1204.001": [
+      "execution"
+    ],
+    "T1204.002": [
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1204.004": [
+      "execution"
+    ],
+    "T1207": [],
+    "T1210": [
+      "discovery",
+      "execution",
+      "impact"
+    ],
+    "T1211": [
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1212": [
+      "execution",
+      "impact"
+    ],
+    "T1216": [
+      "execution"
+    ],
+    "T1216.001": [],
+    "T1217": [
+      "discovery"
+    ],
+    "T1218": [
+      "execution",
+      "persistence"
+    ],
+    "T1218.001": [
+      "execution"
+    ],
+    "T1218.002": [
+      "execution",
+      "persistence"
+    ],
+    "T1218.003": [
+      "execution"
+    ],
+    "T1218.004": [],
+    "T1218.005": [
+      "discovery",
+      "execution"
+    ],
+    "T1218.007": [
+      "execution"
+    ],
+    "T1218.008": [],
+    "T1218.009": [],
+    "T1218.010": [
+      "execution"
+    ],
+    "T1218.011": [
+      "execution"
+    ],
+    "T1218.013": [],
+    "T1218.014": [
+      "execution"
+    ],
+    "T1219": [
+      "execution",
+      "persistence"
+    ],
+    "T1219.002": [
+      "execution",
+      "persistence"
+    ],
+    "T1220": [
+      "execution"
+    ],
+    "T1221": [],
+    "T1222": [],
+    "T1222.001": [
+      "discovery",
+      "execution",
+      "impact"
+    ],
+    "T1482": [
+      "discovery",
+      "execution"
+    ],
+    "T1484.001": [
+      "persistence"
+    ],
+    "T1485": [
+      "execution",
+      "exfiltration",
+      "impact"
+    ],
+    "T1486": [
+      "discovery",
+      "impact"
+    ],
+    "T1489": [
+      "impact"
+    ],
+    "T1490": [
+      "discovery",
+      "execution",
+      "impact"
+    ],
+    "T1491.001": [
+      "impact",
+      "persistence"
+    ],
+    "T1496": [
+      "impact"
+    ],
+    "T1497.001": [
+      "discovery"
+    ],
+    "T1498": [
+      "execution",
+      "impact"
+    ],
+    "T1499": [
+      "impact"
+    ],
+    "T1499.001": [
+      "impact"
+    ],
+    "T1499.004": [
+      "execution",
+      "impact"
+    ],
+    "T1505.001": [
+      "persistence"
+    ],
+    "T1505.002": [
+      "persistence"
+    ],
+    "T1505.003": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1505.004": [
+      "persistence"
+    ],
+    "T1505.005": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1518": [
+      "discovery",
+      "execution"
+    ],
+    "T1518.001": [
+      "discovery"
+    ],
+    "T1526": [
+      "discovery"
+    ],
+    "T1528": [],
+    "T1529": [
+      "execution",
+      "impact"
+    ],
+    "T1531": [
+      "impact"
+    ],
+    "T1539": [
+      "collection"
+    ],
+    "T1542.001": [
+      "persistence"
+    ],
+    "T1542.003": [
+      "persistence"
+    ],
+    "T1543": [
+      "discovery",
+      "persistence"
+    ],
+    "T1543.003": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1546": [
+      "execution",
+      "persistence"
+    ],
+    "T1546.001": [
+      "persistence"
+    ],
+    "T1546.002": [
+      "persistence"
+    ],
+    "T1546.003": [
+      "execution",
+      "persistence"
+    ],
+    "T1546.007": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1546.008": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1546.009": [
+      "persistence"
+    ],
+    "T1546.010": [
+      "persistence"
+    ],
+    "T1546.011": [
+      "persistence"
+    ],
+    "T1546.012": [
+      "persistence"
+    ],
+    "T1546.013": [
+      "persistence"
+    ],
+    "T1546.015": [
+      "persistence"
+    ],
+    "T1547": [
+      "persistence"
+    ],
+    "T1547.001": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1547.002": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1547.003": [
+      "persistence"
+    ],
+    "T1547.004": [
+      "persistence"
+    ],
+    "T1547.005": [
+      "persistence"
+    ],
+    "T1547.008": [
+      "execution",
+      "persistence"
+    ],
+    "T1547.009": [
+      "persistence"
+    ],
+    "T1547.010": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1547.014": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1547.015": [
+      "persistence"
+    ],
+    "T1548": [
+      "persistence"
+    ],
+    "T1548.002": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1550": [],
+    "T1550.002": [
+      "collection",
+      "discovery",
+      "execution"
+    ],
+    "T1550.003": [],
+    "T1552": [
+      "collection",
+      "discovery",
+      "execution"
+    ],
+    "T1552.001": [
+      "collection",
+      "discovery",
+      "execution"
+    ],
+    "T1552.002": [
+      "discovery",
+      "persistence"
+    ],
+    "T1552.004": [
+      "execution"
+    ],
+    "T1552.006": [],
+    "T1553": [
+      "execution"
+    ],
+    "T1553.002": [
+      "impact"
+    ],
+    "T1553.003": [
+      "persistence"
+    ],
+    "T1553.004": [],
+    "T1553.005": [
+      "execution"
+    ],
+    "T1554": [
+      "execution",
+      "persistence"
+    ],
+    "T1555": [
+      "discovery",
+      "execution"
+    ],
+    "T1555.003": [
+      "collection",
+      "discovery",
+      "execution"
+    ],
+    "T1555.004": [],
+    "T1555.005": [],
+    "T1556": [
+      "persistence"
+    ],
+    "T1556.002": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1557": [
+      "collection",
+      "discovery",
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1557.001": [
+      "collection",
+      "execution",
+      "persistence"
+    ],
+    "T1557.003": [
+      "collection",
+      "persistence"
+    ],
+    "T1558": [
+      "discovery",
+      "reconnaissance"
+    ],
+    "T1558.001": [],
+    "T1558.002": [],
+    "T1558.003": [],
+    "T1558.004": [],
+    "T1559": [
+      "execution"
+    ],
+    "T1559.001": [
+      "execution"
+    ],
+    "T1559.002": [
+      "execution"
+    ],
+    "T1560": [
+      "collection",
+      "exfiltration"
+    ],
+    "T1560.001": [
+      "collection",
+      "exfiltration"
+    ],
+    "T1561": [
+      "impact"
+    ],
+    "T1562.001": [
+      "execution"
+    ],
+    "T1562.002": [],
+    "T1562.010": [],
+    "T1563.002": [],
+    "T1564": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1564.001": [
+      "persistence"
+    ],
+    "T1564.002": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1564.003": [
+      "collection",
+      "execution"
+    ],
+    "T1564.004": [
+      "execution"
+    ],
+    "T1564.006": [],
+    "T1564.008": [
+      "collection",
+      "exfiltration"
+    ],
+    "T1565": [
+      "impact"
+    ],
+    "T1565.002": [
+      "collection",
+      "execution",
+      "impact"
+    ],
+    "T1566": [
+      "execution",
+      "persistence"
+    ],
+    "T1566.001": [
+      "execution",
+      "persistence",
+      "reconnaissance"
+    ],
+    "T1567": [
+      "exfiltration"
+    ],
+    "T1567.001": [
+      "exfiltration"
+    ],
+    "T1567.002": [
+      "exfiltration"
+    ],
+    "T1568.002": [
+      "exfiltration"
+    ],
+    "T1569": [
+      "execution"
+    ],
+    "T1569.002": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1570": [
+      "execution",
+      "persistence"
+    ],
+    "T1571": [
+      "persistence"
+    ],
+    "T1572": [
+      "execution",
+      "exfiltration",
+      "impact"
+    ],
+    "T1573": [
+      "execution"
+    ],
+    "T1574": [
+      "execution",
+      "persistence"
+    ],
+    "T1574.001": [
+      "execution",
+      "persistence"
+    ],
+    "T1574.005": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1574.007": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1574.008": [
+      "execution",
+      "persistence"
+    ],
+    "T1574.010": [
+      "persistence"
+    ],
+    "T1574.011": [
+      "execution",
+      "persistence"
+    ],
+    "T1574.012": [
+      "execution",
+      "persistence"
+    ],
+    "T1584": [
+      "impact"
+    ],
+    "T1587": [
+      "execution"
+    ],
+    "T1587.001": [
+      "execution"
+    ],
+    "T1588": [],
+    "T1588.002": [],
+    "T1589.002": [
+      "discovery",
+      "reconnaissance"
+    ],
+    "T1590": [
+      "reconnaissance"
+    ],
+    "T1590.001": [
+      "discovery",
+      "reconnaissance"
+    ],
+    "T1590.002": [
+      "reconnaissance"
+    ],
+    "T1593.003": [
+      "reconnaissance"
+    ],
+    "T1595": [
+      "reconnaissance"
+    ],
+    "T1595.001": [
+      "discovery",
+      "reconnaissance"
+    ],
+    "T1598.002": [
+      "reconnaissance"
+    ],
+    "T1599.001": [
+      "collection"
+    ],
+    "T1608": [],
+    "T1614.001": [
+      "discovery"
+    ],
+    "T1615": [
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1620": [
+      "execution"
+    ],
+    "T1622": [
+      "discovery",
+      "persistence"
+    ],
+    "T1649": [
+      "discovery",
+      "persistence"
+    ],
+    "T1685": [
+      "collection",
+      "discovery",
+      "execution",
+      "impact",
+      "persistence"
+    ],
+    "T1685.001": [
+      "collection",
+      "discovery",
+      "execution",
+      "persistence"
+    ],
+    "T1685.005": [],
+    "T1686.003": [],
+    "T1689": []
+  },
+  "reglas_con_tags_attack": 4287
+}

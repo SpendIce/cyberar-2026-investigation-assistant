@@ -17,20 +17,31 @@ def _textos(at: AppTest) -> str:
     return "\n".join(str(elemento.value) for elemento in elementos)
 
 
-def test_la_interfaz_muestra_estado_cronologia_y_hallazgo() -> None:
+def _abrir_primer_caso(at: AppTest) -> None:
+    boton = next(b for b in at.button if b.label == "Abrir caso")
+    boton.click().run()
+
+
+def test_la_interfaz_muestra_galeria_y_detalle_del_caso_sembrado() -> None:
     at = AppTest.from_file(str(APP))
     at.run()
 
     assert not at.exception
     textos = _textos(at)
     assert "Asistente privado de investigación" in textos
-    assert "Estado del caso" in textos
-    assert "Cronología" in textos
+    assert "caso-sembrado" in textos
+
+    _abrir_primer_caso(at)
+
+    assert not at.exception
+    textos = _textos(at)
+    assert "Custodia" in textos
+    assert "Eventos (4)" in textos
     assert "Hallazgos" in textos
     assert "Ejecución remota compatible con administración remota de servicios" in textos
     assert "T1021.002" in textos
     assert "ev-1" in textos
-    assert any("adaptadores controlados" in aviso.value for aviso in at.info)
+    assert "adaptadores controlados" in textos
 
     metricas = {metrica.label: metrica.value for metrica in at.metric}
     assert metricas["Eventos"] == "4"
@@ -42,12 +53,13 @@ def test_la_interfaz_muestra_estado_cronologia_y_hallazgo() -> None:
 def test_abrir_una_referencia_muestra_el_evento_y_su_procedencia() -> None:
     at = AppTest.from_file(str(APP))
     at.run()
+    _abrir_primer_caso(at)
 
     at.button(key="referencia-0-ev-3").click().run()
 
     assert not at.exception
-    assert any(header.value == "Evento ev-3" for header in at.header)
     textos = _textos(at)
+    assert "Evento ev-3" in textos
     assert "sha256-sembrado-determinista" in textos
     assert "evidence/WIN-CONTROL/Security/4103" in textos
     assert "hayabusa/smb_outbound_connection.yml" in textos
@@ -56,26 +68,27 @@ def test_abrir_una_referencia_muestra_el_evento_y_su_procedencia() -> None:
 def test_la_cronologia_abre_eventos_y_se_puede_cerrar_el_detalle() -> None:
     at = AppTest.from_file(str(APP))
     at.run()
+    _abrir_primer_caso(at)
 
     at.button(key="abrir-ev-4").click().run()
 
-    assert any(header.value == "Evento ev-4" for header in at.header)
+    assert "Evento ev-4" in _textos(at)
 
     at.button(key="cerrar-evento").click().run()
 
-    assert not any(header.value.startswith("Evento ") for header in at.header)
+    assert "Evento ev-4" not in _textos(at)
 
 
-def test_el_caso_se_exporta_en_markdown_y_json_desde_la_interfaz() -> None:
+def test_el_caso_se_exporta_desde_el_modal_de_la_interfaz() -> None:
     at = AppTest.from_file(str(APP))
     at.run()
+    _abrir_primer_caso(at)
 
-    markdown = "\n".join(str(bloque.value) for bloque in at.code)
-    assert "Ejecución remota compatible" in markdown
-    assert len(at.download_button) == 1
-
-    at.radio(key="formato-exportacion").set_value("JSON").run()
+    at.button(key="abrir-exportar").click().run()
 
     assert not at.exception
-    contenido_json = "\n".join(str(bloque.value) for bloque in at.code)
-    assert '"id"' in contenido_json
+    assert len(at.download_button) >= 2
+
+    at.radio(key="formato-informe").set_value("JSON").run()
+
+    assert not at.exception

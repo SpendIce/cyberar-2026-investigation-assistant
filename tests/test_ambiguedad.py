@@ -152,17 +152,18 @@ def test_dos_escenarios_persistidos_se_comparan_desde_la_misma_interfaz(
     at = AppTest.from_file(str(APP)).run()
     assert not at.exception
     assert "Escenario A — evidencia pública" in _textos(at)
-    assert "Evidencia observada" in _textos(at)
-    at.selectbox(key="caso-persistido").set_value("caso-b").run()
+    assert "Escenario B — control documentado" in _textos(at)
+    at.button(key="abrir-caso-b").click().run()
 
     textos = _textos(at)
     assert not at.exception
     assert "Escenario B — control documentado" in textos
+    assert "Evidencia observada" in textos
     assert "Explicaciones alternativas:** No declarada por el modelo" in textos
     assert "Evidencia faltante / incertidumbre:** No especificada" in textos
     assert "Limitaciones:** No especificada" in textos
-    assert "Estado de revisión:** pendiente" in textos
-    assert "pendientes de revisión humana" in textos
+    assert "Revisión: pendiente" in textos
+    assert "pendiente de revisión humana" in textos
     for caso_id in ("caso-a", "caso-b"):
         caso = repositorio.obtener(caso_id)
         assert caso is not None
@@ -216,12 +217,13 @@ def test_lenguaje_concluyente_no_se_persiste_ni_se_muestra(
     repositorio.guardar(legado_otro_campo)
     monkeypatch.setenv("INVESTIGACION_DATOS", str(tmp_path))
     at = AppTest.from_file(str(APP)).run()
-    at.selectbox(key="caso-persistido").set_value("caso-legado").run()
+    at.button(key="abrir-caso-legado").click().run()
     textos = _textos(at)
     assert "El equipo está comprometido por PsExec" not in textos
     assert "Formulación no mostrada" in textos
 
-    at.selectbox(key="caso-persistido").set_value("caso-legado-2").run()
+    at.button(key="volver").click().run()
+    at.button(key="abrir-caso-legado-2").click().run()
     textos = _textos(at)
     assert "intrusión confirmada" not in textos
     assert "Formulación no mostrada" in textos

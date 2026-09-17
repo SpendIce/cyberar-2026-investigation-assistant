@@ -17,6 +17,7 @@ class ModalidadInferencia(StrEnum):
 class FormatoExportacion(StrEnum):
     MARKDOWN = "markdown"
     JSON = "json"
+    HTML = "html"
 
 
 class ProcedenciaMapeo(StrEnum):
