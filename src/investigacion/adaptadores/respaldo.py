@@ -2,9 +2,10 @@
 
 Prueba cada motor en orden: el primario (por ejemplo el nodo privado) y, si
 declara `InferenciaNoDisponible`, el siguiente (el modelo local reducido). La
-modalidad expuesta corresponde al último motor que produjo una respuesta; si
-ninguno responde, la inferencia se declara no disponible y el módulo persiste
-el modo degradado sin fingir conclusiones.
+modalidad expuesta corresponde al último motor que produjo una respuesta, o a
+`degradado` cuando la última llamada no produjo ninguna; si ningún motor
+responde, la inferencia se declara no disponible y el módulo persiste el modo
+degradado sin fingir conclusiones.
 """
 
 from __future__ import annotations
@@ -21,11 +22,13 @@ class InferenciaConRespaldo:
         if not motores:
             raise ValueError("se requiere al menos un motor de inferencia")
         self._motores = motores
-        self._ultimo_exitoso = motores[0]
+        self._ultimo_exitoso: MotorDeInferencia | None = None
         self._advertencias: tuple[str, ...] = ()
 
     @property
     def modalidad(self) -> ModalidadInferencia:
+        if self._ultimo_exitoso is None:
+            return ModalidadInferencia.DEGRADADO
         return self._ultimo_exitoso.modalidad
 
     @property
@@ -45,5 +48,6 @@ class InferenciaConRespaldo:
             self._ultimo_exitoso = motor
             self._advertencias = tuple(errores)
             return propuestas
-        self._advertencias = ()
+        self._ultimo_exitoso = None
+        self._advertencias = tuple(errores)
         raise InferenciaNoDisponible("; ".join(errores))

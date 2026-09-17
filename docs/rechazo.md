@@ -13,7 +13,7 @@ mapea uno a uno contra sus criterios de aceptación.
 
 | Criterio | Dónde se prueba |
 |---|---|
-| Un fixture contiene una instrucción de prompt injection dentro de evidencia no confiable y no altera las instrucciones del análisis | `tests/casos_evaluacion.eventos_manipulados` (evidencia); `PROMPT_SISTEMA` en `adaptadores/ollama.py` trata el contenido del evento como dato citable, nunca como instrucción |
+| Un fixture contiene una instrucción de prompt injection dentro de evidencia no confiable y no altera las instrucciones del análisis | `tests/casos_evaluacion.eventos_manipulados` (evidencia); `PROMPT_SISTEMA` en `adaptadores/ollama.py` trata el contenido del evento como dato citable, nunca como instrucción — fijado por `test_rechazo_hallazgos.py::test_la_instruccion_insertada_llega_al_modelo_como_dato_sin_alterar_el_prompt`, que espía el payload y verifica que la inyección viaja sólo dentro de `contenido` del evento |
 | Se rechazan respuestas que no cumplen el esquema estructurado | `tests/test_inferencia_ollama.py` (5 variantes: objeto vacío, `hallazgos` no es lista, falta `hipotesis`, `hipotesis` en blanco, `referencias_eventos` no es lista) |
 | Se rechazan referencias a eventos inexistentes y técnicas ATT&CK fuera del subconjunto local permitido | `validacion.py` (`ValidadorDeReferencias`); `tests/test_contrato_investigacion.py` y **`tests/test_rechazo_hallazgos.py`** (nuevo, determinista, usa el fixture de manipulación) |
 | Los rechazos dejan un motivo auditable y no destruyen ni ocultan la evidencia original | `tests/test_rechazo_hallazgos.py::test_la_instruccion_insertada_se_conserva_como_dato_sin_alterar_la_evidencia`; también `test_manipulacion_ollama_real.py` contra un modelo real |
@@ -38,7 +38,10 @@ inventados), y verifica que:
    rápido en la primera violación — no hace falta que ambas fallen a la vez
    para que el hallazgo se rechace);
 3. la instrucción insertada sigue presente, sin alterar, en `contenido` del
-   evento después de investigar el caso — no se "limpia" ni se pierde.
+   evento después de investigar el caso — no se "limpia" ni se pierde; y
+4. la instrucción insertada llega al modelo sólo como dato: el payload espiado
+   muestra que viaja dentro de `contenido` del evento serializado mientras el
+   mensaje de sistema queda intacto (`PROMPT_SISTEMA`).
 
 ```bash
 uv run pytest tests/test_rechazo_hallazgos.py

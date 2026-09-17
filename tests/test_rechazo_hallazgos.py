@@ -12,8 +12,12 @@ que `uv run pytest` solo nunca demostraba esta garantía sin red.
 
 from __future__ import annotations
 
+import json
+from typing import Any
+
 from investigacion.adaptadores.controlados import EvidenciaControlada, InferenciaControlada
 from investigacion.adaptadores.memoria import RepositorioEnMemoria
+from investigacion.adaptadores.ollama import PROMPT_SISTEMA, InferenciaOllama
 from investigacion.modelos import Origen, PropuestaHallazgo
 from investigacion.modulo import ModuloDeInvestigacion
 
@@ -82,3 +86,22 @@ def test_la_instruccion_insertada_se_conserva_como_dato_sin_alterar_la_evidencia
     contenidos = " ".join(evento.contenido or "" for evento in investigado.eventos)
     assert INSTRUCCION_INSERTADA in contenidos
     assert len(investigado.eventos) == len(caso.eventos)
+
+
+def test_la_instruccion_insertada_llega_al_modelo_como_dato_sin_alterar_el_prompt() -> None:
+    capturado: dict[str, Any] = {}
+
+    def transporte_espia(url: str, cuerpo: dict[str, Any], timeout: float) -> dict[str, Any]:
+        capturado["cuerpo"] = cuerpo
+        return {"message": {"content": json.dumps({"hallazgos": []})}}
+
+    motor = InferenciaOllama("modelo-de-prueba", transporte=transporte_espia)
+
+    motor.proponer("caso-manipulado", eventos_manipulados())
+
+    sistema, usuario = capturado["cuerpo"]["messages"]
+    # Las instrucciones del análisis no cambian: la inyección viaja dentro del
+    # campo `contenido` del evento serializado, nunca en el mensaje de sistema.
+    assert sistema == {"role": "system", "content": PROMPT_SISTEMA}
+    datos = json.loads(usuario["content"])
+    assert INSTRUCCION_INSERTADA in (datos["eventos"][1]["contenido"] or "")

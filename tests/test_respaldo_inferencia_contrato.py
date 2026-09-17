@@ -11,16 +11,14 @@ import os
 
 import pytest
 
-from investigacion.adaptadores.controlados import (
-    EvidenciaControlada,
-    InferenciaControlada,
-    InferenciaNoDisponibleControlada,
-)
+from investigacion.adaptadores.controlados import EvidenciaControlada, InferenciaControlada
 from investigacion.adaptadores.memoria import RepositorioEnMemoria
 from investigacion.adaptadores.ollama import InferenciaOllama
 from investigacion.adaptadores.respaldo import InferenciaConRespaldo
+from investigacion.errores import InferenciaNoDisponible
 from investigacion.modelos import Evento, ModalidadInferencia, Origen, PropuestaHallazgo
 from investigacion.modulo import ModuloDeInvestigacion
+from investigacion.puertos import MotorDeInferencia
 
 
 def _evento(uid: str) -> Evento:
@@ -37,10 +35,10 @@ def _propuesta() -> PropuestaHallazgo:
     )
 
 
-def _modulo(motor_inferencia: object) -> ModuloDeInvestigacion:
+def _modulo(motor_inferencia: MotorDeInferencia) -> ModuloDeInvestigacion:
     return ModuloDeInvestigacion(
         motor_evidencia=EvidenciaControlada(eventos=(_evento("ev-1"),)),
-        motor_inferencia=motor_inferencia,  # type: ignore[arg-type]
+        motor_inferencia=motor_inferencia,
         repositorio=RepositorioEnMemoria(),
         generador_de_ids=lambda: "caso-1",
     )
@@ -64,7 +62,10 @@ def test_exito_remoto_no_deja_advertencias_de_respaldo() -> None:
 
 
 def test_caida_remota_con_exito_local_deja_constancia_del_motivo() -> None:
-    primario = InferenciaNoDisponibleControlada("nodo privado caído: timeout")
+    primario = InferenciaControlada(
+        modalidad=ModalidadInferencia.NODO_PRIVADO,
+        falla=InferenciaNoDisponible("nodo privado caído: timeout"),
+    )
     respaldo = InferenciaControlada(
         propuestas=(_propuesta(),), modalidad=ModalidadInferencia.MODELO_LOCAL
     )
@@ -77,13 +78,22 @@ def test_caida_remota_con_exito_local_deja_constancia_del_motivo() -> None:
     # sólo en un log que la interfaz no puede mostrar.
     assert investigado.modalidad_inferencia is ModalidadInferencia.MODELO_LOCAL
     assert len(investigado.hallazgos) == 1
-    assert any("nodo privado caído" in error for error in investigado.errores)
+    assert any(
+        "nodo_privado no disponible: nodo privado caído" in error
+        for error in investigado.errores
+    )
     assert modulo.consultar_caso(caso.id).errores == investigado.errores
 
 
 def test_sin_ambos_motores_conserva_cronologia_en_modo_degradado() -> None:
-    primario = InferenciaNoDisponibleControlada("nodo privado caído: timeout")
-    respaldo = InferenciaNoDisponibleControlada("modelo local ausente: conexión rechazada")
+    primario = InferenciaControlada(
+        modalidad=ModalidadInferencia.NODO_PRIVADO,
+        falla=InferenciaNoDisponible("nodo privado caído: timeout"),
+    )
+    respaldo = InferenciaControlada(
+        modalidad=ModalidadInferencia.MODELO_LOCAL,
+        falla=InferenciaNoDisponible("modelo local ausente: conexión rechazada"),
+    )
     modulo = _modulo(InferenciaConRespaldo(primario, respaldo))
     caso = modulo.crear_caso(Origen(ruta="fixtures/psexec.evtx", procedencia="laboratorio"))
 
@@ -92,8 +102,8 @@ def test_sin_ambos_motores_conserva_cronologia_en_modo_degradado() -> None:
     assert investigado.modalidad_inferencia is ModalidadInferencia.DEGRADADO
     assert investigado.hallazgos == ()
     assert investigado.eventos == caso.eventos
-    assert any("nodo privado caído" in error for error in investigado.errores)
-    assert any("modelo local ausente" in error for error in investigado.errores)
+    assert any("nodo_privado no disponible" in error for error in investigado.errores)
+    assert any("modelo_local no disponible" in error for error in investigado.errores)
 
 
 MODELO = os.environ.get("OLLAMA_MODELO_PRUEBA")

@@ -105,7 +105,7 @@ def _mostrar_estado(caso: Caso) -> None:
     )
     if caso.errores:
         st.warning(
-            "Errores registrados:\n" + "\n".join(f"- {error}" for error in caso.errores)
+            "Advertencias registradas:\n" + "\n".join(f"- {error}" for error in caso.errores)
         )
 
 

@@ -26,6 +26,10 @@ class _MotorFalso:
     def modalidad(self) -> ModalidadInferencia:
         return self._modalidad
 
+    @property
+    def advertencias(self) -> tuple[str, ...]:
+        return ()
+
     def proponer(
         self, caso_id: str, evidencia: tuple[Evento, ...]
     ) -> tuple[PropuestaHallazgo, ...]:
@@ -78,3 +82,9 @@ def test_sin_motor_disponible_la_inferencia_reporta_ambos_errores() -> None:
 
     with pytest.raises(InferenciaNoDisponible, match="nodo caído.*local ausente"):
         motor.proponer("caso-1", (_evento("ev-1"),))
+
+    assert motor.advertencias == (
+        "nodo_privado no disponible: nodo caído",
+        "modelo_local no disponible: local ausente",
+    )
+    assert motor.modalidad is ModalidadInferencia.DEGRADADO
