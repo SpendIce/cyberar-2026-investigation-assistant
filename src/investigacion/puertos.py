@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from investigacion.custodia import EntradaCustodia
 from investigacion.modelos import (
     Caso,
     Evento,
@@ -25,11 +26,12 @@ class MotorDeInferencia(Protocol):
 
     @property
     def advertencias(self) -> tuple[str, ...]:
-        """Motivos por los que un motor previo no se usó en la última llamada a `proponer`.
+        """Advertencias de la última llamada a `proponer`.
 
-        Vacío si `proponer` no tuvo que recurrir a ningún respaldo (issue #7:
-        la transición remoto → local → degradado debe ser observable, no sólo
-        un cambio silencioso de modalidad).
+        Motivos por los que un motor previo no se usó (issue #7: la transición
+        remoto → local → degradado debe ser observable) y advertencias del
+        motor que respondió (por ejemplo, evidencia enviada a un endpoint
+        externo declarado). Vacío si no hubo respaldo ni advertencias.
         """
         ...
 
@@ -48,3 +50,11 @@ class RepositorioDeCasos(Protocol):
     def guardar(self, caso: Caso) -> None: ...
 
     def obtener(self, caso_id: str) -> Caso | None: ...
+
+    def listar(self) -> tuple[str, ...]:
+        """Los identificadores de los casos persistidos, en orden estable."""
+        ...
+
+    def cadena_custodia(self, caso_id: str) -> tuple[EntradaCustodia, ...]:
+        """Las entradas append-only registradas por cada `guardar` del caso."""
+        ...

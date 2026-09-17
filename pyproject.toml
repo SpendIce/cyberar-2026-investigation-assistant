@@ -10,6 +10,7 @@ dependencies = [
 
 [project.scripts]
 investigacion = "investigacion.__main__:main"
+investigacion-mcp = "investigacion.adaptadores.mcp:main"
 
 [dependency-groups]
 dev = [

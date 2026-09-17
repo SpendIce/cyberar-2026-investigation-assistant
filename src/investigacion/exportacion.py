@@ -6,20 +6,28 @@ import json
 from dataclasses import asdict
 from typing import Any
 
+from investigacion.custodia import SelloCustodia
 from investigacion.modelos import Caso, FormatoExportacion
 
 
-def exportar(caso: Caso, formato: FormatoExportacion) -> str:
+def exportar(
+    caso: Caso,
+    formato: FormatoExportacion,
+    custodia: SelloCustodia | None = None,
+) -> str:
     if formato is FormatoExportacion.JSON:
-        return _a_json(caso)
-    return _a_markdown(caso)
+        return _a_json(caso, custodia)
+    return _a_markdown(caso, custodia)
 
 
-def _a_json(caso: Caso) -> str:
-    return json.dumps(asdict(caso), indent=2, ensure_ascii=False, sort_keys=True)
+def _a_json(caso: Caso, custodia: SelloCustodia | None) -> str:
+    datos: dict[str, Any] = asdict(caso)
+    if custodia is not None:
+        datos["custodia"] = {"sello": custodia.sello, "escrituras": custodia.escrituras}
+    return json.dumps(datos, indent=2, ensure_ascii=False, sort_keys=True)
 
 
-def _a_markdown(caso: Caso) -> str:
+def _a_markdown(caso: Caso, custodia: SelloCustodia | None) -> str:
     lineas: list[str] = [
         f"# Caso {caso.id}",
         "",
@@ -66,4 +74,14 @@ def _a_markdown(caso: Caso) -> str:
     if caso.errores:
         lineas.extend(["## Advertencias", ""])
         lineas.extend(f"- {error}" for error in caso.errores)
+    if custodia is not None:
+        lineas.extend(
+            [
+                "",
+                "## Integridad",
+                "",
+                f"- Sello del caso (SHA-256): `{custodia.sello}`",
+                f"- Escrituras encadenadas: {custodia.escrituras}",
+            ]
+        )
     return "\n".join(lineas).rstrip() + "\n"

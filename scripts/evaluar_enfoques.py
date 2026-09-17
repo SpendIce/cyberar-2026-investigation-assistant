@@ -81,6 +81,7 @@ from investigacion.evaluacion import (
 )
 from investigacion.modelos import Evento, ModalidadInferencia, Origen
 from investigacion.modulo import ModuloDeInvestigacion
+from investigacion.soberania import es_endpoint_controlado
 from investigacion.validacion import ValidadorDeReferencias, prosa_revisable
 
 sys.path.insert(0, str(RAIZ / "tests"))
@@ -197,6 +198,8 @@ def salida_llm_directo(
     inventadas: tuple[str, ...] = (),
     prohibidas: tuple[str, ...] = (),
     timeout: float = 120.0,
+    permitir_externo: bool = False,
+    hosts_controlados: frozenset[str] = frozenset(),
 ) -> SalidaEnfoque:
     """La evidencia enviada directamente al modelo, sin las restricciones del pipeline.
 
@@ -208,6 +211,10 @@ def salida_llm_directo(
     anti-inyección ni validación posterior: lo que el modelo escriba es la
     salida final.
     """
+    if not permitir_externo and not es_endpoint_controlado(
+        base_url, hosts_controlados
+    ):
+        return _salida_sin_inferencia(ENFOQUE_LLM_DIRECTO, escenario_id, corrida)
     transporte = transporte or transporte_http
     cuerpo = {
         "model": modelo,
@@ -279,6 +286,8 @@ def salida_pipeline(
     inventadas: tuple[str, ...] = (),
     modalidad: ModalidadInferencia = ModalidadInferencia.MODELO_LOCAL,
     timeout: float = 120.0,
+    permitir_externo: bool = False,
+    hosts_controlados: frozenset[str] = frozenset(),
 ) -> SalidaEnfoque:
     """El pipeline completo: inferencia estructurada + validación determinista."""
     motor = InferenciaOllama(
@@ -288,6 +297,8 @@ def salida_pipeline(
         catalogo=catalogo,
         transporte=transporte,
         timeout=timeout,
+        permitir_externo=permitir_externo,
+        hosts_controlados=hosts_controlados,
     )
     validador = ValidadorDeReferencias(catalogo=catalogo)
     uids = {evento.uid for evento in eventos}
@@ -443,6 +454,8 @@ def _correr_caso(
     transporte: Transporte | None = None,
     sin_inferencia: bool = False,
     timeout: float = 120.0,
+    permitir_externo: bool = False,
+    hosts_controlados: frozenset[str] = frozenset(),
 ) -> dict[str, list[CorridaEvaluada]]:
     escenario_id = ESCENARIOS[caso]
     inventadas = INVENTADAS if caso == "caso-d" else ()
@@ -468,6 +481,8 @@ def _correr_caso(
                 inventadas=inventadas,
                 prohibidas=verdad_escenario.conclusiones_prohibidas,
                 timeout=timeout,
+                permitir_externo=permitir_externo,
+                hosts_controlados=hosts_controlados,
             )
             salida_p = salida_pipeline(
                 modelo,
@@ -479,6 +494,8 @@ def _correr_caso(
                 transporte=transporte,
                 inventadas=inventadas,
                 timeout=timeout,
+                permitir_externo=permitir_externo,
+                hosts_controlados=hosts_controlados,
             )
         corridas[ENFOQUE_LLM_DIRECTO].append(
             CorridaEvaluada(salida_d, puntuar(salida_d, verdad_escenario, inventadas))
@@ -784,6 +801,18 @@ def main() -> None:
     parser.add_argument("--ollama-url-remoto", help="Endpoint Ollama del nodo privado")
     parser.add_argument("--modelo-remoto", help="Modelo del nodo privado")
     parser.add_argument(
+        "--permitir-externo",
+        action="store_true",
+        help="Permitir endpoints fuera de la infraestructura controlada",
+    )
+    parser.add_argument(
+        "--host-controlado",
+        action="append",
+        default=[],
+        metavar="HOST",
+        help="Host adicional administrado por el equipo; repetible",
+    )
+    parser.add_argument(
         "--memoria-comando-remoto",
         help="Comando que mide memoria en el nodo privado "
         "(ej. 'ssh nodo ollama ps'); --memoria-comando corre en esta máquina",
@@ -809,6 +838,8 @@ def main() -> None:
                 base_url=args.base_url,
                 catalogo=catalogo,
                 timeout=args.timeout,
+                permitir_externo=args.permitir_externo,
+                hosts_controlados=frozenset(args.host_controlado),
             ),
             eventos_calentamiento,
         )
@@ -828,6 +859,8 @@ def main() -> None:
                 catalogo,
                 sin_inferencia=not inferencia_ok,
                 timeout=args.timeout,
+                permitir_externo=args.permitir_externo,
+                hosts_controlados=frozenset(args.host_controlado),
             )
             por_caso[caso] = {
                 enfoque: [
@@ -861,6 +894,8 @@ def main() -> None:
                     catalogo,
                     modalidad=ModalidadInferencia.NODO_PRIVADO,
                     timeout=args.timeout,
+                    permitir_externo=args.permitir_externo,
+                    hosts_controlados=frozenset(args.host_controlado),
                 )
             )
             for indice in range(1, args.repeticiones + 1)

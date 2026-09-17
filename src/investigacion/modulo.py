@@ -6,6 +6,11 @@ import uuid
 from dataclasses import replace
 from typing import Callable
 
+from investigacion.custodia import (
+    SelloCustodia,
+    VerificacionCustodia,
+    verificar_cadena,
+)
 from investigacion.errores import CasoNoEncontrado, HallazgoInvalido, InferenciaNoDisponible
 from investigacion.exportacion import exportar
 from investigacion.modelos import (
@@ -91,7 +96,36 @@ class ModuloDeInvestigacion:
     def exportar_caso(
         self, caso_id: str, formato: FormatoExportacion = FormatoExportacion.MARKDOWN
     ) -> str:
-        return exportar(self.consultar_caso(caso_id), formato)
+        caso = self.consultar_caso(caso_id)
+        cadena = self._repositorio.cadena_custodia(caso_id)
+        custodia = (
+            SelloCustodia(sello=cadena[-1].sello, escrituras=len(cadena))
+            if cadena
+            else None
+        )
+        return exportar(caso, formato, custodia)
+
+    def verificar_caso(
+        self, caso_id: str, sello_publicado: str | None = None
+    ) -> VerificacionCustodia:
+        """Verifica la cadena de custodia persistida contra el estado del caso.
+
+        Con `sello_publicado` (el sello que viajó en un informe exportado)
+        también detecta una cadena reescrita o una reversión del registro.
+        """
+        caso = self.consultar_caso(caso_id)
+        cadena = self._repositorio.cadena_custodia(caso_id)
+        discrepancias = list(verificar_cadena(cadena, caso))
+        sello = cadena[-1].sello if cadena else None
+        if sello_publicado is not None and sello != sello_publicado:
+            discrepancias.append(
+                "la cadena persistida no coincide con el sello publicado"
+            )
+        return VerificacionCustodia(
+            integro=not discrepancias,
+            sello=sello,
+            discrepancias=tuple(discrepancias),
+        )
 
     def _persistir(
         self,

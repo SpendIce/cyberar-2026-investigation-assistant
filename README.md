@@ -71,6 +71,31 @@ presencia de PsExec, PowerShell, SMB o ATT&CK en una conclusión de
 compromiso. Ver
 [escenarios, verdad de referencia separada y reproducción](docs/ambiguedad.md).
 
+## Endpoints externos con decisión explícita
+
+`InferenciaOllama` clasifica el endpoint antes de enviar evidencia
+(ADR-0016): la infraestructura controlada —loopback, redes privadas,
+overlays Tailscale y los hosts declarados con `--host-controlado`— no
+requiere opt-in; un endpoint externo se rechaza como nodo no disponible
+salvo `--permitir-externo`, y aun permitido la advertencia queda persistida
+en el caso y visible en el informe. Ver [docs/inferencia.md](docs/inferencia.md).
+
+## Cadena de custodia e integridad del informe
+
+Cada escritura del repositorio encadena un sello nuevo al anterior
+(append-only, ADR-0017); el informe publica el sello de la cabeza y el CLI
+deja un `.sha256` junto al artefacto exportado. `verificar_caso` detecta
+ediciones del estado persistido y reescrituras de la cadena;
+`python -m investigacion.informe --verificar <informe>` detecta un archivo
+alterado. Ver [docs/custodia.md](docs/custodia.md).
+
+## Adaptador MCP (P1, ADR-0013)
+
+`uv run investigacion-mcp --datos datos [--modelo ...]` expone las
+operaciones del módulo como herramientas MCP por stdio: `listar_casos`,
+`consultar_caso`, `investigar_caso`, `exportar_caso` y `verificar_caso`.
+Sin `crear_caso`: la superficie no acepta rutas de archivo arbitrarias.
+
 ## Medir valor frente a Hayabusa y un LLM directo (#11)
 
 `scripts/evaluar_enfoques.py` corre tres enfoques (Hayabusa solo, la

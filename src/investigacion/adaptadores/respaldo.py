@@ -48,7 +48,7 @@ class InferenciaConRespaldo:
                 errores.append(f"{motor.modalidad.value} no disponible: {exc}")
                 continue
             self._ultimo_exitoso = motor
-            self._advertencias = tuple(errores)
+            self._advertencias = (*errores, *motor.advertencias)
             return propuestas
         self._advertencias = tuple(errores)
         raise InferenciaNoDisponible("; ".join(errores))

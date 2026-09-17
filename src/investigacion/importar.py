@@ -46,11 +46,28 @@ def main() -> None:
         "--ollama-url-respaldo", default="http://localhost:11434",
         help="Endpoint Ollama del modelo de respaldo",
     )
+    parser.add_argument(
+        "--permitir-externo",
+        action="store_true",
+        help="Permitir que la evidencia viaje a un endpoint fuera de la "
+        "infraestructura controlada; la advertencia queda registrada en el caso",
+    )
+    parser.add_argument(
+        "--host-controlado",
+        action="append",
+        default=[],
+        metavar="HOST",
+        help="Host adicional administrado por el equipo; repetible",
+    )
     args = parser.parse_args()
     motor_inferencia: MotorDeInferencia
     if args.modelo:
         motor_inferencia = InferenciaOllama(
-            args.modelo, base_url=args.ollama_url, modalidad=args.modalidad
+            args.modelo,
+            base_url=args.ollama_url,
+            modalidad=args.modalidad,
+            permitir_externo=args.permitir_externo,
+            hosts_controlados=frozenset(args.host_controlado),
         )
         if args.modelo_respaldo:
             motor_inferencia = InferenciaConRespaldo(
@@ -59,6 +76,8 @@ def main() -> None:
                     args.modelo_respaldo,
                     base_url=args.ollama_url_respaldo,
                     modalidad=ModalidadInferencia.MODELO_LOCAL,
+                    permitir_externo=args.permitir_externo,
+                    hosts_controlados=frozenset(args.host_controlado),
                 ),
             )
     else:

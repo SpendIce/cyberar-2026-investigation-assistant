@@ -9,6 +9,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from investigacion.custodia import EntradaCustodia, entrada_custodia
 from investigacion.modelos import (
     Caso, EstadoRevision, Evento, Hallazgo, ModalidadInferencia, Origen, ProcedenciaMapeo,
 )
@@ -30,6 +31,14 @@ class RepositorioSQLite:
                 );
                 CREATE INDEX IF NOT EXISTS eventos_cronologia
                     ON eventos(caso_id, timestamp_normalizado, uid);
+                CREATE TABLE IF NOT EXISTS custodia (
+                    caso_id TEXT NOT NULL,
+                    seq INTEGER NOT NULL,
+                    sello_estado TEXT NOT NULL,
+                    sello_anterior TEXT,
+                    sello TEXT NOT NULL,
+                    PRIMARY KEY (caso_id, seq)
+                );
             """)
 
     def guardar(self, caso: Caso) -> None:
@@ -49,11 +58,41 @@ class RepositorioSQLite:
                 "INSERT INTO eventos VALUES (?, ?, ?, ?)",
                 [(caso.id, e.uid, e.timestamp_normalizado, json.dumps(asdict(e), ensure_ascii=False)) for e in caso.eventos],
             )
+            fila = db.execute(
+                "SELECT seq, sello FROM custodia WHERE caso_id = ? "
+                "ORDER BY seq DESC LIMIT 1",
+                (caso.id,),
+            ).fetchone()
+            entrada = entrada_custodia(
+                caso, (fila[0] if fila else 0) + 1, fila[1] if fila else None
+            )
+            db.execute(
+                "INSERT INTO custodia VALUES (?, ?, ?, ?, ?)",
+                (
+                    caso.id,
+                    entrada.seq,
+                    entrada.sello_estado,
+                    entrada.sello_anterior,
+                    entrada.sello,
+                ),
+            )
 
     def listar(self) -> tuple[str, ...]:
         with closing(sqlite3.connect(self.ruta)) as db, db:
             filas = db.execute("SELECT id FROM casos ORDER BY id").fetchall()
         return tuple(fila[0] for fila in filas)
+
+    def cadena_custodia(self, caso_id: str) -> tuple[EntradaCustodia, ...]:
+        with closing(sqlite3.connect(self.ruta)) as db, db:
+            filas = db.execute(
+                "SELECT seq, sello_estado, sello_anterior, sello FROM custodia "
+                "WHERE caso_id = ? ORDER BY seq",
+                (caso_id,),
+            ).fetchall()
+        return tuple(
+            EntradaCustodia(seq, sello_estado, sello_anterior, sello)
+            for seq, sello_estado, sello_anterior, sello in filas
+        )
 
     def obtener(self, caso_id: str) -> Caso | None:
         with closing(sqlite3.connect(self.ruta)) as db, db:

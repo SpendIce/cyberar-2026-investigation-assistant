@@ -8,6 +8,7 @@ vuelve a ejecutar el modelo (issue #10).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from investigacion.adaptadores.controlados import (
     InferenciaNoDisponibleControlada,
 )
 from investigacion.adaptadores.sqlite import RepositorioSQLite
+from investigacion.custodia import sello_de_exportacion
 from investigacion.errores import CasoNoEncontrado
 from investigacion.modelos import FormatoExportacion
 from investigacion.modulo import ModuloDeInvestigacion
@@ -41,7 +43,16 @@ def main() -> None:
         type=Path,
         help="Archivo de destino; sin él el informe sale por stdout",
     )
+    parser.add_argument(
+        "--verificar",
+        type=Path,
+        metavar="INFORME",
+        help="Verificar un informe exportado contra su archivo .sha256",
+    )
     args = parser.parse_args()
+
+    if args.verificar is not None:
+        parser.exit(_verificar_informe(args.verificar))
 
     repositorio = RepositorioSQLite(args.datos / "casos.sqlite")
     modulo = ModuloDeInvestigacion(
@@ -74,7 +85,28 @@ def main() -> None:
         parser.exit(1, "La salida no puede sobrescribir casos.sqlite.\n")
     args.salida.parent.mkdir(parents=True, exist_ok=True)
     args.salida.write_text(contenido, encoding="utf-8")
+    lado = args.salida.with_name(args.salida.name + ".sha256")
+    lado.write_text(
+        f"{sello_de_exportacion(contenido)}  {args.salida.name}\n",
+        encoding="utf-8",
+    )
     print(str(args.salida))
+
+
+def _verificar_informe(ruta: Path) -> int:
+    """Compara el SHA-256 del informe con el declarado en su `.sha256`."""
+    lado = ruta.with_name(ruta.name + ".sha256")
+    try:
+        declarado = lado.read_text(encoding="utf-8").split()[0]
+        actual = hashlib.sha256(ruta.read_bytes()).hexdigest()
+    except (OSError, IndexError) as exc:
+        sys.stderr.write(f"No se pudo verificar el informe: {exc}\n")
+        return 1
+    if actual != declarado:
+        sys.stderr.write(f"El informe fue alterado: {ruta}\n")
+        return 1
+    print(f"Informe íntegro: {ruta}")
+    return 0
 
 
 if __name__ == "__main__":

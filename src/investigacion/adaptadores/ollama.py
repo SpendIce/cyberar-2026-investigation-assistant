@@ -21,6 +21,7 @@ from typing import Any, Callable
 from investigacion.catalogo_attack import CatalogoAttack, cargar_catalogo
 from investigacion.errores import InferenciaNoDisponible
 from investigacion.modelos import Evento, ModalidadInferencia, PropuestaHallazgo
+from investigacion.soberania import es_endpoint_controlado
 
 # Ollama valida esta forma con su propio motor de "structured outputs" antes
 # de devolver contenido; igualmente se revalida aquí campo por campo, porque
@@ -204,6 +205,8 @@ class InferenciaOllama:
         timeout: float = 120.0,
         temperatura: float = 0.0,
         semilla: int = 7,
+        permitir_externo: bool = False,
+        hosts_controlados: frozenset[str] = frozenset(),
         transporte: Transporte | None = None,
     ) -> None:
         self.modelo = modelo
@@ -214,6 +217,11 @@ class InferenciaOllama:
         self._temperatura = temperatura
         self._semilla = semilla
         self._transporte = transporte or transporte_http
+        # Local-first: la evidencia sólo sale hacia infraestructura controlada
+        # salvo decisión explícita; si se toma, la advertencia queda en el caso.
+        self._externo = not es_endpoint_controlado(self._base_url, hosts_controlados)
+        self._permitir_externo = permitir_externo
+        self._evidencia_enviada = False
 
     @property
     def modalidad(self) -> ModalidadInferencia:
@@ -221,11 +229,22 @@ class InferenciaOllama:
 
     @property
     def advertencias(self) -> tuple[str, ...]:
+        if self._evidencia_enviada:
+            return (
+                "la evidencia se envió a un endpoint fuera de la infraestructura "
+                f"controlada: {self._base_url}",
+            )
         return ()
 
     def proponer(
         self, caso_id: str, evidencia: tuple[Evento, ...]
     ) -> tuple[PropuestaHallazgo, ...]:
+        if self._externo and not self._permitir_externo:
+            raise InferenciaNoDisponible(
+                "endpoint de inferencia fuera de la infraestructura controlada: "
+                f"{self._base_url}; declarar el uso de endpoints externos de forma "
+                "explícita para habilitarlo"
+            )
         cuerpo = {
             "model": self.modelo,
             "stream": False,
@@ -247,6 +266,7 @@ class InferenciaOllama:
         contenido = mensaje.get("content") if isinstance(mensaje, dict) else None
         if not isinstance(contenido, str) or not contenido.strip():
             raise InferenciaNoDisponible("Ollama no devolvió contenido de mensaje")
+        self._evidencia_enviada = self._externo
         try:
             cuerpo_json = json.loads(contenido)
         except json.JSONDecodeError as exc:

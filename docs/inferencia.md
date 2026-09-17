@@ -90,3 +90,31 @@ candidato completó de forma confiable el campo estructurado
 `tecnicas_candidatas` aunque mencionara las técnicas correctas en el texto de
 la hipótesis; la interfaz debe presentar ese campo vacío como tal, no como
 ausencia de interpretación.
+
+## Endpoints fuera de la infraestructura controlada
+
+`InferenciaOllama` clasifica el `base_url` antes de enviar evidencia
+(`investigacion/soberania.py`, ADR-0016): loopback, RFC1918, link-local y
+overlays CGNAT (Tailscale, 100.64.0.0/10) cuentan como infraestructura
+controlada, más cualquier host declarado con `hosts_controlados` /
+`--host-controlado` — útil cuando el nodo privado se alcanza por una
+dirección pública administrada por el equipo.
+
+Un endpoint externo sin opt-in se comporta como un nodo caído:
+`InferenciaNoDisponible` y la cadena de respaldo continúa con el modelo
+local. Con `permitir_externo` / `--permitir-externo` la evidencia viaja y
+la advertencia queda persistida en `caso.errores`, visible en Streamlit y
+en el informe exportado. La decisión es del usuario; el rastro es del
+sistema.
+
+## Medir un modelo más capaz en un nodo remoto
+
+El mismo contrato sirve para un modelo más potente alojado en un nodo
+privado (ADR-0011): basta apuntar `base_url`/`--ollama-url-remoto` al
+endpoint remoto con `modalidad=NODO_PRIVADO`. Si el nodo se alcanza por
+dirección pública administrada por el equipo, declararlo con
+`--host-controlado`; si el endpoint es de un tercero, la medición exige
+`--permitir-externo` y la advertencia queda registrada en cada caso
+procesado. La corrida remota de `scripts/evaluar_enfoques.py` acepta ambos
+flags; sin un endpoint configurado la fila remota del reporte declara "no
+configurado en esta máquina".
