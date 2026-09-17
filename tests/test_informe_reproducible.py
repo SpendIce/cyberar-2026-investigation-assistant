@@ -41,6 +41,10 @@ class _InferenciaEspia:
     def modalidad(self) -> ModalidadInferencia:
         return self._motor.modalidad
 
+    @property
+    def advertencias(self) -> tuple[str, ...]:
+        return self._motor.advertencias
+
     def proponer(
         self, caso_id: str, evidencia: tuple[Evento, ...]
     ) -> tuple[PropuestaHallazgo, ...]:

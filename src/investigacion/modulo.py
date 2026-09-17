@@ -63,7 +63,7 @@ class ModuloDeInvestigacion:
         return self._persistir(
             caso,
             hallazgos=hallazgos,
-            errores=(*caso.errores, *rechazos),
+            errores=(*caso.errores, *self._motor_inferencia.advertencias, *rechazos),
             modalidad=self._motor_inferencia.modalidad,
         )
 

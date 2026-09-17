@@ -17,11 +17,11 @@ uv run mypy src        # tipado estricto
 La suite ordinaria (`uv run pytest`) usa siempre dobles deterministas —
 `EvidenciaControlada`, `InferenciaControlada`, transporte HTTP sustituido,
 `RepositorioEnMemoria` — nunca Hayabusa ni un modelo Ollama real. Corrió
-**73 pruebas pasadas y 4 omitidas** al implementar el issue #8 (ver
-"Pruebas opt-in" más abajo para activar las que faltan). Con las cuatro
-opt-in activadas (Hayabusa real, Ollama real en sus dos pruebas y el
-tracer completo) corren
-**77 de 77**.
+**85 pruebas pasadas y 5 omitidas** al cerrar los issues #7 y #9, sobre la
+base que ya incluía el #8 (ver "Pruebas opt-in" más abajo para activar las
+que faltan). Con las cinco opt-in activadas (Hayabusa real, Ollama real en
+sus dos pruebas de #4, el tracer completo de #6 y el respaldo real de #7)
+corren **90 de 90**.
 
 ## Composición de la suite
 
@@ -34,10 +34,12 @@ tracer completo) corren
 | `test_evtx_real.py` | Prueba de contrato opt-in: Hayabusa real + SQLite sobre un EVTX público, verificado contra un lector XML independiente (#3). |
 | `test_importacion_evtx.py` | Normalización determinista de la salida de Hayabusa: timestamps, campos ausentes, agrupamiento por regla, errores de importación explícitos (#3). |
 | `test_inferencia_ollama.py` | **Nuevo (#4).** Adaptador `InferenciaOllama` con transporte HTTP sustituido: sin red. |
-| `test_inferencia_respaldo.py` | **Nuevo (#6).** Motor compuesto `InferenciaConRespaldo` (ADR-0011): el respaldo local responde cuando el primario no está disponible, la modalidad expuesta es la del motor que respondió y la falla de ambos reporta los dos motivos. |
+| `test_inferencia_respaldo.py` | **Nuevo (#6).** Motor compuesto `InferenciaConRespaldo` (ADR-0011): el respaldo local responde cuando el primario no está disponible, la modalidad expuesta es la del motor que respondió y la falla de ambos reporta los dos motivos. Ampliado en #7: la falla total deja los motivos en `advertencias` con modalidad `degradado`, y un error que no es `InferenciaNoDisponible` se propaga sin dejar advertencias de la llamada anterior. |
 | `test_inferencia_ollama_real.py` | **Nuevo (#4).** Prueba de contrato end-to-end opt-in contra un Ollama real. |
 | `test_manipulacion_ollama_real.py` | **Nuevo (#4).** Prueba de contrato opt-in del caso D (manipulación) contra un Ollama real: ningún hallazgo persistido cita la técnica o el evento inventados por una instrucción insertada. |
 | `test_tracer_real.py` | **Nuevo (#6).** Prueba de integración opt-in del tracer real completo: importación Hayabusa, persistencia SQLite, inferencia Ollama, validación y navegación Streamlit hallazgo → evidencia, sin dobles (ver `docs/tracer.md`). |
+| `test_respaldo_inferencia_contrato.py` | **Nuevo (#7).** Cruza el contrato del módulo con `InferenciaConRespaldo`: éxito remoto, caída remota con éxito local (el motivo queda en `errores`, observable), y ausencia de ambos motores en modo degradado con cronología intacta. Una cuarta prueba opt-in repite la caída con `InferenciaOllama` real. Ver `docs/respaldo.md`. |
+| `test_rechazo_hallazgos.py` | **Nuevo (#9).** Determinista, sin red: usa `eventos_manipulados()` con un `InferenciaControlada` que simula un modelo obediente a la instrucción insertada y verifica que la referencia y la técnica inventadas se rechazan por separado, sin alterar la evidencia original; además espía el payload de `InferenciaOllama` para fijar que la inyección llega al modelo sólo como dato. Ver `docs/rechazo.md`. |
 | `test_ambiguedad.py` | **Nuevo (#8).** Separación de la verdad de referencia y la solicitud al modelo (capturada con transporte espía), comparación A/B persistida en la misma UI, campos de incertidumbre visibles, referencias resolubles, rechazo/ocultamiento de lenguaje concluyente y abstención válida. |
 | `test_interfaz_streamlit.py` / `test_presentacion.py` | Smoke test del recorrido principal en Streamlit y del adaptador de presentación; la lógica de dominio no se revalida aquí. |
 | `test_informe_reproducible.py` | **Nuevo (#10).** Prueba de aceptación del informe reproducible: abre el Markdown y el JSON del mismo caso persistido, verifica los campos críticos (hash, procedencia, versiones, modalidad, referencias, limitaciones, advertencias), el determinismo de exportar dos veces y que la exportación no invoca el modelo; además recorre el CLI `python -m investigacion.informe` de extremo a extremo. |
@@ -171,10 +173,11 @@ OLLAMA_MODELO_PRUEBA=llama3.2:3b uv run pytest tests/test_manipulacion_ollama_re
 | `test_inferencia_ollama_real.py` | `OLLAMA_MODELO_PRUEBA` + `ollama serve` corriendo | Depende de un modelo cargado en memoria; su latencia y disponibilidad no deben condicionar `uv run pytest` en cualquier máquina o CI sin GPU/modelo. |
 | `test_manipulacion_ollama_real.py` | `OLLAMA_MODELO_PRUEBA` + `ollama serve` corriendo | Mismo motivo que la anterior. |
 | `test_tracer_real.py` | `HAYABUSA_BIN` + `OLLAMA_MODELO_PRUEBA` + fixture público | Reúne todos los requisitos anteriores: ejecuta el comando documentado contra las herramientas reales. |
+| `test_respaldo_inferencia_contrato.py::test_caida_real_del_nodo_privado_recae_en_el_modelo_local_real` | `OLLAMA_MODELO_PRUEBA` + `ollama serve` corriendo | Mismo motivo: depende de un modelo cargado en memoria. Las otras tres pruebas del archivo usan dobles y corren siempre. |
 
-Las cuatro siguen el mismo patrón: `@pytest.mark.skipif` sobre una variable de
-entorno, documentado en `docs/evidencia.md`, `docs/inferencia.md` y
-`docs/tracer.md` respectivamente.
+Las cinco siguen el mismo patrón: `@pytest.mark.skipif` sobre una variable de
+entorno, documentado en `docs/evidencia.md`, `docs/inferencia.md`,
+`docs/tracer.md` y `docs/respaldo.md` respectivamente.
 
 ## Lo que NO son pruebas de pytest: benchmark y evaluación de escenarios
 

@@ -219,6 +219,10 @@ class InferenciaOllama:
     def modalidad(self) -> ModalidadInferencia:
         return self._modalidad
 
+    @property
+    def advertencias(self) -> tuple[str, ...]:
+        return ()
+
     def proponer(
         self, caso_id: str, evidencia: tuple[Evento, ...]
     ) -> tuple[PropuestaHallazgo, ...]:
@@ -237,7 +241,7 @@ class InferenciaOllama:
         except (urllib.error.URLError, OSError, TimeoutError,
                 json.JSONDecodeError, UnicodeDecodeError) as exc:
             raise InferenciaNoDisponible(
-                f"nodo Ollama '{self._base_url}' no disponible: {exc}"
+                f"error de comunicación con el nodo Ollama '{self._base_url}': {exc}"
             ) from exc
         mensaje = datos.get("message") if isinstance(datos, dict) else None
         contenido = mensaje.get("content") if isinstance(mensaje, dict) else None

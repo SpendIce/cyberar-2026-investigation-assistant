@@ -38,6 +38,24 @@ inferencia estructurada contra Ollama y validación. La interfaz Streamlit abre 
 casos persistidos con `INVESTIGACION_DATOS` y permite navegar cada hallazgo hasta
 la evidencia citada. Ver [docs/tracer.md](docs/tracer.md).
 
+## Sobrevivir a fallas de inferencia remota (#7)
+
+`--modelo-respaldo` compone `InferenciaConRespaldo` (ADR-0011): si el nodo
+privado declara inferencia no disponible (caído, timeout, respuesta
+inválida), el caso se reintenta contra el modelo local sin intervención
+manual. La transición queda registrada en `errores` con el motivo de la
+caída — visible en Streamlit junto a la modalidad que produjo el resultado
+— y, si ambos motores fallan, el caso persiste en modo degradado con la
+cronología y la evidencia intactas. Ver [docs/respaldo.md](docs/respaldo.md).
+
+## Rechazar hallazgos manipulados o inventados (#9)
+
+El validador rechaza referencias a eventos inexistentes y técnicas fuera del
+catálogo local, y el adaptador Ollama exige y revalida el esquema JSON
+estructurado — sostenido incluso cuando un modelo obedece una instrucción
+insertada en un campo de evidencia. Ver [docs/rechazo.md](docs/rechazo.md)
+para el mapa completo de criterios de aceptación y evidencia.
+
 ## Informe reproducible (#10)
 
 `python -m investigacion.informe --datos datos --caso <id> --formato markdown`

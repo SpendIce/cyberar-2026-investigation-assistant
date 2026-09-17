@@ -23,6 +23,16 @@ class MotorDeInferencia(Protocol):
     @property
     def modalidad(self) -> ModalidadInferencia: ...
 
+    @property
+    def advertencias(self) -> tuple[str, ...]:
+        """Motivos por los que un motor previo no se usó en la última llamada a `proponer`.
+
+        Vacío si `proponer` no tuvo que recurrir a ningún respaldo (issue #7:
+        la transición remoto → local → degradado debe ser observable, no sólo
+        un cambio silencioso de modalidad).
+        """
+        ...
+
     def proponer(
         self, caso_id: str, evidencia: tuple[Evento, ...]
     ) -> tuple[PropuestaHallazgo, ...]: ...
