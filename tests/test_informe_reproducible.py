@@ -156,3 +156,28 @@ def test_el_cli_exporta_el_informe_persistido_sin_inferencia(tmp_path: Path) -> 
     assert datos["errores"]
     assert "## Advertencias" in markdown
     assert espia.invocaciones == 1
+
+
+def test_el_cli_rechaza_sobrescribir_el_repositorio(tmp_path: Path) -> None:
+    _, _, caso_id = _caso_investigado(tmp_path)
+    base = tmp_path / "casos.sqlite"
+
+    resultado = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "investigacion.informe",
+            "--datos",
+            str(tmp_path),
+            "--caso",
+            caso_id,
+            "--salida",
+            str(base),
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    assert resultado.returncode == 1
+    assert "casos.sqlite" in resultado.stderr
+    assert RepositorioSQLite(base).obtener(caso_id) is not None

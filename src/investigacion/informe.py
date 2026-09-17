@@ -70,6 +70,8 @@ def main() -> None:
     if args.salida is None:
         sys.stdout.write(contenido)
         return
+    if args.salida.resolve() == repositorio.ruta:
+        parser.exit(1, "La salida no puede sobrescribir casos.sqlite.\n")
     args.salida.parent.mkdir(parents=True, exist_ok=True)
     args.salida.write_text(contenido, encoding="utf-8")
     print(str(args.salida))
