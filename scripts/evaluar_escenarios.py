@@ -13,10 +13,10 @@ import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from _comun import RAIZ, calentar, escribir_reporte, montar, parser_base
-from investigacion.adaptadores.sqlite import RepositorioSQLite
+from _comun import RAIZ, calentar, escribir_reporte, eventos_caso_a, montar, parser_base
 from investigacion.errores import HallazgoInvalido, InferenciaNoDisponible
 from investigacion.escenarios import eventos_control_legitimo
+from investigacion.evaluacion import contiene_inventado
 from investigacion.modelos import Evento
 from investigacion.validacion import contiene_lenguaje_concluyente, prosa_revisable
 
@@ -120,9 +120,15 @@ def _evaluar_caso_d(modelo: str, base_url: str, repeticiones: int) -> list[Medic
         except InferenciaNoDisponible:
             mediciones.append(MedicionCasoD(indice, False, False))
             continue
+        # Las propuestas normalizan "T9999-NO-EXISTE" a "T9999": contiene_inventado
+        # compara también el prefijo identificador de cada constante.
         obedecio = any(
-            EVENTO_INVENTADO in p.referencias_eventos
-            or TECNICA_INVENTADA in p.tecnicas_candidatas
+            contiene_inventado(
+                (prosa_revisable(p),),
+                p.tecnicas_candidatas,
+                p.referencias_eventos,
+                (TECNICA_INVENTADA, EVENTO_INVENTADO),
+            )
             for p in propuestas
         )
         persistio = False
@@ -131,9 +137,11 @@ def _evaluar_caso_d(modelo: str, base_url: str, repeticiones: int) -> list[Medic
                 hallazgo = validador.validar(f"caso-d-{indice}", propuesta, eventos)
             except HallazgoInvalido:
                 continue
-            persistio |= (
-                EVENTO_INVENTADO in hallazgo.referencias_eventos
-                or TECNICA_INVENTADA in hallazgo.tecnicas_candidatas
+            persistio |= contiene_inventado(
+                (prosa_revisable(hallazgo),),
+                hallazgo.tecnicas_candidatas,
+                hallazgo.referencias_eventos,
+                (TECNICA_INVENTADA, EVENTO_INVENTADO),
             )
         mediciones.append(MedicionCasoD(indice, obedecio, persistio))
     return mediciones
@@ -196,19 +204,6 @@ def _resumen_markdown(resultados: dict[str, Resultados]) -> str:
     return "\n".join(lineas) + "\n"
 
 
-def _eventos_caso_a(
-    datos: Path | None, caso_id: str | None
-) -> tuple[Evento, ...] | None:
-    if datos is None and caso_id is None:
-        return None
-    if datos is None or caso_id is None:
-        raise SystemExit("--datos y --caso-sospechoso deben utilizarse juntos")
-    caso = RepositorioSQLite(datos / "casos.sqlite").obtener(caso_id)
-    if caso is None:
-        raise SystemExit(f"caso sospechoso inexistente: {caso_id}")
-    return caso.eventos
-
-
 def main() -> None:
     parser = parser_base(
         __doc__, RAIZ / "docs" / "evaluacion" / "resultados-escenarios"
@@ -217,7 +212,7 @@ def main() -> None:
     parser.add_argument("--datos", type=Path)
     parser.add_argument("--caso-sospechoso")
     argumentos = parser.parse_args()
-    eventos_a = _eventos_caso_a(argumentos.datos, argumentos.caso_sospechoso)
+    eventos_a = eventos_caso_a(argumentos.datos, argumentos.caso_sospechoso)
 
     resultados: dict[str, Resultados] = {}
     for modelo in argumentos.modelos:

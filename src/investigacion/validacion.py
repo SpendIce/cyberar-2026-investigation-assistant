@@ -50,7 +50,8 @@ _NEGADORES = frozenset(
 )
 
 
-def _negado_en(normalizado: str, inicio: int) -> bool:
+def negado_en(normalizado: str, inicio: int) -> bool:
+    """Detecta la negación inmediata antes de una formulación, en texto ya normalizado."""
     palabras = re.findall(r"[a-záéíóúñü]+", normalizado[:inicio])
     return bool(palabras) and palabras[-1] in _NEGADORES
 
@@ -67,11 +68,11 @@ def contiene_lenguaje_concluyente(texto: str) -> bool:
     for frase in _AFIRMACIONES_CONCLUYENTES:
         inicio = normalizado.find(frase)
         while inicio >= 0:
-            if not _negado_en(normalizado, inicio):
+            if not negado_en(normalizado, inicio):
                 return True
             inicio = normalizado.find(frase, inicio + 1)
     return any(
-        not _negado_en(normalizado, coincidencia.start())
+        not negado_en(normalizado, coincidencia.start())
         for coincidencia in _COMPROMISO_AFIRMATIVO.finditer(normalizado)
     )
 

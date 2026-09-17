@@ -91,7 +91,7 @@ PROMPT_SISTEMA = (
 Transporte = Callable[[str, dict[str, Any], float], dict[str, Any]]
 
 
-def _transporte_http(url: str, cuerpo: dict[str, Any], timeout: float) -> dict[str, Any]:
+def transporte_http(url: str, cuerpo: dict[str, Any], timeout: float) -> dict[str, Any]:
     peticion = urllib.request.Request(
         url,
         data=json.dumps(cuerpo).encode("utf-8"),
@@ -102,7 +102,7 @@ def _transporte_http(url: str, cuerpo: dict[str, Any], timeout: float) -> dict[s
         return json.loads(respuesta.read().decode("utf-8"))  # type: ignore[no-any-return]
 
 
-def _evento_citable(evento: Evento) -> dict[str, Any]:
+def evento_citable(evento: Evento) -> dict[str, Any]:
     return {
         "uid": evento.uid,
         "timestamp": evento.timestamp_normalizado,
@@ -120,7 +120,7 @@ def _evento_citable(evento: Evento) -> dict[str, Any]:
 def construir_prompt(evidencia: tuple[Evento, ...], catalogo: CatalogoAttack) -> str:
     """Serializa la evidencia y el catálogo permitido como el único contenido citable."""
     cuerpo = {
-        "eventos": [_evento_citable(evento) for evento in evidencia],
+        "eventos": [evento_citable(evento) for evento in evidencia],
         "uids_citables": [evento.uid for evento in evidencia],
         "tecnicas_permitidas": [
             {"id": tecnica.id, "nombre": tecnica.nombre}
@@ -213,7 +213,7 @@ class InferenciaOllama:
         self._timeout = timeout
         self._temperatura = temperatura
         self._semilla = semilla
-        self._transporte = transporte or _transporte_http
+        self._transporte = transporte or transporte_http
 
     @property
     def modalidad(self) -> ModalidadInferencia:

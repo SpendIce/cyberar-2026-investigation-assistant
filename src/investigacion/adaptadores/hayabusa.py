@@ -38,6 +38,44 @@ def _huella_directorio(ruta: Path) -> str:
     return huella.hexdigest()
 
 
+def detecciones_de(evento: Evento) -> tuple[dict[str, Any], ...]:
+    """Las detecciones Hayabusa preservadas dentro de `contenido`, si existen.
+
+    El adaptador guarda en `contenido` un objeto con `campos`,
+    `detecciones_hayabusa` y `procedencia_mapeo`; eventos de otra procedencia
+    no tienen esa estructura y devuelven vacío.
+    """
+    try:
+        contenido = json.loads(evento.contenido or "")
+    except (json.JSONDecodeError, TypeError):
+        return ()
+    detecciones = contenido.get("detecciones_hayabusa")
+    if not isinstance(detecciones, list):
+        return ()
+    return tuple(d for d in detecciones if isinstance(d, dict))
+
+
+def contenido_observable(evento: Evento) -> str | None:
+    """`contenido` sin la salida de reglas: sólo la evidencia observable.
+
+    Quita `detecciones_hayabusa` y `procedencia_mapeo` del objeto persistido;
+    un `contenido` que no es JSON, o que no lleva detecciones, se devuelve
+    tal cual.
+    """
+    try:
+        contenido = json.loads(evento.contenido or "")
+    except (json.JSONDecodeError, TypeError):
+        return evento.contenido
+    if not isinstance(contenido, dict) or "detecciones_hayabusa" not in contenido:
+        return evento.contenido
+    observable = {
+        clave: valor
+        for clave, valor in contenido.items()
+        if clave not in ("detecciones_hayabusa", "procedencia_mapeo")
+    }
+    return json.dumps(observable, ensure_ascii=False, sort_keys=True)
+
+
 class EvidenciaHayabusa:
     """Implementa MotorDeEvidencia sin red ni ejecución del contenido de logs."""
 

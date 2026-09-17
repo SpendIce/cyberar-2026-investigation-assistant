@@ -70,3 +70,14 @@ sintético/documentado usando los mismos componentes, sin convertir la
 presencia de PsExec, PowerShell, SMB o ATT&CK en una conclusión de
 compromiso. Ver
 [escenarios, verdad de referencia separada y reproducción](docs/ambiguedad.md).
+
+## Medir valor frente a Hayabusa y un LLM directo (#11)
+
+`scripts/evaluar_enfoques.py` corre tres enfoques (Hayabusa solo, la
+evidencia enviada directamente al modelo sin esquema ni validación y el
+pipeline completo) sobre los mismos casos y contra la misma verdad de
+referencia separada. Reporta aciertos, omisiones, referencias inválidas y falsas
+afirmaciones como numeradores/denominadores, la obediencia a la instrucción
+insertada por enfoque y la latencia/memoria de los recorridos local, remoto
+y degradado que correspondan. Ver
+[enfoques, casos, criterios y reproducción](docs/evaluacion/enfoques.md).

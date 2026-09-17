@@ -15,15 +15,19 @@ Uso:
 
 from __future__ import annotations
 
-import os
-import platform
 import statistics
-import subprocess
 import time
 from dataclasses import asdict, dataclass
-from pathlib import Path
 
-from _comun import RAIZ, calentar, escribir_reporte, montar, parser_base
+from _comun import (
+    RAIZ,
+    calentar,
+    escribir_reporte,
+    info_hardware,
+    memoria_reportada,
+    montar,
+    parser_base,
+)
 from investigacion.catalogo_attack import cargar_catalogo
 from investigacion.errores import HallazgoInvalido, InferenciaNoDisponible
 from investigacion.sembrado import eventos_sembrados
@@ -48,43 +52,6 @@ class ResultadoModelo:
     modelo: str
     memoria_ollama_ps: str | None
     corridas: list[MedicionCorrida]
-
-
-def _memoria_reportada(modelo: str) -> str | None:
-    try:
-        salida = subprocess.run(
-            ["ollama", "ps"], capture_output=True, text=True, timeout=10, check=False
-        ).stdout
-    except (OSError, subprocess.SubprocessError):
-        return None
-    for linea in salida.splitlines()[1:]:
-        columnas = linea.split()
-        if columnas and columnas[0] == modelo:
-            return linea.strip()
-    return None
-
-
-def _cpus_disponibles() -> int:
-    if hasattr(os, "sched_getaffinity"):
-        return len(os.sched_getaffinity(0))
-    return os.cpu_count() or 0
-
-
-def _info_hardware() -> dict[str, str]:
-    memoria_total = "desconocida"
-    try:
-        for linea in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
-            if linea.startswith("MemTotal:"):
-                memoria_total = linea.split(":", 1)[1].strip()
-                break
-    except OSError:
-        pass
-    return {
-        "plataforma": platform.platform(),
-        "procesador": platform.processor() or platform.machine(),
-        "cpus_logicas": str(_cpus_disponibles()),
-        "memoria_total": memoria_total,
-    }
 
 
 def _correr_modelo(modelo: str, repeticiones: int, base_url: str) -> ResultadoModelo:
@@ -142,7 +109,7 @@ def _correr_modelo(modelo: str, repeticiones: int, base_url: str) -> ResultadoMo
                 error=None,
             )
         )
-    return ResultadoModelo(modelo=modelo, memoria_ollama_ps=_memoria_reportada(modelo), corridas=corridas)
+    return ResultadoModelo(modelo=modelo, memoria_ollama_ps=memoria_reportada(modelo), corridas=corridas)
 
 
 def _resumen_markdown(hardware: dict[str, str], resultados: list[ResultadoModelo]) -> str:
@@ -190,7 +157,7 @@ def main() -> None:
         __doc__, RAIZ / "docs" / "benchmarks" / "resultados-modelos"
     ).parse_args()
 
-    hardware = _info_hardware()
+    hardware = info_hardware()
     resultados = [
         _correr_modelo(modelo, argumentos.repeticiones, argumentos.base_url)
         for modelo in argumentos.modelos

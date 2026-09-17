@@ -17,6 +17,7 @@ from investigacion.modelos import Evento, Origen
 
 ESCENARIO_SOSPECHOSO = "actividad-psexec-publica"
 ESCENARIO_LEGITIMO = "administracion-autorizada-sintetica"
+ESCENARIO_MANIPULACION = "manipulacion-campo-evidencia"
 ARCHIVO_COMPARACION = "escenarios-comparacion.json"
 
 
