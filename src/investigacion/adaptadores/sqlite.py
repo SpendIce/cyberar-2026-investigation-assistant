@@ -111,6 +111,7 @@ class RepositorioSQLite:
             hallazgos=tuple(_hallazgo(h) for h in datos["hallazgos"]),
             errores=tuple(datos["errores"]),
             modalidad_inferencia=ModalidadInferencia(datos["modalidad_inferencia"]) if datos["modalidad_inferencia"] else None,
+            contexto=datos.get("contexto", ""),
         )
 
 

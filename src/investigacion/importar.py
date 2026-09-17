@@ -60,6 +60,12 @@ def main() -> None:
         help="Host adicional administrado por el equipo; repetible",
     )
     parser.add_argument(
+        "--contexto",
+        default="",
+        help="Contexto declarado del ambiente (rol del host, actividad "
+        "esperada) que viaja al prompt del modelo",
+    )
+    parser.add_argument(
         "--timeout",
         type=float,
         default=120.0,
@@ -96,7 +102,10 @@ def main() -> None:
         motor_inferencia, RepositorioSQLite(args.datos / "casos.sqlite"),
     )
     try:
-        caso = modulo.crear_caso(Origen(str(args.evtx), args.procedencia, sha256=args.sha256))
+        caso = modulo.crear_caso(
+            Origen(str(args.evtx), args.procedencia, sha256=args.sha256),
+            contexto=args.contexto,
+        )
     except ErrorDeImportacion as exc:
         parser.exit(1, f"Error de importación: {exc}\n")
     if args.modelo:

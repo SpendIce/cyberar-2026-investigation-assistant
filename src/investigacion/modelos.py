@@ -98,3 +98,4 @@ class Caso:
     hallazgos: tuple[Hallazgo, ...] = ()
     errores: tuple[str, ...] = ()
     modalidad_inferencia: ModalidadInferencia | None = None
+    contexto: str = ""

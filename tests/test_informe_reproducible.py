@@ -46,7 +46,7 @@ class _InferenciaEspia:
         return self._motor.advertencias
 
     def proponer(
-        self, caso_id: str, evidencia: tuple[Evento, ...]
+        self, caso_id: str, evidencia: tuple[Evento, ...], contexto: str = ""
     ) -> tuple[PropuestaHallazgo, ...]:
         self.invocaciones += 1
         return self._motor.proponer(caso_id, evidencia)

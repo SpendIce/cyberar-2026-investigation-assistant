@@ -36,7 +36,7 @@ class MotorDeInferencia(Protocol):
         ...
 
     def proponer(
-        self, caso_id: str, evidencia: tuple[Evento, ...]
+        self, caso_id: str, evidencia: tuple[Evento, ...], contexto: str = ""
     ) -> tuple[PropuestaHallazgo, ...]: ...
 
 

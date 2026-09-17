@@ -31,7 +31,7 @@ class _MotorFalso:
         return ()
 
     def proponer(
-        self, caso_id: str, evidencia: tuple[Evento, ...]
+        self, caso_id: str, evidencia: tuple[Evento, ...], contexto: str = ""
     ) -> tuple[PropuestaHallazgo, ...]:
         self.llamadas += 1
         if not self._disponible:
@@ -101,7 +101,7 @@ def test_un_fallo_inesperado_no_deja_advertencias_de_la_llamada_anterior() -> No
             return ()
 
         def proponer(
-            self, caso_id: str, evidencia: tuple[Evento, ...]
+            self, caso_id: str, evidencia: tuple[Evento, ...], contexto: str = ""
         ) -> tuple[PropuestaHallazgo, ...]:
             raise ValueError("defecto de programación, no indisponibilidad")
 

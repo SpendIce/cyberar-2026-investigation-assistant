@@ -46,17 +46,24 @@ class ModuloDeInvestigacion:
         self._validador = validador or ValidadorDeReferencias()
         self._generador_de_ids = generador_de_ids or (lambda: uuid.uuid4().hex)
 
-    def crear_caso(self, origen: Origen) -> Caso:
+    def crear_caso(self, origen: Origen, contexto: str = "") -> Caso:
         caso_id = self._generador_de_ids()
         resultado = self._motor_evidencia.analizar(caso_id, origen)
-        caso = Caso(id=caso_id, origen=resultado.origen, eventos=resultado.eventos)
+        caso = Caso(
+            id=caso_id,
+            origen=resultado.origen,
+            eventos=resultado.eventos,
+            contexto=contexto,
+        )
         self._repositorio.guardar(caso)
         return caso
 
     def investigar_caso(self, caso_id: str) -> Caso:
         caso = self.consultar_caso(caso_id)
         try:
-            propuestas = self._motor_inferencia.proponer(caso_id, caso.eventos)
+            propuestas = self._motor_inferencia.proponer(
+                caso_id, caso.eventos, caso.contexto
+            )
         except InferenciaNoDisponible as exc:
             return self._persistir(
                 caso,

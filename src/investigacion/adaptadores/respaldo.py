@@ -36,14 +36,14 @@ class InferenciaConRespaldo:
         return self._advertencias
 
     def proponer(
-        self, caso_id: str, evidencia: tuple[Evento, ...]
+        self, caso_id: str, evidencia: tuple[Evento, ...], contexto: str = ""
     ) -> tuple[PropuestaHallazgo, ...]:
         self._ultimo_exitoso = None
         self._advertencias = ()
         errores = []
         for motor in self._motores:
             try:
-                propuestas = motor.proponer(caso_id, evidencia)
+                propuestas = motor.proponer(caso_id, evidencia, contexto)
             except InferenciaNoDisponible as exc:
                 errores.append(f"{motor.modalidad.value} no disponible: {exc}")
                 continue

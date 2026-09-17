@@ -69,7 +69,7 @@ class InferenciaControlada:
         return ()
 
     def proponer(
-        self, caso_id: str, evidencia: tuple[Evento, ...]
+        self, caso_id: str, evidencia: tuple[Evento, ...], contexto: str = ""
     ) -> tuple[PropuestaHallazgo, ...]:
         if self._falla is not None:
             raise self._falla

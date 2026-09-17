@@ -117,7 +117,7 @@ class InferenciaZen:
         return ()
 
     def proponer(
-        self, caso_id: str, evidencia: tuple[Evento, ...]
+        self, caso_id: str, evidencia: tuple[Evento, ...], contexto: str = ""
     ) -> tuple[PropuestaHallazgo, ...]:
         if self._externo and not self._permitir_externo:
             raise InferenciaNoDisponible(
@@ -140,7 +140,9 @@ class InferenciaZen:
             },
             "messages": [
                 {"role": "system", "content": PROMPT_SISTEMA},
-                {"role": "user", "content": construir_prompt(evidencia, self._catalogo)},
+                {"role": "user", "content": construir_prompt(
+                    evidencia, self._catalogo, contexto
+                )},
             ],
         }
         datos = self._enviar(cuerpo)

@@ -174,3 +174,23 @@ def test_el_prompt_solo_incluye_evidencia_entregada_y_tecnicas_del_catalogo() ->
     assert [t["id"] for t in datos["tecnicas_permitidas"]] == ["T1021.002"]
     assert capturado["cuerpo"]["format"]["required"] == ["hallazgos"]
     assert capturado["cuerpo"]["options"]["temperature"] == 0.0
+
+
+def test_el_contexto_declarado_viaja_al_prompt_cuando_existe() -> None:
+    capturado: dict[str, Any] = {}
+
+    def transporte_espia(url: str, cuerpo: dict[str, Any], timeout: float) -> dict[str, Any]:
+        capturado["cuerpo"] = cuerpo
+        return {"message": {"content": json.dumps({"hallazgos": []})}}
+
+    motor = InferenciaOllama(
+        "modelo-de-prueba", catalogo=_catalogo(), transporte=transporte_espia
+    )
+
+    motor.proponer("caso-1", (_evento("ev-1"),), "host de administración autorizado CHG-4821")
+    datos = json.loads(capturado["cuerpo"]["messages"][1]["content"])
+    assert datos["contexto_declarado"] == "host de administración autorizado CHG-4821"
+
+    motor.proponer("caso-1", (_evento("ev-1"),))
+    datos = json.loads(capturado["cuerpo"]["messages"][1]["content"])
+    assert "contexto_declarado" not in datos
