@@ -17,8 +17,8 @@ motivos por los que un motor anterior no se usó en la última llamada a
 `proponer`. Vacía si no hizo falta ningún respaldo. Todos los adaptadores la
 implementan (`InferenciaControlada`, `InferenciaOllama` devuelven `()`
 siempre; `InferenciaConRespaldo` la puebla con un mensaje por cada motor que
-falló en la última llamada — antes de encontrar uno disponible, o todos si
-ninguno respondió — con el formato `"{modalidad} no disponible: {motivo}"`).
+falló en la última llamada (antes de encontrar uno disponible, o todos si
+ninguno respondió), con el formato `"{modalidad} no disponible: {motivo}"`).
 
 `ModuloDeInvestigacion.investigar_caso` vuelca `advertencias` en
 `caso.errores` junto con los rechazos de validación — el mismo campo que la
