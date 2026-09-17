@@ -6,7 +6,7 @@ que responda. `investigacion.importar --modelo-respaldo` ya lo compone desde
 la CLI (ver `docs/tracer.md`). Lo que faltaba para #7 era que la transición
 fuera **observable**, no sólo funcional: si el nodo privado fallaba y el
 modelo local respondía, el caso quedaba en modalidad `modelo_local` sin
-ningún rastro de *por qué* — la interfaz no podía explicar el fallback,
+ningún rastro de *por qué*; la interfaz no podía explicar el fallback,
 sólo mostrar el resultado final.
 
 ## Qué cambia
@@ -21,7 +21,7 @@ falló en la última llamada (antes de encontrar uno disponible, o todos si
 ninguno respondió), con el formato `"{modalidad} no disponible: {motivo}"`).
 
 `ModuloDeInvestigacion.investigar_caso` vuelca `advertencias` en
-`caso.errores` junto con los rechazos de validación — el mismo campo que la
+`caso.errores` junto con los rechazos de validación, el mismo campo que la
 interfaz Streamlit ya mostraba como advertencia (`_mostrar_estado` en
 `ui/app.py`). No hizo falta ningún cambio de interfaz: mostrar *qué* modalidad
 produjo el resultado (métrica ya existente) y *por qué* hubo un fallback
@@ -55,7 +55,7 @@ tres transiciones que pide el criterio de aceptación:
   #4).
 
 Una cuarta prueba, opt-in (`OLLAMA_MODELO_PRUEBA`), repite el escenario de
-caída con `InferenciaOllama` real en ambos puestos — el "nodo privado" apunta
+caída con `InferenciaOllama` real en ambos puestos. El "nodo privado" apunta
 a un puerto sin servidor (falla rápido por conexión rechazada) y el
 "modelo local" es un modelo real cargado.
 

@@ -6,7 +6,7 @@ técnicas fuera del catálogo local, `InferenciaOllama` exige y revalida el
 esquema JSON estructurado, y `tests/casos_evaluacion.eventos_manipulados`
 ya era el fixture de manipulación usado por `test_manipulacion_ollama_real.py`
 (opt-in, contra un Ollama real). Lo que #9 agrega es la prueba explícita, sin
-red, de que ese rechazo se sostiene aunque el modelo "obedezca" — y la
+red, de que ese rechazo se sostiene aunque el modelo "obedezca", y la
 mapea uno a uno contra sus criterios de aceptación.
 
 ## Mapa de criterios de aceptación → evidencia
@@ -37,10 +37,10 @@ inventados), y verifica que:
 1. una referencia inventada se rechaza y no se persiste;
 2. una técnica inventada se rechaza y no se persiste (por separado, porque
    `ValidadorDeReferencias` verifica referencias antes que técnicas y falla
-   rápido en la primera violación — no hace falta que ambas fallen a la vez
+   rápido en la primera violación, así que no hace falta que ambas fallen a la vez
    para que el hallazgo se rechace);
 3. la instrucción insertada sigue presente, sin alterar, en `contenido` del
-   evento después de investigar el caso — no se "limpia" ni se pierde; y
+   evento después de investigar el caso (no se "limpia" ni se pierde); y
 4. la instrucción insertada llega al modelo sólo como dato: el payload espiado
    muestra que viaja dentro de `contenido` del evento serializado mientras el
    mensaje de sistema queda intacto (`PROMPT_SISTEMA`).
