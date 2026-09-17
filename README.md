@@ -19,7 +19,10 @@ uv run mypy src         # verifica los tipos
 
 La aplicación mínima recorre crear → investigar → consultar → exportar con adaptadores controlados.
 
-La interfaz Streamlit abre el mismo caso sembrado sin servicios externos: muestra el estado del caso, su cronología y un hallazgo con referencias de evidencia. Cada referencia abre el evento citado junto con su procedencia, y el caso puede exportarse a Markdown o JSON. Streamlit es sólo un adaptador de presentación; las integraciones reales con Hayabusa y Ollama se incorporan en tickets posteriores.
+La interfaz Streamlit abre el caso sembrado sin servicios externos o los casos
+persistidos por Hayabusa y Ollama cuando se define `INVESTIGACION_DATOS`.
+Muestra estado, cronología e hipótesis con referencias navegables, y permite
+exportar el caso a Markdown o JSON.
 
 ## Importación de evidencia real (#3)
 
@@ -41,3 +44,11 @@ la evidencia citada. Ver [docs/tracer.md](docs/tracer.md).
 exporta el estado validado y persistido de un caso a Markdown o JSON (`--formato
 json`), hacia `--salida <archivo>` o stdout. Lee únicamente `casos.sqlite`:
 nunca vuelve a ejecutar la inferencia durante la exportación.
+
+## Comparar actividad ambigua (#8)
+
+La interfaz compara el EVTX público del tracer con un control administrativo
+sintético/documentado usando los mismos componentes, sin convertir la
+presencia de PsExec, PowerShell, SMB o ATT&CK en una conclusión de
+compromiso. Ver
+[escenarios, verdad de referencia separada y reproducción](docs/ambiguedad.md).
