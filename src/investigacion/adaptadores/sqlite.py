@@ -82,6 +82,12 @@ class RepositorioSQLite:
             filas = db.execute("SELECT id FROM casos ORDER BY id").fetchall()
         return tuple(fila[0] for fila in filas)
 
+    def eliminar(self, caso_id: str) -> None:
+        with closing(sqlite3.connect(self.ruta)) as db, db:
+            db.execute("DELETE FROM eventos WHERE caso_id = ?", (caso_id,))
+            db.execute("DELETE FROM custodia WHERE caso_id = ?", (caso_id,))
+            db.execute("DELETE FROM casos WHERE id = ?", (caso_id,))
+
     def cadena_custodia(self, caso_id: str) -> tuple[EntradaCustodia, ...]:
         with closing(sqlite3.connect(self.ruta)) as db, db:
             filas = db.execute(

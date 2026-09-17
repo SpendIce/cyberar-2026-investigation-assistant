@@ -27,6 +27,8 @@ class ProcedenciaMapeo(StrEnum):
 
 class EstadoRevision(StrEnum):
     PENDIENTE = "pendiente"
+    ACEPTADA = "aceptada"
+    RECHAZADA = "rechazada"
 
 
 @dataclass(frozen=True)

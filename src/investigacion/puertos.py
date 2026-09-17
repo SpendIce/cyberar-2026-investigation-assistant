@@ -58,3 +58,8 @@ class RepositorioDeCasos(Protocol):
     def cadena_custodia(self, caso_id: str) -> tuple[EntradaCustodia, ...]:
         """Las entradas append-only registradas por cada `guardar` del caso."""
         ...
+
+    def eliminar(self, caso_id: str) -> None:
+        """Borra el caso y su cadena de custodia. La baja es una decisión del
+        operador y desaparece con el caso; no se representa como escritura."""
+        ...

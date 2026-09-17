@@ -15,6 +15,7 @@ from investigacion.errores import CasoNoEncontrado, HallazgoInvalido, Inferencia
 from investigacion.exportacion import exportar
 from investigacion.modelos import (
     Caso,
+    EstadoRevision,
     Evento,
     FormatoExportacion,
     Hallazgo,
@@ -99,6 +100,42 @@ class ModuloDeInvestigacion:
         if caso is None:
             raise CasoNoEncontrado(f"caso inexistente: {caso_id}")
         return caso
+
+    def revisar_hallazgo(
+        self, caso_id: str, indice: int, estado: EstadoRevision
+    ) -> Caso:
+        """Registra la revisión humana de un hallazgo (pendiente/aceptada/rechazada)."""
+        caso = self.consultar_caso(caso_id)
+        if not 0 <= indice < len(caso.hallazgos):
+            raise ValueError(f"hallazgo fuera de rango: {indice}")
+        hallazgos = list(caso.hallazgos)
+        hallazgos[indice] = replace(hallazgos[indice], estado_revision=estado)
+        actualizado = replace(caso, hallazgos=tuple(hallazgos))
+        self._repositorio.guardar(actualizado)
+        return actualizado
+
+    def renombrar_caso(self, caso_id: str, nombre: str) -> Caso:
+        caso = self.consultar_caso(caso_id)
+        actualizado = replace(caso, origen=replace(caso.origen, nombre=nombre))
+        self._repositorio.guardar(actualizado)
+        return actualizado
+
+    def actualizar_contexto(self, caso_id: str, contexto: str) -> Caso:
+        """Persiste un nuevo contexto declarado; re-inferir es una llamada aparte."""
+        caso = self.consultar_caso(caso_id)
+        actualizado = replace(caso, contexto=contexto)
+        self._repositorio.guardar(actualizado)
+        return actualizado
+
+    def eliminar_caso(self, caso_id: str) -> None:
+        """Baja de un caso: borra estado y cadena de custodia persistidos.
+
+        Los artefactos de evidencia en disco (EVTX original, cronología
+        Hayabusa) no se destruyen: la baja retira el caso del repositorio,
+        no la evidencia del origen.
+        """
+        self.consultar_caso(caso_id)
+        self._repositorio.eliminar(caso_id)
 
     def exportar_caso(
         self, caso_id: str, formato: FormatoExportacion = FormatoExportacion.MARKDOWN

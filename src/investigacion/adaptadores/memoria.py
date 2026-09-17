@@ -25,3 +25,7 @@ class RepositorioEnMemoria:
 
     def cadena_custodia(self, caso_id: str) -> tuple[EntradaCustodia, ...]:
         return tuple(self._custodia.get(caso_id, ()))
+
+    def eliminar(self, caso_id: str) -> None:
+        self._casos.pop(caso_id, None)
+        self._custodia.pop(caso_id, None)
