@@ -17,10 +17,11 @@ uv run mypy src        # tipado estricto
 La suite ordinaria (`uv run pytest`) usa siempre dobles deterministas —
 `EvidenciaControlada`, `InferenciaControlada`, transporte HTTP sustituido,
 `RepositorioEnMemoria` — nunca Hayabusa ni un modelo Ollama real. Corrió
-**79 pruebas pasadas y 5 omitidas** al cerrar los issues #7 y #9 (ver
-"Pruebas opt-in" más abajo para activar las que faltan). Con las cinco
-opt-in activadas (Hayabusa real, Ollama real en sus dos pruebas de #4, el
-tracer completo de #6 y el respaldo real de #7) corren **84 de 84**.
+**85 pruebas pasadas y 5 omitidas** al cerrar los issues #7 y #9, sobre la
+base que ya incluía el #8 (ver "Pruebas opt-in" más abajo para activar las
+que faltan). Con las cinco opt-in activadas (Hayabusa real, Ollama real en
+sus dos pruebas de #4, el tracer completo de #6 y el respaldo real de #7)
+corren **90 de 90**.
 
 ## Composición de la suite
 
@@ -39,9 +40,10 @@ tracer completo de #6 y el respaldo real de #7) corren **84 de 84**.
 | `test_tracer_real.py` | **Nuevo (#6).** Prueba de integración opt-in del tracer real completo: importación Hayabusa, persistencia SQLite, inferencia Ollama, validación y navegación Streamlit hallazgo → evidencia, sin dobles (ver `docs/tracer.md`). |
 | `test_respaldo_inferencia_contrato.py` | **Nuevo (#7).** Cruza el contrato del módulo con `InferenciaConRespaldo`: éxito remoto, caída remota con éxito local (el motivo queda en `errores`, observable), y ausencia de ambos motores en modo degradado con cronología intacta. Una cuarta prueba opt-in repite la caída con `InferenciaOllama` real. Ver `docs/respaldo.md`. |
 | `test_rechazo_hallazgos.py` | **Nuevo (#9).** Determinista, sin red: usa `eventos_manipulados()` con un `InferenciaControlada` que simula un modelo obediente a la instrucción insertada y verifica que la referencia y la técnica inventadas se rechazan por separado, sin alterar la evidencia original; además espía el payload de `InferenciaOllama` para fijar que la inyección llega al modelo sólo como dato. Ver `docs/rechazo.md`. |
+| `test_ambiguedad.py` | **Nuevo (#8).** Separación de la verdad de referencia y la solicitud al modelo (capturada con transporte espía), comparación A/B persistida en la misma UI, campos de incertidumbre visibles, referencias resolubles, rechazo/ocultamiento de lenguaje concluyente y abstención válida. |
 | `test_interfaz_streamlit.py` / `test_presentacion.py` | Smoke test del recorrido principal en Streamlit y del adaptador de presentación; la lógica de dominio no se revalida aquí. |
 | `test_informe_reproducible.py` | **Nuevo (#10).** Prueba de aceptación del informe reproducible: abre el Markdown y el JSON del mismo caso persistido, verifica los campos críticos (hash, procedencia, versiones, modalidad, referencias, limitaciones, advertencias), el determinismo de exportar dos veces y que la exportación no invoca el modelo; además recorre el CLI `python -m investigacion.informe` de extremo a extremo. |
-| `casos_evaluacion.py` | No es un archivo de pruebas (no empieza con `test_`): son las fixtures del caso B (control legítimo) y del caso D (manipulación), reutilizadas por `test_manipulacion_ollama_real.py` y por `scripts/evaluar_escenarios.py`. |
+| `casos_evaluacion.py` | No es un archivo de pruebas (no empieza con `test_`): reexporta el control legítimo compartido y define el caso D (manipulación), reutilizados por las evaluaciones. La verdad de referencia A/B vive en un JSON separado. |
 
 ## Detalle de lo nuevo en el issue #4
 
@@ -187,12 +189,16 @@ no debe convertirse "en una prueba unitaria"):
   veces sobre el caso sospechoso sembrado y mide latencia, cumplimiento de
   esquema, referencias resolubles y técnicas dentro del catálogo, guardando
   el resultado en `docs/benchmarks/resultados-modelos.{json,md}`.
-- **`scripts/evaluar_escenarios.py`** corre el caso B (control legítimo,
-  `tests/casos_evaluacion.eventos_control_legitimo`) y el caso D
-  (manipulación, `eventos_manipulados`) y mide, como numerador/denominador:
-  cuántos hallazgos aceptados en el caso legítimo carecen de una explicación
-  alternativa, cuántas veces el modelo obedeció la instrucción insertada y
-  cuántas veces eso sobrevivió la validación. Resultado en
+- **`scripts/evaluar_escenarios.py`** corre el caso A (EVTX público ya
+  persistido por el tracer, sólo si se indican `--datos` y
+  `--caso-sospechoso`), el caso B (control legítimo,
+  `investigacion.escenarios.eventos_control_legitimo`) y el caso D
+  (manipulación, `tests/casos_evaluacion.eventos_manipulados`) y mide, como
+  numerador/denominador sobre propuestas crudas: hallazgos aceptados tras la
+  validación determinista, referencias válidas, presencia de explicaciones
+  alternativas, evidencia faltante, limitaciones y lenguaje concluyente;
+  además cuántas veces el modelo obedeció la instrucción insertada del caso D
+  y cuántas veces eso sobrevivió la validación. Resultado en
   `docs/evaluacion/resultados-escenarios.{json,md}`.
 
 Ambas mediciones sustentan la elección de modelo documentada en
@@ -219,7 +225,7 @@ o `ollama ps` para liberar lo que quede residente después.
   sistema reduce la fuerza de su conclusión) — caso C del spec #1 — sigue
   sin una prueba ni una evaluación contra `InferenciaOllama`.
 - El caso B usa evidencia controlada sintética
-  (`tests/casos_evaluacion.eventos_control_legitimo`), no telemetría
+  (`investigacion.escenarios.eventos_control_legitimo`), no telemetría
   capturada de una VM real ejecutando una operación autorizada, que es lo
   que pide el spec #1 para el control legítimo definitivo.
 - La validación de técnicas (`ValidadorDeReferencias`) comprueba
