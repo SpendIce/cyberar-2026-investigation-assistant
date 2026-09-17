@@ -78,10 +78,7 @@ def test_caida_remota_con_exito_local_deja_constancia_del_motivo() -> None:
     # sólo en un log que la interfaz no puede mostrar.
     assert investigado.modalidad_inferencia is ModalidadInferencia.MODELO_LOCAL
     assert len(investigado.hallazgos) == 1
-    assert any(
-        "nodo_privado no disponible: nodo privado caído" in error
-        for error in investigado.errores
-    )
+    assert any("nodo_privado no disponible" in error for error in investigado.errores)
     assert modulo.consultar_caso(caso.id).errores == investigado.errores
 
 

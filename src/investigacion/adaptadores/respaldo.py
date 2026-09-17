@@ -38,6 +38,8 @@ class InferenciaConRespaldo:
     def proponer(
         self, caso_id: str, evidencia: tuple[Evento, ...]
     ) -> tuple[PropuestaHallazgo, ...]:
+        self._ultimo_exitoso = None
+        self._advertencias = ()
         errores = []
         for motor in self._motores:
             try:
@@ -48,6 +50,5 @@ class InferenciaConRespaldo:
             self._ultimo_exitoso = motor
             self._advertencias = tuple(errores)
             return propuestas
-        self._ultimo_exitoso = None
         self._advertencias = tuple(errores)
         raise InferenciaNoDisponible("; ".join(errores))

@@ -104,4 +104,9 @@ def test_la_instruccion_insertada_llega_al_modelo_como_dato_sin_alterar_el_promp
     # campo `contenido` del evento serializado, nunca en el mensaje de sistema.
     assert sistema == {"role": "system", "content": PROMPT_SISTEMA}
     datos = json.loads(usuario["content"])
-    assert INSTRUCCION_INSERTADA in (datos["eventos"][1]["contenido"] or "")
+    inyectados = [
+        evento
+        for evento in datos["eventos"]
+        if INSTRUCCION_INSERTADA in (evento.get("contenido") or "")
+    ]
+    assert len(inyectados) == 1

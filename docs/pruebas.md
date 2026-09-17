@@ -17,10 +17,10 @@ uv run mypy src        # tipado estricto
 La suite ordinaria (`uv run pytest`) usa siempre dobles deterministas —
 `EvidenciaControlada`, `InferenciaControlada`, transporte HTTP sustituido,
 `RepositorioEnMemoria` — nunca Hayabusa ni un modelo Ollama real. Corrió
-**78 pruebas pasadas y 5 omitidas** al cerrar los issues #7 y #9 (ver
+**79 pruebas pasadas y 5 omitidas** al cerrar los issues #7 y #9 (ver
 "Pruebas opt-in" más abajo para activar las que faltan). Con las cinco
 opt-in activadas (Hayabusa real, Ollama real en sus dos pruebas de #4, el
-tracer completo de #6 y el respaldo real de #7) corren **83 de 83**.
+tracer completo de #6 y el respaldo real de #7) corren **84 de 84**.
 
 ## Composición de la suite
 
@@ -33,7 +33,7 @@ tracer completo de #6 y el respaldo real de #7) corren **83 de 83**.
 | `test_evtx_real.py` | Prueba de contrato opt-in: Hayabusa real + SQLite sobre un EVTX público, verificado contra un lector XML independiente (#3). |
 | `test_importacion_evtx.py` | Normalización determinista de la salida de Hayabusa: timestamps, campos ausentes, agrupamiento por regla, errores de importación explícitos (#3). |
 | `test_inferencia_ollama.py` | **Nuevo (#4).** Adaptador `InferenciaOllama` con transporte HTTP sustituido: sin red. |
-| `test_inferencia_respaldo.py` | **Nuevo (#6).** Motor compuesto `InferenciaConRespaldo` (ADR-0011): el respaldo local responde cuando el primario no está disponible, la modalidad expuesta es la del motor que respondió y la falla de ambos reporta los dos motivos. |
+| `test_inferencia_respaldo.py` | **Nuevo (#6).** Motor compuesto `InferenciaConRespaldo` (ADR-0011): el respaldo local responde cuando el primario no está disponible, la modalidad expuesta es la del motor que respondió y la falla de ambos reporta los dos motivos. Ampliado en #7: la falla total deja los motivos en `advertencias` con modalidad `degradado`, y un error que no es `InferenciaNoDisponible` se propaga sin dejar advertencias de la llamada anterior. |
 | `test_inferencia_ollama_real.py` | **Nuevo (#4).** Prueba de contrato end-to-end opt-in contra un Ollama real. |
 | `test_manipulacion_ollama_real.py` | **Nuevo (#4).** Prueba de contrato opt-in del caso D (manipulación) contra un Ollama real: ningún hallazgo persistido cita la técnica o el evento inventados por una instrucción insertada. |
 | `test_tracer_real.py` | **Nuevo (#6).** Prueba de integración opt-in del tracer real completo: importación Hayabusa, persistencia SQLite, inferencia Ollama, validación y navegación Streamlit hallazgo → evidencia, sin dobles (ver `docs/tracer.md`). |
