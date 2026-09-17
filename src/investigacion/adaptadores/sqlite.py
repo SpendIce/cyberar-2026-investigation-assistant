@@ -50,6 +50,11 @@ class RepositorioSQLite:
                 [(caso.id, e.uid, e.timestamp_normalizado, json.dumps(asdict(e), ensure_ascii=False)) for e in caso.eventos],
             )
 
+    def listar(self) -> tuple[str, ...]:
+        with closing(sqlite3.connect(self.ruta)) as db, db:
+            filas = db.execute("SELECT id FROM casos ORDER BY id").fetchall()
+        return tuple(fila[0] for fila in filas)
+
     def obtener(self, caso_id: str) -> Caso | None:
         with closing(sqlite3.connect(self.ruta)) as db, db:
             fila = db.execute("SELECT datos FROM casos WHERE id = ?", (caso_id,)).fetchone()

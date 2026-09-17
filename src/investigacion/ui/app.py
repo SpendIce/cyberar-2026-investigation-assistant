@@ -1,15 +1,22 @@
-"""Interfaz Streamlit: abre el caso sembrado y navega hallazgo → evidencia.
+"""Interfaz Streamlit: abre un caso y navega hallazgo → evidencia.
 
 Es un adaptador de presentación. No contiene reglas de investigación: crea y
-consulta el caso a través del módulo y dibuja lo que éste ya validó.
+consulta el caso a través del módulo y dibuja lo que éste ya validó. Con la
+variable `INVESTIGACION_DATOS` apuntando al directorio de datos de una
+importación real, abre los casos persistidos en `casos.sqlite` en lugar del
+caso sembrado.
 """
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import cast
 
 import streamlit as st
 
+from investigacion.adaptadores.sqlite import RepositorioSQLite
+from investigacion.exportacion import exportar
 from investigacion.modelos import Caso, Evento, FormatoExportacion
 from investigacion.modulo import ModuloDeInvestigacion
 from investigacion.sembrado import abrir_caso_sembrado
@@ -49,14 +56,39 @@ def _cerrar_evento() -> None:
     st.session_state["evento_abierto"] = None
 
 
-def _obtener_caso() -> tuple[ModuloDeInvestigacion, Caso]:
+def _caso_persistido(directorio_datos: str) -> Caso:
+    repositorio = RepositorioSQLite(Path(directorio_datos) / "casos.sqlite")
+    identificadores = repositorio.listar()
+    if not identificadores:
+        st.warning(
+            f"Sin casos persistidos en {Path(directorio_datos) / 'casos.sqlite'}. "
+            "Importar un EVTX con `python -m investigacion.importar` primero."
+        )
+        st.stop()
+    caso_id = st.selectbox(
+        "Caso persistido",
+        options=identificadores,
+        key="caso-persistido",
+        on_change=_cerrar_evento,
+    )
+    caso = repositorio.obtener(caso_id)
+    if caso is None:  # el caso desapareció entre listar() y obtener()
+        st.error(f"El caso {caso_id} ya no existe en el repositorio.")
+        st.stop()
+    return caso
+
+
+def _obtener_caso() -> Caso:
+    directorio_datos = os.environ.get("INVESTIGACION_DATOS")
+    if directorio_datos:
+        return _caso_persistido(directorio_datos)
     if "modulo" not in st.session_state:
         modulo, caso = abrir_caso_sembrado()
         st.session_state["modulo"] = modulo
         st.session_state["caso_id"] = caso.id
     modulo = cast(ModuloDeInvestigacion, st.session_state["modulo"])
     caso_id = cast(str, st.session_state["caso_id"])
-    return modulo, modulo.consultar_caso(caso_id)
+    return modulo.consultar_caso(caso_id)
 
 
 def _mostrar_estado(caso: Caso) -> None:
@@ -90,7 +122,13 @@ def _mostrar_detalle_evento(caso: Caso) -> None:
     with datos:
         st.markdown("**Datos normalizados**")
         for etiqueta, valor in _campos_evento(evento):
-            st.markdown(f"- **{etiqueta}:** {valor}")
+            if etiqueta == "Contenido":
+                # El contenido crudo se muestra literal: contiene sintaxis de
+                # comandos (variables `$`, rutas) que no debe interpretarse.
+                st.markdown(f"- **{etiqueta}:**")
+                st.code(valor)
+            else:
+                st.markdown(f"- **{etiqueta}:** {valor}")
     with procedencia:
         st.markdown("**Procedencia**")
         for etiqueta, valor in procedencia_evento(caso, evento):
@@ -155,7 +193,7 @@ def _mostrar_hallazgos(caso: Caso) -> None:
             st.error(f"Referencia sin evento asociado: {referencia}")
 
 
-def _mostrar_exportacion(modulo: ModuloDeInvestigacion, caso: Caso) -> None:
+def _mostrar_exportacion(caso: Caso) -> None:
     st.subheader("Exportación")
     formato = st.radio(
         "Formato de exportación",
@@ -164,7 +202,7 @@ def _mostrar_exportacion(modulo: ModuloDeInvestigacion, caso: Caso) -> None:
         horizontal=True,
     )
     formato_exportacion, extension, mime, lenguaje = _EXPORTACION[formato]
-    contenido = modulo.exportar_caso(caso.id, formato_exportacion)
+    contenido = exportar(caso, formato_exportacion)
     st.download_button(
         f"Descargar {formato}",
         data=contenido,
@@ -178,16 +216,22 @@ def _mostrar_exportacion(modulo: ModuloDeInvestigacion, caso: Caso) -> None:
 def main() -> None:
     st.set_page_config(page_title="Investigación de eventos", layout="wide")
     st.title("Asistente privado de investigación")
-    st.info(
-        "Caso sembrado con adaptadores controlados: recorre la navegación sin "
-        "invocar Hayabusa ni un modelo real."
-    )
-    modulo, caso = _obtener_caso()
+    if os.environ.get("INVESTIGACION_DATOS"):
+        st.info(
+            "Caso importado y persistido desde evidencia real: la interfaz "
+            "sólo lo consulta, no repite la inferencia."
+        )
+    else:
+        st.info(
+            "Caso sembrado con adaptadores controlados: recorre la navegación sin "
+            "invocar Hayabusa ni un modelo real."
+        )
+    caso = _obtener_caso()
     _mostrar_estado(caso)
     _mostrar_detalle_evento(caso)
     _mostrar_cronologia(caso)
     _mostrar_hallazgos(caso)
-    _mostrar_exportacion(modulo, caso)
+    _mostrar_exportacion(caso)
 
 
 main()

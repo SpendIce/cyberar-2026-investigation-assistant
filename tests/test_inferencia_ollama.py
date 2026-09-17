@@ -98,6 +98,20 @@ def test_un_fallo_de_transporte_se_trata_como_inferencia_no_disponible() -> None
         motor.proponer("caso-1", (_evento("ev-1"),))
 
 
+def test_un_envoltorio_malformado_se_trata_como_inferencia_no_disponible() -> None:
+    def transporte_envoltorio_roto(
+        url: str, cuerpo: dict[str, Any], timeout: float
+    ) -> dict[str, Any]:
+        raise json.JSONDecodeError("truncado", "doc", 0)
+
+    motor = InferenciaOllama(
+        "modelo-de-prueba", catalogo=_catalogo(), transporte=transporte_envoltorio_roto
+    )
+
+    with pytest.raises(InferenciaNoDisponible):
+        motor.proponer("caso-1", (_evento("ev-1"),))
+
+
 def test_contenido_no_json_se_rechaza_como_inferencia_no_disponible() -> None:
     motor = _motor("esto no es json")
 

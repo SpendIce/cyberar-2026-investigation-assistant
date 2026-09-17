@@ -1,0 +1,9 @@
+{
+  "archivo": "eventos.evtx",
+  "url": "https://raw.githubusercontent.com/Yamato-Security/hayabusa-sample-evtx/0845333ecb4afcf64c55c6e10946383f168f308c/DeepBlueCLI/metasploit-psexec-powershell-target-system.evtx",
+  "revision": "0845333ecb4afcf64c55c6e10946383f168f308c",
+  "bytes": 69632,
+  "sha256": "971915aa6e7a508c4f0a2cb0e76882fd43234fa61c906dc33adf431efc8f2cd4",
+  "procedencia": "https://github.com/Yamato-Security/hayabusa-sample-evtx/tree/0845333ecb4afcf64c55c6e10946383f168f308c/DeepBlueCLI",
+  "licencia": "https://github.com/Yamato-Security/hayabusa-sample-evtx/blob/main/LICENSE.txt"
+}

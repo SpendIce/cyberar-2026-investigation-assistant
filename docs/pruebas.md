@@ -17,10 +17,11 @@ uv run mypy src        # tipado estricto
 La suite ordinaria (`uv run pytest`) usa siempre dobles deterministas —
 `EvidenciaControlada`, `InferenciaControlada`, transporte HTTP sustituido,
 `RepositorioEnMemoria` — nunca Hayabusa ni un modelo Ollama real. Corrió
-**64 pruebas pasadas y 3 omitidas** al cerrar el issue #4 (ver
-"Pruebas opt-in" más abajo para activar las que faltan). Con las tres
-opt-in activadas (Hayabusa real + Ollama real en sus dos pruebas) corren
-**67 de 67**.
+**68 pruebas pasadas y 4 omitidas** al cerrar el issue #6 (ver
+"Pruebas opt-in" más abajo para activar las que faltan). Con las cuatro
+opt-in activadas (Hayabusa real, Ollama real en sus dos pruebas y el
+tracer completo) corren
+**72 de 72**.
 
 ## Composición de la suite
 
@@ -33,8 +34,10 @@ opt-in activadas (Hayabusa real + Ollama real en sus dos pruebas) corren
 | `test_evtx_real.py` | Prueba de contrato opt-in: Hayabusa real + SQLite sobre un EVTX público, verificado contra un lector XML independiente (#3). |
 | `test_importacion_evtx.py` | Normalización determinista de la salida de Hayabusa: timestamps, campos ausentes, agrupamiento por regla, errores de importación explícitos (#3). |
 | `test_inferencia_ollama.py` | **Nuevo (#4).** Adaptador `InferenciaOllama` con transporte HTTP sustituido: sin red. |
+| `test_inferencia_respaldo.py` | **Nuevo (#6).** Motor compuesto `InferenciaConRespaldo` (ADR-0011): el respaldo local responde cuando el primario no está disponible, la modalidad expuesta es la del motor que respondió y la falla de ambos reporta los dos motivos. |
 | `test_inferencia_ollama_real.py` | **Nuevo (#4).** Prueba de contrato end-to-end opt-in contra un Ollama real. |
 | `test_manipulacion_ollama_real.py` | **Nuevo (#4).** Prueba de contrato opt-in del caso D (manipulación) contra un Ollama real: ningún hallazgo persistido cita la técnica o el evento inventados por una instrucción insertada. |
+| `test_tracer_real.py` | **Nuevo (#6).** Prueba de integración opt-in del tracer real completo: importación Hayabusa, persistencia SQLite, inferencia Ollama, validación y navegación Streamlit hallazgo → evidencia, sin dobles (ver `docs/tracer.md`). |
 | `test_interfaz_streamlit.py` / `test_presentacion.py` | Smoke test del recorrido principal en Streamlit y del adaptador de presentación; la lógica de dominio no se revalida aquí. |
 | `casos_evaluacion.py` | No es un archivo de pruebas (no empieza con `test_`): son las fixtures del caso B (control legítimo) y del caso D (manipulación), reutilizadas por `test_manipulacion_ollama_real.py` y por `scripts/evaluar_escenarios.py`. |
 
@@ -65,7 +68,7 @@ Esta prueba se escribió primero, se vio fallar (el hallazgo se aceptaba sin
 validar la técnica) y sólo después se implementó el chequeo en
 `validacion.py` — TDD estricto, como exige el spec.
 
-### `test_inferencia_ollama.py` (12 pruebas, sin red)
+### `test_inferencia_ollama.py` (13 pruebas, sin red)
 
 Todas inyectan un `transporte` falso — una función `(url, cuerpo, timeout) ->
 dict` — en `InferenciaOllama`, en vez de abrir una conexión real. Cubren:
@@ -82,6 +85,8 @@ dict` — en `InferenciaOllama`, en vez de abrir una conexión real. Cubren:
   estructurado antes de incorporarse al caso";
 - un mensaje ausente en la respuesta del servidor también es
   `InferenciaNoDisponible`;
+- un envoltorio HTTP malformado (cuerpo 200 que no puede decodificarse)
+  se traduce igual a `InferenciaNoDisponible`, en vez de abortar la CLI;
 - la `modalidad` configurada (`NODO_PRIVADO` o `MODELO_LOCAL`) se expone tal
   cual en el puerto;
 - el prompt enviado sólo contiene los `uid` de los eventos realmente
@@ -163,10 +168,11 @@ OLLAMA_MODELO_PRUEBA=llama3.2:3b uv run pytest tests/test_manipulacion_ollama_re
 | `test_evtx_real.py` | `HAYABUSA_BIN` + fixture público descargado | Depende de un binario externo (Hayabusa 4.1.0) y de un archivo que no se distribuye en el repo. |
 | `test_inferencia_ollama_real.py` | `OLLAMA_MODELO_PRUEBA` + `ollama serve` corriendo | Depende de un modelo cargado en memoria; su latencia y disponibilidad no deben condicionar `uv run pytest` en cualquier máquina o CI sin GPU/modelo. |
 | `test_manipulacion_ollama_real.py` | `OLLAMA_MODELO_PRUEBA` + `ollama serve` corriendo | Mismo motivo que la anterior. |
+| `test_tracer_real.py` | `HAYABUSA_BIN` + `OLLAMA_MODELO_PRUEBA` + fixture público | Reúne todos los requisitos anteriores: ejecuta el comando documentado contra las herramientas reales. |
 
-Las tres siguen el mismo patrón: `@pytest.mark.skipif` sobre una variable de
-entorno, documentado en `docs/evidencia.md` y `docs/inferencia.md`
-respectivamente.
+Las cuatro siguen el mismo patrón: `@pytest.mark.skipif` sobre una variable de
+entorno, documentado en `docs/evidencia.md`, `docs/inferencia.md` y
+`docs/tracer.md` respectivamente.
 
 ## Lo que NO son pruebas de pytest: benchmark y evaluación de escenarios
 
@@ -229,8 +235,7 @@ o `ollama ps` para liberar lo que quede residente después.
 - El benchmark y la evaluación corrieron con aceleración GPU disponible; el
   piso de aceptación en CPU pura (la notebook de presentación) sigue sin
   medirse — documentado como limitación abierta en ADR-0014.
-- No hay prueba que confirme el comportamiento cuando el nodo privado
-  (`ModalidadInferencia.NODO_PRIVADO`) falla y debería recaer en el modelo
-  local reducido; hoy `InferenciaOllama` es un único motor por instancia, y
-  la composición de fallback entre dos instancias es responsabilidad de
-  quien construya `ModuloDeInvestigacion`, sin cobertura propia todavía.
+- El fallback nodo privado → modelo local (`InferenciaConRespaldo`,
+  ADR-0011) está cubierto por `test_inferencia_respaldo.py` con dobles,
+  pero no hay una corrida opt-in que ejercite un nodo privado real caído
+  delante de un Ollama local real.
