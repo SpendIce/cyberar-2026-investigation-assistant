@@ -10,6 +10,7 @@ from typing import Mapping
 class ModalidadInferencia(StrEnum):
     NODO_PRIVADO = "nodo_privado"
     MODELO_LOCAL = "modelo_local"
+    MODELO_EXTERNO = "modelo_externo"
     DEGRADADO = "degradado"
 
 
