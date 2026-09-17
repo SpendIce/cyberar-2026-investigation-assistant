@@ -96,6 +96,14 @@ operaciones del módulo como herramientas MCP por stdio: `listar_casos`,
 `consultar_caso`, `investigar_caso`, `exportar_caso` y `verificar_caso`.
 Sin `crear_caso`: la superficie no acepta rutas de archivo arbitrarias.
 
+## Empaquetado de la demo (#12)
+
+Guion de tres minutos, inventario fijado con licencias, respaldo de
+presentación identificado, prueba de humo sin red y matriz de recuperación
+con responsables: [docs/demo/](docs/demo/preparacion.md). Verificación
+rápida: `scripts/preparar_demo.sh`; humo offline:
+`scripts/prueba_humo_offline.sh`.
+
 ## Medir valor frente a Hayabusa y un LLM directo (#11)
 
 `scripts/evaluar_enfoques.py` corre tres enfoques (Hayabusa solo, la

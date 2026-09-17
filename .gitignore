@@ -10,3 +10,6 @@ __pycache__/
 .streamlit/secrets.toml
 tests/fixtures/publico/*.evtx
 datos/
+# El respaldo de la demo se versiona aunque viva bajo datos/ y use sqlite.
+!docs/demo/respaldo/datos/
+!docs/demo/respaldo/datos/**/*.sqlite

@@ -59,6 +59,13 @@ def main() -> None:
         metavar="HOST",
         help="Host adicional administrado por el equipo; repetible",
     )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=120.0,
+        help="Timeout por llamada de inferencia (la carga fría del modelo en "
+        "CPU puede superar los 120 s por defecto del adaptador)",
+    )
     args = parser.parse_args()
     motor_inferencia: MotorDeInferencia
     if args.modelo:
@@ -68,6 +75,7 @@ def main() -> None:
             modalidad=args.modalidad,
             permitir_externo=args.permitir_externo,
             hosts_controlados=frozenset(args.host_controlado),
+            timeout=args.timeout,
         )
         if args.modelo_respaldo:
             motor_inferencia = InferenciaConRespaldo(
@@ -78,6 +86,7 @@ def main() -> None:
                     modalidad=ModalidadInferencia.MODELO_LOCAL,
                     permitir_externo=args.permitir_externo,
                     hosts_controlados=frozenset(args.host_controlado),
+                    timeout=args.timeout,
                 ),
             )
     else:
