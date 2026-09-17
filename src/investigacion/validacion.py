@@ -13,6 +13,19 @@ from investigacion.modelos import (
 )
 
 
+_VEREDICTOS_PROHIBIDOS = (
+    "equipo comprometido",
+    "ataque confirmado",
+    "actividad maliciosa confirmada",
+)
+
+
+def contiene_lenguaje_de_veredicto(texto: str) -> bool:
+    """Detecta las afirmaciones concluyentes prohibidas por el contrato del MVP."""
+    normalizado = texto.casefold()
+    return any(frase in normalizado for frase in _VEREDICTOS_PROHIBIDOS)
+
+
 class ValidadorDeReferencias:
     """Acepta un hallazgo sólo si cada referencia y cada técnica existen."""
 
@@ -27,6 +40,12 @@ class ValidadorDeReferencias:
     def validar(
         self, caso_id: str, propuesta: PropuestaHallazgo, eventos: tuple[Evento, ...]
     ) -> Hallazgo:
+        if contiene_lenguaje_de_veredicto(
+            f"{propuesta.hipotesis}\n{propuesta.razon_vinculo}"
+        ):
+            raise HallazgoInvalido(
+                "lenguaje de veredicto incompatible con una hipótesis revisable"
+            )
         existentes = {evento.uid for evento in eventos}
         faltantes = [ref for ref in propuesta.referencias_eventos if ref not in existentes]
         if faltantes:

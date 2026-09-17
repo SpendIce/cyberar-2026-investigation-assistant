@@ -1,11 +1,10 @@
 """Casos de evaluación adicionales al caso sembrado (spec #1, "Escenarios de evaluación").
 
-Estos eventos son evidencia controlada, igual que `investigacion.sembrado`:
-no provienen de Hayabusa ni de una VM real. Viven en `tests/` y no en `src/`
-porque son verdad de referencia para evaluar el modelo, no datos de dominio
-que la aplicación deba enviar como entrada (spec #1: "La verdad de
-referencia se almacenará separada de los inputs y nunca será entregada al
-modelo").
+El control legítimo se define en `investigacion.escenarios` para que la
+aplicación y esta evaluación reutilicen exactamente los mismos eventos. No
+proviene de Hayabusa ni de una VM real. La verdad de referencia no vive aquí:
+está separada en `docs/evaluacion/ground-truth-escenarios.json` y nunca se
+entrega al modelo.
 
 ## Caso B — Control legítimo
 
@@ -26,55 +25,9 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from investigacion.escenarios import eventos_control_legitimo
 from investigacion.modelos import Evento
 from investigacion.sembrado import eventos_sembrados
-
-
-def eventos_control_legitimo() -> tuple[Evento, ...]:
-    """Parcheo administrativo autorizado con telemetría semejante al caso sospechoso."""
-    return (
-        Evento(
-            uid="ctl-1", caso_id="", origen_sha256="",
-            localizador_original="Application/EventRecordID=9001",
-            timestamp_normalizado="2026-02-01T09:00:00Z", host="WIN-ADMIN01",
-            usuario="svc-patching", canal="Application", tipo_evento="ChangeTicketApproved",
-            contenido="Ticket CHG-4821 aprobado: actualizar agente de parcheo en WIN-ADMIN01",
-            referencia_original="evidence/WIN-ADMIN01/Application/9001",
-        ),
-        Evento(
-            uid="ctl-2", caso_id="", origen_sha256="",
-            localizador_original="Security/EventRecordID=9002",
-            timestamp_normalizado="2026-02-01T09:00:10Z", host="WIN-ADMIN01",
-            usuario="svc-patching", canal="Security", tipo_evento="ServiceInstalled",
-            proceso="PSEXESVC.exe", proceso_padre="services.exe",
-            contenido="Servicio PSEXESVC instalado por la cuenta de servicio de parcheo para CHG-4821",
-            referencia_original="evidence/WIN-ADMIN01/Security/9002",
-        ),
-        Evento(
-            uid="ctl-3", caso_id="", origen_sha256="",
-            localizador_original="Security/EventRecordID=9003",
-            timestamp_normalizado="2026-02-01T09:00:15Z", host="WIN-ADMIN01",
-            usuario="svc-patching", canal="Security", tipo_evento="ProcessCreated",
-            proceso="powershell.exe", proceso_padre="services.exe",
-            contenido=(
-                r"powershell.exe -File \\fileserver-interno\parches\aplicar-chg-4821.ps1 "
-                "(script firmado, catalogado en CMDB)"
-            ),
-            referencia_original="evidence/WIN-ADMIN01/Security/9003",
-        ),
-        Evento(
-            uid="ctl-4", caso_id="", origen_sha256="",
-            localizador_original="Security/EventRecordID=9004",
-            timestamp_normalizado="2026-02-01T09:00:20Z", host="WIN-ADMIN01",
-            usuario="svc-patching", canal="Security", tipo_evento="NetworkConnection",
-            proceso="powershell.exe", proceso_padre="services.exe",
-            contenido=(
-                "Conexión SMB saliente hacia fileserver-interno.corp.local:445 "
-                "(recurso de parches conocido en CMDB)"
-            ),
-            referencia_original="evidence/WIN-ADMIN01/Security/9004",
-        ),
-    )
 
 
 EVENTO_INVENTADO = "ev-inventado-99"

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "separacion": "Material de evaluación. No se carga en Caso, Evento ni en el prompt de Ollama.",
+  "escenarios": [
+    {
+      "scenario_id": "actividad-psexec-publica",
+      "expected_context": "suspicious",
+      "rationale": "Secuencia pública reproducible asociada a ejecución PsExec/PowerShell en el conjunto de evaluación upstream.",
+      "known_operator_context": "No se conoce una autorización administrativa equivalente para esta secuencia pública.",
+      "expected_relevant_evidence": ["servicio remoto", "PowerShell", "secuencia temporal"],
+      "source_provenance": "tests/fixtures/publico/manifest.json"
+    },
+    {
+      "scenario_id": "administracion-autorizada-sintetica",
+      "expected_context": "legitimate",
+      "rationale": "Operación de parcheo autorizada diseñada como control comparable de doble uso.",
+      "known_operator_context": "Cuenta de servicio y cambio conocidos por quien generó el escenario.",
+      "expected_relevant_evidence": ["ticket de cambio", "cuenta de parcheo", "script firmado", "recurso interno"],
+      "source_provenance": "control sintético/documentado; captura EVTX real pendiente"
+    }
+  ]
+}

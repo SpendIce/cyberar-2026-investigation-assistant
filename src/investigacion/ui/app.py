@@ -16,6 +16,11 @@ from typing import cast
 import streamlit as st
 
 from investigacion.adaptadores.sqlite import RepositorioSQLite
+from investigacion.escenarios import (
+    ARCHIVO_COMPARACION,
+    EscenarioComparacion,
+    cargar_comparacion,
+)
 from investigacion.exportacion import exportar
 from investigacion.modelos import Caso, Evento, FormatoExportacion
 from investigacion.modulo import ModuloDeInvestigacion
@@ -27,6 +32,7 @@ from investigacion.ui.presentacion import (
     procedencia_evento,
     referencias_no_resueltas,
 )
+from investigacion.validacion import contiene_lenguaje_de_veredicto
 
 _EXPORTACION: dict[str, tuple[FormatoExportacion, str, str, str]] = {
     "Markdown": (FormatoExportacion.MARKDOWN, "md", "text/markdown", "markdown"),
@@ -56,9 +62,13 @@ def _cerrar_evento() -> None:
     st.session_state["evento_abierto"] = None
 
 
-def _caso_persistido(directorio_datos: str) -> Caso:
-    repositorio = RepositorioSQLite(Path(directorio_datos) / "casos.sqlite")
+def _caso_persistido(
+    directorio_datos: str,
+) -> tuple[Caso, EscenarioComparacion | None]:
+    directorio = Path(directorio_datos)
+    repositorio = RepositorioSQLite(directorio / "casos.sqlite")
     identificadores = repositorio.listar()
+    escenarios = cargar_comparacion(directorio / ARCHIVO_COMPARACION)
     if not identificadores:
         st.warning(
             f"Sin casos persistidos en {Path(directorio_datos) / 'casos.sqlite'}. "
@@ -68,6 +78,11 @@ def _caso_persistido(directorio_datos: str) -> Caso:
     caso_id = st.selectbox(
         "Caso persistido",
         options=identificadores,
+        format_func=lambda identificador: (
+            escenarios[identificador].titulo
+            if identificador in escenarios
+            else identificador
+        ),
         key="caso-persistido",
         on_change=_cerrar_evento,
     )
@@ -75,10 +90,10 @@ def _caso_persistido(directorio_datos: str) -> Caso:
     if caso is None:  # el caso desapareció entre listar() y obtener()
         st.error(f"El caso {caso_id} ya no existe en el repositorio.")
         st.stop()
-    return caso
+    return caso, escenarios.get(caso_id)
 
 
-def _obtener_caso() -> Caso:
+def _obtener_caso() -> tuple[Caso, EscenarioComparacion | None]:
     directorio_datos = os.environ.get("INVESTIGACION_DATOS")
     if directorio_datos:
         return _caso_persistido(directorio_datos)
@@ -88,7 +103,18 @@ def _obtener_caso() -> Caso:
         st.session_state["caso_id"] = caso.id
     modulo = cast(ModuloDeInvestigacion, st.session_state["modulo"])
     caso_id = cast(str, st.session_state["caso_id"])
-    return modulo.consultar_caso(caso_id)
+    return modulo.consultar_caso(caso_id), None
+
+
+def _mostrar_escenario(escenario: EscenarioComparacion | None) -> None:
+    if escenario is None:
+        return
+    st.subheader(escenario.titulo)
+    st.caption(
+        f"Escenario: {escenario.scenario_id} · Tipo de evidencia: "
+        f"{escenario.tipo_evidencia}"
+    )
+    st.markdown(escenario.descripcion)
 
 
 def _mostrar_estado(caso: Caso) -> None:
@@ -155,30 +181,53 @@ def _mostrar_hallazgos(caso: Caso) -> None:
     st.subheader(f"Hallazgos ({len(caso.hallazgos)})")
     if not caso.hallazgos:
         st.info(
-            "Sin hallazgos validados. La cronología y la evidencia permanecen disponibles."
+            "El modelo no formuló hipótesis validadas. Esto no equivale a actividad "
+            "legítima ni a compromiso: la cronología y la evidencia permanecen "
+            "disponibles para revisión humana."
         )
         return
     for indice, hallazgo in enumerate(caso.hallazgos):
-        st.markdown(f"### {hallazgo.hipotesis}")
-        st.markdown(f"**Razón del vínculo:** {hallazgo.razon_vinculo}")
+        st.markdown(f"### Hipótesis {indice + 1}")
+        formulacion = f"{hallazgo.hipotesis}\n{hallazgo.razon_vinculo}"
+        if contiene_lenguaje_de_veredicto(formulacion):
+            st.error(
+                "Formulación no mostrada: utilizó lenguaje concluyente incompatible "
+                "con una hipótesis pendiente de revisión."
+            )
+        else:
+            st.markdown(f"**Interpretación propuesta:** {hallazgo.hipotesis}")
+            st.markdown(f"**Razón del vínculo:** {hallazgo.razon_vinculo}")
         st.markdown(
             "**Técnicas candidatas:** "
             + (", ".join(hallazgo.tecnicas_candidatas) or "ninguna")
         )
         st.markdown(f"**Procedencia del mapeo:** {hallazgo.procedencia_mapeo.value}")
-        st.markdown(f"**Estado de revisión:** {hallazgo.estado_revision.value}")
-        if hallazgo.explicaciones_alternativas:
-            st.markdown(
-                "**Explicaciones alternativas:** "
-                + "; ".join(hallazgo.explicaciones_alternativas)
+        st.markdown("**Estado:** Pendiente de revisión humana")
+        st.markdown(
+            "**Explicaciones alternativas:** "
+            + (
+                "; ".join(hallazgo.explicaciones_alternativas)
+                if hallazgo.explicaciones_alternativas
+                else "No declarada por el modelo"
             )
-        if hallazgo.evidencia_faltante:
-            st.markdown(
-                "**Evidencia faltante:** " + "; ".join(hallazgo.evidencia_faltante)
+        )
+        st.markdown(
+            "**Evidencia faltante / incertidumbre:** "
+            + (
+                "; ".join(hallazgo.evidencia_faltante)
+                if hallazgo.evidencia_faltante
+                else "No especificada"
             )
-        if hallazgo.limitaciones:
-            st.markdown("**Limitaciones:** " + "; ".join(hallazgo.limitaciones))
-        st.markdown("**Referencias de evidencia:**")
+        )
+        st.markdown(
+            "**Limitaciones:** "
+            + (
+                "; ".join(hallazgo.limitaciones)
+                if hallazgo.limitaciones
+                else "No especificada"
+            )
+        )
+        st.markdown("**Evidencia observada:**")
         for evento in eventos_referenciados(caso, hallazgo):
             columnas = st.columns([3, 3, 3])
             columnas[0].markdown(f"`{evento.uid}`")
@@ -216,17 +265,23 @@ def _mostrar_exportacion(caso: Caso) -> None:
 def main() -> None:
     st.set_page_config(page_title="Investigación de eventos", layout="wide")
     st.title("Asistente privado de investigación")
+    st.warning(
+        "Los hallazgos son hipótesis pendientes de revisión humana. PsExec, "
+        "PowerShell, SMB y una técnica ATT&CK candidata no confirman por sí "
+        "solos un compromiso."
+    )
     if os.environ.get("INVESTIGACION_DATOS"):
         st.info(
-            "Caso importado y persistido desde evidencia real: la interfaz "
-            "sólo lo consulta, no repite la inferencia."
+            "Caso persistido: la interfaz sólo lo consulta y no repite la "
+            "inferencia. El rótulo del escenario declara el tipo de evidencia."
         )
     else:
         st.info(
             "Caso sembrado con adaptadores controlados: recorre la navegación sin "
             "invocar Hayabusa ni un modelo real."
         )
-    caso = _obtener_caso()
+    caso, escenario = _obtener_caso()
+    _mostrar_escenario(escenario)
     _mostrar_estado(caso)
     _mostrar_detalle_evento(caso)
     _mostrar_cronologia(caso)
