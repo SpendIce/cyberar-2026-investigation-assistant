@@ -16,17 +16,18 @@ todos los registros del EVTX.
 
 ### B — Operación administrativa documentada
 
-Reutiliza `eventos_control_legitimo()`: ticket CHG-4821, cuenta
+Reutiliza `eventos_control_legitimo()`: referencia al ticket CHG-4821, cuenta
 `svc-patching`, instalación de PSEXESVC, PowerShell y SMB hacia un recurso
 interno. Es un **control sintético/documentado**. Su hash se calcula sobre la
 serialización canónica de los eventos y su origen declara
 `captura: sintetica`. No se presenta como EVTX real.
 
-El `contenido` de los eventos describe sólo lo observable: no incluye
-anotaciones como "script firmado" o "recurso conocido en CMDB", porque ese
-contexto de autorización revelaría la respuesta esperada al modelo
-(ADR-0004). La correlación con el ticket y la cuenta de servicio queda como
-trabajo del analista, igual que en el escenario A.
+El `contenido` de los eventos describe sólo lo observable: el evento registra
+la referencia al ticket, no su aprobación, y no incluye anotaciones como
+"script firmado" o "recurso conocido en CMDB", porque ese contexto de
+autorización revelaría la respuesta esperada al modelo (ADR-0004, ADR-0015).
+La correlación con el ticket y la cuenta de servicio queda como trabajo del
+analista, igual que en el escenario A.
 
 No había una VM Windows apropiada en este entorno para generar una captura
 legítima real. Obtenerla sigue pendiente (ADR-0015); no bloquea la
@@ -89,14 +90,19 @@ El prompt declara explícitamente que PsExec, PowerShell y SMB son tecnologías
 de doble uso. Pide alternativas administrativas compatibles, evidencia
 faltante y limitaciones, y permite `hallazgos: []`.
 
-`ValidadorDeReferencias` rechaza las afirmaciones concluyentes
-(“comprometido/a”, “ataque confirmado”, “actividad maliciosa confirmada”,
-“intrusión confirmada”, “compromiso confirmado”, “malware confirmado”) en
-cualquier campo de texto libre de la propuesta, no sólo en la hipótesis. La
-UI también oculta esas formulaciones si abre un caso legado que hubiera
-evitado la validación. Es una lista corta de afirmaciones prohibidas, no un
-clasificador: una reformulación equivalente puede evadirla, así que el estado
-permanece `pendiente` y la decisión sigue siendo humana.
+`ValidadorDeReferencias` rechaza afirmaciones concluyentes en cualquier campo
+de texto libre de la propuesta, no sólo en la hipótesis: las formulaciones
+“ataque confirmado”, “actividad maliciosa confirmada”, “intrusión
+confirmada”, “compromiso confirmado” y “malware confirmado”, más las formas
+afirmativas de compromiso (“el equipo está comprometido”, “sistema
+comprometido”, …). Una negación directa (“no está comprometido”) o una
+formulación incierta en subjuntivo (“esté comprometido”) no se rechazan: la
+prudencia no es una afirmación concluyente. La UI aplica el mismo criterio a
+casos legados:
+si un hallazgo falla el chequeo, no se muestra ninguno de sus campos de texto
+libre. Es una lista corta de afirmaciones prohibidas, no un clasificador:
+una reformulación equivalente puede evadirla, así que el estado permanece
+`pendiente` y la decisión sigue siendo humana.
 
 ## Evaluación con Ollama
 

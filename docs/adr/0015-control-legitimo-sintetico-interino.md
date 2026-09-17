@@ -22,16 +22,18 @@ presentarse como telemetría real.
 
 La primera versión de la fixture incluía en `contenido` marcas de
 autorización ("script firmado, catalogado en CMDB", "recurso de parches
-conocido en CMDB", "para CHG-4821"). ADR-0004 exige que la verdad de
+conocido en CMDB", "para CHG-4821") y un evento `ChangeTicketApproved` con
+"Ticket CHG-4821 aprobado". ADR-0004 exige que la verdad de
 referencia permanezca separada "para evitar que nombres, etiquetas ATT&CK o
 descripciones del escenario revelen la respuesta esperada", y esas
 anotaciones hacían exactamente eso dentro del canal que recibe el modelo:
 el caso B llegaba pre-etiquetado como autorizado y dejaba de ser telemetría
 comparable con el caso A.
 
-El `contenido` del control describe ahora sólo lo observable (el evento de
-ticket existe en el canal Application; la correlación ticket ↔ servicio ↔
-script ↔ conexión la hace el analista o el modelo, como en el escenario A).
+El `contenido` del control describe ahora sólo lo observable: el evento de
+ticket registra la referencia (`ChangeTicketReferenced`, "Referencia a
+ticket CHG-4821"), no su aprobación, y la correlación ticket ↔ servicio ↔
+script ↔ conexión la hace el analista o el modelo, como en el escenario A.
 El contexto de autorización vive únicamente en
 `docs/evaluacion/verdad-referencia-escenarios.json`, que no se carga en
 `Caso`, `Evento`, SQLite ni en la solicitud al modelo.

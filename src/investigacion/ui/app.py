@@ -188,7 +188,8 @@ def _mostrar_hallazgos(caso: Caso) -> None:
         return
     for indice, hallazgo in enumerate(caso.hallazgos):
         st.markdown(f"### Hipótesis {indice + 1}")
-        if contiene_lenguaje_concluyente(prosa_revisable(hallazgo)):
+        concluyente = contiene_lenguaje_concluyente(prosa_revisable(hallazgo))
+        if concluyente:
             st.error(
                 "Formulación no mostrada: utilizó lenguaje concluyente incompatible "
                 "con una hipótesis pendiente de revisión."
@@ -202,20 +203,23 @@ def _mostrar_hallazgos(caso: Caso) -> None:
         )
         st.markdown(f"**Procedencia del mapeo:** {hallazgo.procedencia_mapeo.value}")
         st.markdown(f"**Estado de revisión:** {hallazgo.estado_revision.value}")
-        for etiqueta, valores, vacio in (
-            (
-                "Explicaciones alternativas",
-                hallazgo.explicaciones_alternativas,
-                "No declarada por el modelo",
-            ),
-            (
-                "Evidencia faltante / incertidumbre",
-                hallazgo.evidencia_faltante,
-                "No especificada",
-            ),
-            ("Limitaciones", hallazgo.limitaciones, "No especificada"),
-        ):
-            st.markdown(f"**{etiqueta}:** " + ("; ".join(valores) if valores else vacio))
+        if not concluyente:
+            for etiqueta, valores, vacio in (
+                (
+                    "Explicaciones alternativas",
+                    hallazgo.explicaciones_alternativas,
+                    "No declarada por el modelo",
+                ),
+                (
+                    "Evidencia faltante / incertidumbre",
+                    hallazgo.evidencia_faltante,
+                    "No especificada",
+                ),
+                ("Limitaciones", hallazgo.limitaciones, "No especificada"),
+            ):
+                st.markdown(
+                    f"**{etiqueta}:** " + ("; ".join(valores) if valores else vacio)
+                )
         st.markdown("**Evidencia observada:**")
         for evento in eventos_referenciados(caso, hallazgo):
             columnas = st.columns([3, 3, 3])

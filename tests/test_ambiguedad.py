@@ -99,6 +99,11 @@ def test_verdad_de_referencia_permanece_fuera_de_la_solicitud_al_modelo() -> Non
     assert set(json.loads(mensaje_usuario)) == {
         "eventos", "uids_citables", "tecnicas_permitidas"
     }
+    eventos_payload = json.dumps(
+        json.loads(mensaje_usuario)["eventos"], ensure_ascii=False
+    ).casefold()
+    assert "aprobad" not in eventos_payload
+    assert "autorizad" not in eventos_payload
     solicitud = json.dumps(capturado["cuerpo"], ensure_ascii=False).casefold()
     reveladores = (
         "escenario_id", "contexto_esperado", "fundamento",
@@ -196,15 +201,68 @@ def test_lenguaje_concluyente_no_se_persiste_ni_se_muestra(
 
     legado = _caso(
         "caso-legado",
-        hallazgo=_hallazgo("caso-legado", "Equipo comprometido por PsExec"),
+        hallazgo=_hallazgo("caso-legado", "El equipo está comprometido por PsExec"),
+    )
+    legado_otro_campo = _caso(
+        "caso-legado-2",
+        hallazgo=replace(
+            _hallazgo("caso-legado-2"),
+            explicaciones_alternativas=(
+                "Ninguna: la intrusión confirmada se evidencia en SMB",
+            ),
+        ),
     )
     repositorio.guardar(legado)
+    repositorio.guardar(legado_otro_campo)
     monkeypatch.setenv("INVESTIGACION_DATOS", str(tmp_path))
     at = AppTest.from_file(str(APP)).run()
     at.selectbox(key="caso-persistido").set_value("caso-legado").run()
     textos = _textos(at)
-    assert "Equipo comprometido por PsExec" not in textos
+    assert "El equipo está comprometido por PsExec" not in textos
     assert "Formulación no mostrada" in textos
+
+    at.selectbox(key="caso-persistido").set_value("caso-legado-2").run()
+    textos = _textos(at)
+    assert "intrusión confirmada" not in textos
+    assert "Formulación no mostrada" in textos
+
+
+def test_frase_negada_o_incierta_no_es_lenguaje_concluyente(tmp_path: Path) -> None:
+    afirmativa = PropuestaHallazgo(
+        hipotesis="El equipo está comprometido por la ejecución remota",
+        referencias_eventos=("ctl-2",),
+        razon_vinculo="PSEXESVC seguido de PowerShell",
+    )
+    incierta = PropuestaHallazgo(
+        hipotesis="Ejecución remota de doble uso a revisar",
+        referencias_eventos=("ctl-2",),
+        razon_vinculo=(
+            "No hay evidencia suficiente para afirmar que el equipo esté "
+            "comprometido"
+        ),
+    )
+    negada = PropuestaHallazgo(
+        hipotesis="Ejecución remota de doble uso a revisar",
+        referencias_eventos=("ctl-2",),
+        razon_vinculo=(
+            "El sistema no está comprometido según la evidencia disponible"
+        ),
+    )
+    origen = origen_control_legitimo()
+    repositorio = RepositorioSQLite(tmp_path / "casos.sqlite")
+    modulo = ModuloDeInvestigacion(
+        evidencia_control_legitimo(),
+        InferenciaControlada((afirmativa, incierta, negada)),
+        repositorio,
+        generador_de_ids=lambda: "caso-mixto",
+    )
+
+    caso = modulo.investigar_caso(modulo.crear_caso(origen).id)
+
+    assert [hallazgo.razon_vinculo for hallazgo in caso.hallazgos] == [
+        propuesta.razon_vinculo for propuesta in (incierta, negada)
+    ]
+    assert any("lenguaje concluyente" in error for error in caso.errores)
 
 
 def test_abstencion_no_se_transforma_en_ataque(tmp_path: Path) -> None:

@@ -9,10 +9,12 @@ entrega al modelo.
 ## Caso B — Control legítimo
 
 Una operación de parcheo autorizada que produce telemetría semejante al caso
-sospechoso sembrado (PSEXESVC + PowerShell + SMB saliente) pero con
-procedencia autorizada explícita en la evidencia (ticket de cambio, cuenta de
-servicio, script firmado, servidor de archivos interno conocido). El sistema
-no debería declarar compromiso sólo por reconocer PsExec/PowerShell.
+sospechoso sembrado (PSEXESVC + PowerShell + SMB saliente). La evidencia sólo
+lleva lo observable (referencia al ticket, cuenta de servicio, script y
+servidor de archivos interno); la autorización se documenta en la verdad de
+referencia, no dentro del material que recibe el modelo (ADR-0004, ADR-0015).
+El sistema no debería declarar compromiso sólo por reconocer
+PsExec/PowerShell.
 
 ## Caso D — Manipulación
 

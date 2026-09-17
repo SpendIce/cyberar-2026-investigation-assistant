@@ -42,8 +42,8 @@ def eventos_control_legitimo() -> tuple[Evento, ...]:
             localizador_original="Application/EventRecordID=9001",
             timestamp_normalizado="2026-02-01T09:00:00Z", host="WIN-ADMIN01",
             usuario="svc-patching", canal="Application",
-            tipo_evento="ChangeTicketApproved",
-            contenido="Ticket CHG-4821 aprobado: actualizar agente de parcheo en WIN-ADMIN01",
+            tipo_evento="ChangeTicketReferenced",
+            contenido="Referencia a ticket CHG-4821 para actualización de agente en WIN-ADMIN01",
             referencia_original="evidence/WIN-ADMIN01/Application/9001",
         ),
         Evento(
