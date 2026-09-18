@@ -43,9 +43,12 @@ def mostrar(servicio: ServicioDeCasos, caso_id: str) -> None:
         st.rerun()
         return
 
-    if st.button("← Casos", key="volver"):
+    navegacion, acciones = st.columns([1, 5])
+    if navegacion.button("← Casos", key="volver"):
         _volver()
         st.rerun()
+    with acciones:
+        vista_exportar.boton_exportar(servicio, caso)
 
     st.title(servicio.titulo_de(caso))
     modalidad = caso.modalidad_inferencia
@@ -57,9 +60,7 @@ def mostrar(servicio: ServicioDeCasos, caso_id: str) -> None:
         st.badge(f"Escenario: {escenario.tipo_evidencia}", color="blue")
         st.caption(escenario.descripcion)
 
-    tabs = st.tabs(
-        ["Resumen", "Cronología", "Hallazgos", "Hipótesis IA", "Exportar"]
-    )
+    tabs = st.tabs(["Resumen", "Cronología", "Hallazgos", "Hipótesis IA"])
     with tabs[0]:
         vista_resumen.mostrar(servicio, caso)
     with tabs[1]:
@@ -68,5 +69,3 @@ def mostrar(servicio: ServicioDeCasos, caso_id: str) -> None:
         vista_hallazgos.mostrar(servicio, caso)
     with tabs[3]:
         vista_hipotesis.mostrar(servicio, caso)
-    with tabs[4]:
-        vista_exportar.mostrar(servicio, caso)

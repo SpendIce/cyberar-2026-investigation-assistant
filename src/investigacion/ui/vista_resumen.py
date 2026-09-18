@@ -32,18 +32,6 @@ def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
         "defensivas sobre los eventos del caso.",
     )
 
-    hosts = hosts_del_caso(caso)
-    st.caption(
-        f"Fuente: {estado['Fuente']} · SHA-256: `{estado['SHA-256']}` · "
-        f"Procedencia: {estado['Procedencia']} · "
-        f"Hosts: {', '.join(hosts) if hosts else 'no declarados'}"
-    )
-
-    if caso.contexto.strip():
-        st.markdown(f"**Contexto declarado por el operador:** {caso.contexto}")
-    else:
-        st.caption("Sin contexto declarado: la narrativa se apoya sólo en la evidencia.")
-
     st.subheader("Interpretación del modelo")
     if caso.hallazgos:
         st.badge("Generado por IA · pendiente de revisión humana", color="violet")
@@ -67,6 +55,18 @@ def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
         )
     else:
         st.caption("El motor no produjo hipótesis para este caso.")
+
+    if caso.contexto.strip():
+        st.markdown(f"**Contexto declarado por el operador:** {caso.contexto}")
+    else:
+        st.caption("Sin contexto declarado: la narrativa se apoya sólo en la evidencia.")
+
+    hosts = hosts_del_caso(caso)
+    st.caption(
+        f"Fuente: {estado['Fuente']} · SHA-256: `{estado['SHA-256']}` · "
+        f"Procedencia: {estado['Procedencia']} · "
+        f"Hosts: {', '.join(hosts) if hosts else 'no declarados'}"
+    )
 
     topologia = topologia_hosts(caso)
     if topologia:

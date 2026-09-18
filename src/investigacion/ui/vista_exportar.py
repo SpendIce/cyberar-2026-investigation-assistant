@@ -23,8 +23,9 @@ _FORMATOS = {
 def _dialogo_exportar(servicio: ServicioDeCasos, caso: Caso) -> None:
     st.caption(
         "Elegí qué artefactos descargar. El informe sale del estado validado "
-        "del caso; los archivos raw son los conservados por la importación, "
-        "byte a byte."
+        "del caso e incluye el sello de la cadena de custodia (verificable "
+        "con `python -m investigacion.informe --verificar <archivo>`); los "
+        "archivos raw son los conservados por la importación, byte a byte."
     )
     st.markdown("**Informe del caso**")
     formato = st.radio(
@@ -74,11 +75,7 @@ def _dialogo_exportar(servicio: ServicioDeCasos, caso: Caso) -> None:
         )
 
 
-def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
-    st.subheader("Exportación")
-    st.caption(
-        "El informe incluye el sello de la cadena de custodia: verificable con "
-        "`python -m investigacion.informe --verificar <archivo>`."
-    )
+def boton_exportar(servicio: ServicioDeCasos, caso: Caso) -> None:
+    """El botón que abre el modal de exportación directamente."""
     if st.button("Exportar…", type="primary", key="abrir-exportar"):
         _dialogo_exportar(servicio, caso)

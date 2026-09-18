@@ -10,6 +10,7 @@ import streamlit as st
 from investigacion.modelos import Caso, EstadoRevision
 from investigacion.ui.metricas import (
     mapa_attack,
+    nombre_tecnica,
     numeros_sigma,
     tacticas_orden,
     tecnicas_del_modelo,
@@ -20,7 +21,6 @@ from investigacion.ui.presentacion import (
     referencias_no_resueltas,
 )
 from investigacion.ui.servicio import ServicioDeCasos
-from investigacion.validacion import contiene_lenguaje_concluyente, prosa_revisable
 
 
 def _abrir_evento(uid: str) -> None:
@@ -74,15 +74,22 @@ def _mostrar_matriz(caso: Caso) -> None:
             continue
         chips = []
         for tecnica in tecnicas:
+            nombre = nombre_tecnica(tecnica)
             if tecnica in heredadas and tecnica in del_modelo:
                 chips.append(
-                    _chip(tecnica, "#7c3aed", f"regla + modelo: {heredadas[tecnica]}")
+                    _chip(
+                        nombre,
+                        "#7c3aed",
+                        f"{tecnica} · regla + modelo: {heredadas[tecnica]}",
+                    )
                 )
             elif tecnica in heredadas:
-                chips.append(_chip(tecnica, "#2563eb", f"regla: {heredadas[tecnica]}"))
+                chips.append(
+                    _chip(nombre, "#2563eb", f"{tecnica} · regla: {heredadas[tecnica]}")
+                )
             elif tecnica in del_modelo:
                 chips.append(
-                    _chip(tecnica, "#9333ea", f"modelo: {del_modelo[tecnica]}")
+                    _chip(nombre, "#9333ea", f"{tecnica} · {del_modelo[tecnica]}")
                 )
         if chips:
             filas.append(
@@ -108,37 +115,14 @@ def _mostrar_matriz(caso: Caso) -> None:
     else:
         st.caption("Ninguna técnica del caso coincide con la cobertura del release fijado.")
     st.caption(
-        f"La cobertura de fondo son las {len(mapa['tecnicas'])} técnicas con al "
-        "menos una regla en la distribución Hayabusa fijada; sólo se dibujan las "
-        "tácticas donde el caso tiene actividad. Que una técnica aparezca no "
-        "implica compromiso: es un candidato sujeto a revisión."
+        "Sólo se dibujan las técnicas donde el caso tiene actividad; el id "
+        "exacto queda en el tooltip de cada chip. Que una técnica aparezca "
+        "no implica compromiso: es un candidato sujeto a revisión."
     )
-    with st.expander("Ver la cobertura completa del release (todas las tácticas)"):
-        lineas = []
-        for tactica in tacticas_orden():
-            tecnicas = por_tactica[tactica]
-            if not tecnicas:
-                continue
-            chips = []
-            for tecnica in tecnicas:
-                if tecnica in heredadas or tecnica in del_modelo:
-                    chips.append(_chip(tecnica, "#2563eb", tecnica))
-                else:
-                    chips.append(
-                        f'<span style="display:inline-block;background:#3a3b3f;'
-                        f'color:#9d9da8;padding:2px 7px;margin:2px;border-radius:4px;'
-                        f'font-size:.75em;font-family:monospace">{tecnica}</span>'
-                    )
-            lineas.append(
-                f"<div style='margin:.3em 0'><b>{html.escape(tactica)}</b> "
-                f"({len(tecnicas)}): " + " ".join(chips) + "</div>"
-            )
-        st.markdown("".join(lineas), unsafe_allow_html=True)
 
 
 def _mostrar_hallazgo(servicio: ServicioDeCasos, caso: Caso, indice: int) -> None:
     hallazgo = caso.hallazgos[indice]
-    concluyente = contiene_lenguaje_concluyente(prosa_revisable(hallazgo))
     encabezado, revision = st.columns([3, 2])
     encabezado.markdown(f"### Hipótesis {indice + 1}")
     estado = hallazgo.estado_revision
@@ -157,16 +141,14 @@ def _mostrar_hallazgo(servicio: ServicioDeCasos, caso: Caso, indice: int) -> Non
         servicio.modulo.revisar_hallazgo(caso.id, indice, EstadoRevision.RECHAZADA)
         st.rerun()
 
-    if concluyente:
-        st.error(
-            "Formulación no mostrada: utilizó lenguaje concluyente incompatible "
-            "con una hipótesis pendiente de revisión."
-        )
-    else:
-        st.markdown(f"**{hallazgo.hipotesis}**")
     st.markdown(
         "**Técnicas candidatas:** "
-        + (", ".join(hallazgo.tecnicas_candidatas) or "ninguna")
+        + (
+            ", ".join(
+                f"{nombre_tecnica(t)} (`{t}`)" for t in hallazgo.tecnicas_candidatas
+            )
+            or "ninguna"
+        )
     )
     st.markdown(f"**Procedencia del mapeo:** {hallazgo.procedencia_mapeo.value}")
     st.markdown("**Evidencia observada:**")

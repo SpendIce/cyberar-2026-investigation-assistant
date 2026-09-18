@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, cast
 
@@ -161,6 +162,23 @@ def topologia_hosts(caso: Caso) -> dict[str, set[str]]:
                 ):
                     topologia.setdefault(host, set()).add(remoto)
     return topologia
+
+
+@lru_cache(maxsize=1)
+def _nombres_attack() -> dict[str, str]:
+    """id de técnica -> nombre legible, desde el catálogo local fijado."""
+    ruta = Path(__file__).resolve().parent.parent / "datos" / "catalogo_attack.json"
+    datos = json.loads(ruta.read_text(encoding="utf-8"))
+    return {
+        str(entrada["id"]): str(entrada["nombre"])
+        for entrada in datos.get("tecnicas", [])
+        if entrada.get("id") and entrada.get("nombre")
+    }
+
+
+def nombre_tecnica(tecnica: str) -> str:
+    """Nombre ATT&CK legible; el propio id si no está en el catálogo."""
+    return _nombres_attack().get(tecnica, tecnica)
 
 
 def mapa_attack() -> dict[str, Any]:
