@@ -115,10 +115,10 @@ def _mostrar_timeline(caso: Caso) -> None:
         )
         .add_params(puntos)
         .properties(height=240)
-        .interactive()
+        .interactive(bind_y=False)
     )
     estado = st.altair_chart(
-        grafico, width="stretch", on_select="rerun", key="timeline"
+        grafico, width="stretch", on_select="rerun", key=f"timeline-{caso.id}"
     )
     uid = _leer_seleccion(estado)
     if uid:
@@ -153,10 +153,17 @@ def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
     _mostrar_timeline(caso)
     _mostrar_detalle_evento(caso)
     st.subheader(f"Eventos ({len(caso.eventos)})")
+    encabezados = st.columns([1, 2, 2, 2, 2, 1])
+    for columna, titulo in zip(
+        encabezados, ("Evento", "Timestamp (UTC)", "Canal", "Tipo", "Proceso", "")
+    ):
+        columna.caption(f"**{titulo}**")
     for evento in cronologia(caso):
         columnas = st.columns([1, 2, 2, 2, 2, 1])
-        columnas[0].markdown(f"`{evento.uid}`")
-        columnas[1].markdown(evento.timestamp_normalizado or "sin timestamp")
+        uid_corto = evento.uid if len(evento.uid) <= 14 else f"{evento.uid[:13]}…"
+        columnas[0].markdown(f"`{uid_corto}`")
+        timestamp = (evento.timestamp_normalizado or "").replace("T", " ")[:19]
+        columnas[1].markdown(timestamp or "sin timestamp")
         columnas[2].markdown(evento.canal or "sin canal")
         columnas[3].markdown(evento.tipo_evento or "evento")
         columnas[4].markdown(evento.proceso or "sin proceso")
