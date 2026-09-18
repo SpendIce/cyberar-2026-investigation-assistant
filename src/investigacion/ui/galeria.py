@@ -50,6 +50,12 @@ def _tarjeta_componente() -> Any:
         "tarjeta_caso",
     html="""
 <div class="card" role="button" tabindex="0">
+  <button class="pin" type="button" aria-label="Fijar caso" title="Fijar caso" aria-pressed="false">
+    <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true">
+      <circle cx="10.4" cy="5" r="3.3"/>
+      <path d="M8.5 7.2 1.6 14.1l1.3 1.3 6.9-6.9z"/>
+    </svg>
+  </button>
   <button class="del" type="button" aria-label="Eliminar caso" title="Eliminar caso">✕</button>
   <div class="titulo"></div>
   <div class="badges"></div>
@@ -83,10 +89,9 @@ def _tarjeta_componente() -> Any:
   outline: 2px solid var(--st-primary-color, #4c9aff);
   outline-offset: 2px;
 }
-.del {
+.del, .pin {
   position: absolute;
   top: .5rem;
-  right: .5rem;
   width: 1.55rem;
   height: 1.55rem;
   border-radius: 50%;
@@ -96,18 +101,32 @@ def _tarjeta_componente() -> Any:
   font-size: .85rem;
   line-height: 1;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: color .15s ease, border-color .15s ease;
 }
+.del { right: .5rem; }
+.pin { right: 2.45rem; }
 .del:hover {
   border-color: var(--st-red-color, #ff4d4f);
   color: var(--st-red-text-color, #ff6b6b);
+}
+.pin:hover {
+  border-color: var(--st-primary-color, #4c9aff);
+  color: var(--st-primary-color, #4c9aff);
+}
+.pin.on {
+  border-color: var(--st-primary-color, #4c9aff);
+  color: var(--st-primary-color, #4c9aff);
+  background: color-mix(in srgb, var(--st-primary-color, #4c9aff) 14%, transparent);
 }
 .titulo {
   font-weight: 600;
   font-size: .92rem;
   line-height: 1.3;
-  padding-right: 1.4rem;
+  padding-right: 4.2rem;
   margin-bottom: .55rem;
   word-break: break-word;
 }
@@ -148,7 +167,8 @@ export default function (component) {
   const stats = parentElement.querySelector(".stats")
   const host = parentElement.querySelector(".host")
   const del = parentElement.querySelector(".del")
-  if (!card || !titulo || !badges || !stats || !host || !del) return
+  const pin = parentElement.querySelector(".pin")
+  if (!card || !titulo || !badges || !stats || !host || !del || !pin) return
 
   titulo.textContent = data.titulo ?? ""
   stats.textContent = data.stats ?? ""
@@ -174,6 +194,13 @@ export default function (component) {
   del.onclick = e => {
     e.stopPropagation()
     setTriggerValue("delete", data.id)
+  }
+  pin.classList.toggle("on", !!data.fijado)
+  pin.setAttribute("aria-pressed", data.fijado ? "true" : "false")
+  pin.title = data.fijado ? "Quitar del frente" : "Fijar al frente"
+  pin.onclick = e => {
+    e.stopPropagation()
+    setTriggerValue("pin", data.id)
   }
 }
 """,
@@ -222,6 +249,7 @@ def _tarjeta(
                     f"{len(caso.hallazgos)} hallazgos"
                 ),
                 "host": f"Host: {', '.join(hosts) if hosts else 'no declarado'}",
+                "fijado": servicio.es_fijado(caso),
             },
         )
     if getattr(resultado, "open", None):
@@ -229,6 +257,9 @@ def _tarjeta(
         st.rerun()
     if getattr(resultado, "delete", None):
         st.session_state["baja_pendiente"] = str(resultado.delete)
+    if getattr(resultado, "pin", None):
+        servicio.alternar_fijado(str(resultado.pin))
+        st.rerun()
 
 
 def _filtrar(servicio: ServicioDeCasos) -> tuple[Caso, ...]:
@@ -249,14 +280,21 @@ def _filtrar(servicio: ServicioDeCasos) -> tuple[Caso, ...]:
             or busqueda in " ".join(hosts_del_caso(caso)).casefold()
             or busqueda in caso.id.casefold()
         )
-    # Los casos del conjunto curado (con escenario) encabezan la grilla;
-    # dentro de cada grupo se ordena por título, así los pares de escenario
-    # ("con contexto" / "sin contexto") quedan adyacentes y las altas en
-    # vivo quedan al final.
+    return ordenar_para_galeria(servicio, casos)
+
+
+def ordenar_para_galeria(
+    servicio: ServicioDeCasos, casos: tuple[Caso, ...]
+) -> tuple[Caso, ...]:
+    """Los casos fijados encabezan la grilla, después el conjunto curado
+    (con escenario) y al final el resto; dentro de cada grupo se ordena
+    por título, así los pares de escenario ("con contexto" / "sin
+    contexto") quedan adyacentes y las altas en vivo quedan al final."""
     return tuple(
         sorted(
             casos,
             key=lambda c: (
+                not servicio.es_fijado(c),
                 servicio.escenario_de(c) is None,
                 servicio.titulo_de(c).casefold(),
             ),

@@ -10,9 +10,10 @@ desde la interfaz.
 
 from __future__ import annotations
 
+import json
 import os
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from investigacion.adaptadores.controlados import (
@@ -53,6 +54,7 @@ _ENV_HOST_CONTROLADO = "INVESTIGACION_HOST_CONTROLADO"
 _HAYABUSA_DEFECTO = Path.home() / "tools" / "hayabusa-4.1.0" / "hayabusa-4.1.0-lin-x64-musl"
 _OLLAMA_DEFECTO = "http://localhost:11434"
 _MODELO_DEFECTO = "qwen2.5:7b-instruct"
+_ARCHIVO_FIJADOS = "fijados.json"
 
 
 @dataclass
@@ -64,6 +66,7 @@ class ServicioDeCasos:
     escenarios: dict[str, EscenarioComparacion]
     directorio_datos: Path | None
     puede_importar: bool
+    fijados: set[str] = field(default_factory=set)
 
     def casos(self) -> tuple[Caso, ...]:
         return tuple(
@@ -80,6 +83,31 @@ class ServicioDeCasos:
         if escenario is not None:
             return escenario.titulo
         return caso.origen.nombre or caso.origen.ruta
+
+    def es_fijado(self, caso: Caso) -> bool:
+        return caso.id in self.fijados
+
+    def alternar_fijado(self, caso_id: str) -> None:
+        """Fija o libera un caso al frente de la galería; la selección se
+        persiste junto a los demás metadatos de `directorio_datos`."""
+        if caso_id in self.fijados:
+            self.fijados.discard(caso_id)
+        else:
+            self.fijados.add(caso_id)
+        self._guardar_fijados()
+
+    def _guardar_fijados(self) -> None:
+        if self.directorio_datos is None:
+            return
+        ruta = self.directorio_datos / _ARCHIVO_FIJADOS
+        ruta.write_text(
+            json.dumps(
+                {"version": 1, "fijados": sorted(self.fijados)},
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n"
+        )
 
     def importar_upload(
         self, nombre: str, contenido: bytes, procedencia: str, contexto: str
@@ -150,6 +178,18 @@ def motor_inferencia() -> MotorDeInferencia:
     return InferenciaConRespaldo(*motores)
 
 
+def _cargar_fijados(directorio_datos: Path) -> set[str]:
+    ruta = directorio_datos / _ARCHIVO_FIJADOS
+    try:
+        datos = json.loads(ruta.read_text())
+    except (OSError, json.JSONDecodeError):
+        return set()
+    fijados = datos.get("fijados") if isinstance(datos, dict) else None
+    if not isinstance(fijados, list):
+        return set()
+    return {f for f in fijados if isinstance(f, str)}
+
+
 def servicio_persistido(directorio_datos: Path) -> ServicioDeCasos:
     repositorio = RepositorioSQLite(directorio_datos / "casos.sqlite")
     hayabusa = Path(os.environ.get(_ENV_HAYABUSA, str(_HAYABUSA_DEFECTO)))
@@ -165,6 +205,7 @@ def servicio_persistido(directorio_datos: Path) -> ServicioDeCasos:
         escenarios=cargar_comparacion(directorio_datos / ARCHIVO_COMPARACION),
         directorio_datos=directorio_datos,
         puede_importar=puede_importar,
+        fijados=_cargar_fijados(directorio_datos),
     )
 
 
