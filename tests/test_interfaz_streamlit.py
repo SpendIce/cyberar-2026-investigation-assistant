@@ -43,7 +43,7 @@ def test_la_interfaz_muestra_galeria_y_detalle_del_caso_sembrado() -> None:
     textos = _textos(at)
     assert "Custodia" in textos
     assert "Eventos (4)" in textos
-    assert "Hipótesis 1" in textos
+    assert "Evidencia observada" in textos
     assert "Ejecución remota compatible con administración remota de servicios" in textos
     assert "T1021.002" in textos
     assert "ev-1" in textos
