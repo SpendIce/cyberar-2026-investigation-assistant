@@ -162,6 +162,8 @@ def _mostrar_hallazgo(servicio: ServicioDeCasos, caso: Caso, indice: int) -> Non
             "Formulación no mostrada: utilizó lenguaje concluyente incompatible "
             "con una hipótesis pendiente de revisión."
         )
+    else:
+        st.markdown(f"**{hallazgo.hipotesis}**")
     st.markdown(
         "**Técnicas candidatas:** "
         + (", ".join(hallazgo.tecnicas_candidatas) or "ninguna")
