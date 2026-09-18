@@ -151,9 +151,13 @@ def test_dos_escenarios_persistidos_se_comparan_desde_la_misma_interfaz(
 
     at = AppTest.from_file(str(APP)).run()
     assert not at.exception
-    assert "Escenario A — evidencia pública" in _textos(at)
-    assert "Escenario B — control documentado" in _textos(at)
-    at.button(key="abrir-caso-b").click().run()
+    # Las tarjetas CCv2 montan su contenido en el navegador; en AppTest se
+    # verifican las dos instancias por las keys de estado de los componentes.
+    tarjetas = {k for k in at.session_state.keys() if k.startswith("card-")}
+    assert {"card-caso-a", "card-caso-b"} <= tarjetas
+    # La tarjeta CCv2 no se clickea en AppTest: se abre por session_state.
+    at.session_state["caso_abierto"] = "caso-b"
+    at.run()
 
     textos = _textos(at)
     assert not at.exception
@@ -217,13 +221,15 @@ def test_lenguaje_concluyente_no_se_persiste_ni_se_muestra(
     repositorio.guardar(legado_otro_campo)
     monkeypatch.setenv("INVESTIGACION_DATOS", str(tmp_path))
     at = AppTest.from_file(str(APP)).run()
-    at.button(key="abrir-caso-legado").click().run()
+    at.session_state["caso_abierto"] = "caso-legado"
+    at.run()
     textos = _textos(at)
     assert "El equipo está comprometido por PsExec" not in textos
     assert "Formulación no mostrada" in textos
 
     at.button(key="volver").click().run()
-    at.button(key="abrir-caso-legado-2").click().run()
+    at.session_state["caso_abierto"] = "caso-legado-2"
+    at.run()
     textos = _textos(at)
     assert "intrusión confirmada" not in textos
     assert "Formulación no mostrada" in textos

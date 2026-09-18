@@ -18,8 +18,12 @@ def _textos(at: AppTest) -> str:
 
 
 def _abrir_primer_caso(at: AppTest) -> None:
-    boton = next(b for b in at.button if b.label == "Abrir caso")
-    boton.click().run()
+    # La tarjeta es un componente CCv2: su click corre en el navegador, así
+    # que el test abre el caso por el mismo canal que usa el trigger. El id
+    # se deriva de la key del componente montado (card-<id>).
+    clave = next(k for k in at.session_state.keys() if k.startswith("card-"))
+    at.session_state["caso_abierto"] = clave.removeprefix("card-")
+    at.run()
 
 
 def test_la_interfaz_muestra_galeria_y_detalle_del_caso_sembrado() -> None:
@@ -29,7 +33,9 @@ def test_la_interfaz_muestra_galeria_y_detalle_del_caso_sembrado() -> None:
     assert not at.exception
     textos = _textos(at)
     assert "Asistente privado de investigación" in textos
-    assert "caso-sembrado" in textos
+    # La tarjeta CCv2 monta su contenido en el navegador; en AppTest se
+    # verifica la instancia por la key de estado del componente.
+    assert any(k.startswith("card-") for k in at.session_state.keys())
 
     _abrir_primer_caso(at)
 
