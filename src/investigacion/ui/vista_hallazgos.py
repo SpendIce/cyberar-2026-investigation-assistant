@@ -124,7 +124,7 @@ def _mostrar_matriz(caso: Caso) -> None:
 def _mostrar_hallazgo(servicio: ServicioDeCasos, caso: Caso, indice: int) -> None:
     hallazgo = caso.hallazgos[indice]
     encabezado, revision = st.columns([3, 2])
-    encabezado.markdown(f"### Hipótesis {indice + 1}")
+    encabezado.markdown(f"**Hipótesis {indice + 1}**")
     estado = hallazgo.estado_revision
     colores: dict[EstadoRevision, Literal["gray", "green", "red"]] = {
         EstadoRevision.PENDIENTE: "gray",
@@ -174,7 +174,6 @@ def _mostrar_hallazgo(servicio: ServicioDeCasos, caso: Caso, indice: int) -> Non
 def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
     _mostrar_numeros_sigma(caso)
     _mostrar_matriz(caso)
-    st.subheader(f"Hallazgos ({len(caso.hallazgos)})")
     if not caso.hallazgos:
         st.info(
             "El modelo no formuló hipótesis validadas. Esto no equivale a "
