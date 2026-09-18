@@ -5,6 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from investigacion.modelos import Caso, Evento
+from investigacion.ui.metricas import detecciones_evento, severidad_evento
 from investigacion.ui.presentacion import cronologia, procedencia_evento
 from investigacion.ui.servicio import ServicioDeCasos
 
@@ -30,6 +31,24 @@ def _cerrar_evento() -> None:
     st.session_state["evento_abierto"] = None
 
 
+_SEVERIDADES = ("critical", "high", "medium", "low", "informational", "sin detección")
+
+_COLORES_SEVERIDAD = ("#ff4d4f", "#ff7a45", "#faad14", "#ffd666", "#5b8def", "#4b4e57")
+
+
+def _leer_seleccion(estado: object) -> str | None:
+    """uid del punto seleccionado en el gráfico, tolerante a la forma del estado."""
+    seleccion = getattr(estado, "selection", estado)
+    if not isinstance(seleccion, dict):
+        return None
+    for valor in seleccion.values():
+        if isinstance(valor, list):
+            for item in valor:
+                if isinstance(item, dict) and item.get("uid"):
+                    return str(item["uid"])
+    return None
+
+
 def _mostrar_timeline(caso: Caso) -> None:
     filas = [
         {
@@ -37,8 +56,10 @@ def _mostrar_timeline(caso: Caso) -> None:
             "canal": evento.canal or "sin canal",
             "tipo": evento.tipo_evento or "evento",
             "uid": evento.uid,
+            "uid_corto": evento.uid[:12],
             "proceso": evento.proceso or "",
-            "regla": "con detección" if evento.regla_hayabusa else "sin detección",
+            "severidad": severidad_evento(evento),
+            "detecciones": detecciones_evento(evento),
         }
         for evento in cronologia(caso)
         if evento.timestamp_normalizado
@@ -56,26 +77,52 @@ def _mostrar_timeline(caso: Caso) -> None:
     if datos.empty:
         st.caption("Los timestamps no pudieron interpretarse como fechas.")
         return
+    st.caption(
+        "Cada punto es un evento con detección temporal: el color es la "
+        "severidad máxima que disparó y el tamaño, cuántas reglas activó. "
+        "Clic sobre un punto para abrir el evento."
+    )
+    puntos = alt.selection_point(name="pick", fields=["uid"])
     grafico = (
         alt.Chart(datos)
-        .mark_circle(size=90)
+        .mark_circle()
         .encode(
             x=alt.X("cuando:T", title="Tiempo (UTC)"),
             y=alt.Y("canal:N", title="Canal"),
             color=alt.Color(
-                "regla:N",
-                title="Detección",
+                "severidad:N",
+                title="Severidad máxima",
                 scale=alt.Scale(
-                    domain=["con detección", "sin detección"],
-                    range=["#e5484d", "#8b8d98"],
+                    domain=list(_SEVERIDADES), range=list(_COLORES_SEVERIDAD)
                 ),
             ),
-            tooltip=["uid", "cuando:T", "canal", "tipo", "proceso", "regla"],
+            size=alt.Size(
+                "detecciones:Q",
+                title="Detecciones",
+                scale=alt.Scale(range=[80, 420]),
+                legend=None,
+            ),
+            opacity=alt.condition(puntos, alt.value(1), alt.value(0.75)),
+            tooltip=[
+                alt.Tooltip("uid_corto", title="Evento"),
+                alt.Tooltip("cuando:T", title="Timestamp"),
+                alt.Tooltip("canal", title="Canal"),
+                alt.Tooltip("tipo", title="EventID"),
+                alt.Tooltip("proceso", title="Proceso"),
+                alt.Tooltip("severidad", title="Severidad"),
+                alt.Tooltip("detecciones", title="Detecciones"),
+            ],
         )
-        .properties(height=220)
+        .add_params(puntos)
+        .properties(height=240)
         .interactive()
     )
-    st.altair_chart(grafico, width="stretch")
+    estado = st.altair_chart(
+        grafico, width="stretch", on_select="rerun", key="timeline"
+    )
+    uid = _leer_seleccion(estado)
+    if uid:
+        _abrir_evento(uid)
 
 
 def _mostrar_detalle_evento(caso: Caso) -> None:

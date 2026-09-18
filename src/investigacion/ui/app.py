@@ -12,11 +12,13 @@ from __future__ import annotations
 import streamlit as st
 
 from investigacion.ui import detalle, galeria
+from investigacion.ui.estilos import inyectar_estilos
 from investigacion.ui.servicio import obtener_servicio
 
 
 def main() -> None:
     st.set_page_config(page_title="Investigación de eventos", layout="wide")
+    inyectar_estilos()
     servicio = obtener_servicio()
     caso_abierto = st.session_state.get("caso_abierto")
     if caso_abierto:

@@ -82,6 +82,22 @@ def hosts_del_caso(caso: Caso) -> tuple[str, ...]:
     return tuple(sorted({e.host for e in caso.eventos if e.host}))
 
 
+_SEVERIDADES = ("critical", "high", "medium", "low", "informational")
+
+
+def severidad_evento(evento: Any) -> str:
+    """La severidad más alta entre las detecciones del evento."""
+    niveles = {str(fila.get("Level") or "").strip() for fila in detecciones_de(evento)}
+    for severidad in _SEVERIDADES:
+        if severidad in niveles:
+            return severidad
+    return "sin detección"
+
+
+def detecciones_evento(evento: Any) -> int:
+    return len(detecciones_de(evento))
+
+
 _CAMPOS_REMOTOS = (
     "IpAddress",
     "SourceIp",
