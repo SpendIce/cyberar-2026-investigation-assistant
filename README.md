@@ -19,10 +19,13 @@ uv run mypy src         # verifica los tipos
 
 La aplicación mínima recorre crear → investigar → consultar → exportar con adaptadores controlados.
 
-La interfaz Streamlit abre el caso sembrado sin servicios externos o los casos
-persistidos por Hayabusa y Ollama cuando se define `INVESTIGACION_DATOS`.
-Muestra estado, cronología e hipótesis con referencias navegables, y permite
-exportar el caso a Markdown o JSON.
+La interfaz Streamlit abre una galería con el caso sembrado (sin servicios
+externos) o los casos persistidos cuando se define `INVESTIGACION_DATOS`.
+Cada caso se explora por pestañas —Resumen, Cronología con línea de tiempo,
+Hallazgos con números Sigma y matriz ATT&CK, Hipótesis IA marcadas como
+generadas por modelo y Exportar— con alta de casos por arrastre de EVTX,
+revisión humana de hallazgos y exportación en Markdown, HTML o JSON junto a
+los artefactos conservados de la importación.
 
 ## Importación de evidencia real (#3)
 
