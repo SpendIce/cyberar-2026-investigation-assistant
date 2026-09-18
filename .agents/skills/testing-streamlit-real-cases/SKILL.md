@@ -20,8 +20,8 @@ None for localhost Streamlit, SQLite and Ollama. Remote private endpoints may ne
 ## High-signal browser coverage
 
 - The demo should show four events; real fixture counts should be checked against the actual CLI output, not assumed across fixtures.
-- Click reference buttons within Hallazgos, not merely chronology buttons. Detail is inserted above the chronology; scroll back upward to inspect it.
-- Long event content may greatly increase page height. Use Cerrar evento before returning to findings.
+- Click reference buttons within Hallazgos, not merely chronology buttons. Detail opens as a modal dialog regardless of the active tab; scroll position does not matter.
+- The modal blocks interaction until dismissed: use Cerrar, the X, outside click, or Esc before returning to findings.
 - Capture original locator, source SHA and Hayabusa versions alongside the selected UID.
 - Download both formats through the browser and inspect actual files in `~/Downloads`, checking case IDs, counts and cited UID membership.
 - To test case-switch reset adversarially, import the same fixture again through the real CLI. Both cases share event UIDs; an open event must still disappear on selection change. Never fabricate model findings to make the UI look validated.

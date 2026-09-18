@@ -104,8 +104,16 @@ def _mostrar_timeline(caso: Caso) -> None:
         grafico, width="stretch", on_select="rerun", key=f"timeline-{caso.id}"
     )
     uid = _leer_seleccion(estado)
-    if uid:
+    # La selección persiste en el widget entre reruns: se consume una sola
+    # vez por punto para no reabrir el modal después de cerrarlo, y se
+    # fuerza el rerun para que el modal abra en esta misma interacción.
+    clave_visto = f"timeline-visto-{caso.id}"
+    if not uid:
+        st.session_state.pop(clave_visto, None)
+    elif uid != st.session_state.get(clave_visto):
+        st.session_state[clave_visto] = uid
         _abrir_evento(uid)
+        st.rerun()
 
 
 def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:

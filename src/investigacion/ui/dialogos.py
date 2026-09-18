@@ -108,7 +108,7 @@ def _contenido_legible(contenido: str | None) -> tuple[str, str]:
         datos = json.loads(contenido)
     except json.JSONDecodeError:
         return contenido, "text"
-    return json.dumps(datos, indent=2, ensure_ascii=False, sort_keys=True), "json"
+    return json.dumps(datos, indent=2, ensure_ascii=False), "json"
 
 
 def _cerrar_evento() -> None:
@@ -123,7 +123,7 @@ def dialogo_evento(caso: Caso, evento: Evento) -> None:
     hacer scroll para verlo, y sólo existía si la pestaña activa lo dibujaba
     explícitamente. El modal aparece centrado sin importar el scroll ni la
     pestaña, y `on_dismiss` limpia `evento_abierto` al cerrarlo con la X, un
-    clic afuera o Esc — si no, la próxima vez que este caso se renderice
+    clic afuera o Esc: si no, la próxima vez que este caso se renderice
     volvería a abrirse solo.
     """
     st.markdown(f"#### Evento {evento.uid}")
