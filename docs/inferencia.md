@@ -95,10 +95,12 @@ ausencia de interpretación.
 
 `InferenciaOllama` clasifica el `base_url` antes de enviar evidencia
 (`investigacion/soberania.py`, ADR-0016): loopback, RFC1918, link-local y
-overlays CGNAT (Tailscale, 100.64.0.0/10) cuentan como infraestructura
+la IP CGNAT de la tailnet (100.64.0.0/10) cuentan como infraestructura
 controlada, más cualquier host declarado con `hosts_controlados` /
-`--host-controlado` — útil cuando el nodo privado se alcanza por una
-dirección pública administrada por el equipo.
+`--host-controlado` (útil cuando el nodo privado se alcanza por una
+dirección pública administrada por el equipo). Un nombre `*.ts.net` no
+cuenta por sí solo: cualquier tailnet ajena usa el mismo sufijo, así que
+un nodo Tailscale se declara por nombre o por su IP CGNAT.
 
 Un endpoint externo sin opt-in se comporta como un nodo caído:
 `InferenciaNoDisponible` y la cadena de respaldo continúa con el modelo

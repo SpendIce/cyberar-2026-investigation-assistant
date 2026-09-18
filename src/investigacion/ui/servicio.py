@@ -2,8 +2,10 @@
 
 Resuelve los adaptadores según el ambiente: con `INVESTIGACION_DATOS` trabaja
 sobre el repositorio persistido y habilita el alta de casos (Hayabusa real +
-inferencia según credenciales disponibles); sin esa variable expone el caso
-sembrado con adaptadores controlados.
+inferencia Ollama local/privada según `OLLAMA_*`); sin esa variable expone el
+caso sembrado con adaptadores controlados. El endpoint externo Zen queda
+reservado al pre-procesado offline de fixtures públicos y nunca se habilita
+desde la interfaz.
 """
 
 from __future__ import annotations
@@ -20,15 +22,15 @@ from investigacion.adaptadores.controlados import (
 )
 from investigacion.adaptadores.hayabusa import EvidenciaHayabusa
 from investigacion.adaptadores.memoria import RepositorioEnMemoria
+from investigacion.adaptadores.ollama import InferenciaOllama
 from investigacion.adaptadores.sqlite import RepositorioSQLite
-from investigacion.adaptadores.zen import InferenciaZen
 from investigacion.adaptadores.respaldo import InferenciaConRespaldo
 from investigacion.escenarios import (
     ARCHIVO_COMPARACION,
     EscenarioComparacion,
     cargar_comparacion,
 )
-from investigacion.modelos import Caso, Origen
+from investigacion.modelos import Caso, ModalidadInferencia, Origen
 from investigacion.modulo import ModuloDeInvestigacion
 from investigacion.puertos import MotorDeInferencia, RepositorioDeCasos
 from investigacion.sembrado import (
@@ -39,10 +41,18 @@ from investigacion.sembrado import (
     eventos_sembrados,
     propuesta_sembrada,
 )
+from investigacion.soberania import es_endpoint_local
 
 _ENV_DATOS = "INVESTIGACION_DATOS"
 _ENV_HAYABUSA = "HAYABUSA"
+_ENV_OLLAMA_MODELO = "OLLAMA_MODELO"
+_ENV_OLLAMA_BASE_URL = "OLLAMA_BASE_URL"
+_ENV_OLLAMA_MODELO_NODO = "OLLAMA_MODELO_NODO"
+_ENV_OLLAMA_BASE_URL_NODO = "OLLAMA_BASE_URL_NODO"
+_ENV_HOST_CONTROLADO = "INVESTIGACION_HOST_CONTROLADO"
 _HAYABUSA_DEFECTO = Path.home() / "tools" / "hayabusa-4.1.0" / "hayabusa-4.1.0-lin-x64-musl"
+_OLLAMA_DEFECTO = "http://localhost:11434"
+_MODELO_DEFECTO = "qwen2.5:7b-instruct"
 
 
 @dataclass
@@ -89,11 +99,51 @@ class ServicioDeCasos:
         return self.modulo.investigar_caso(caso.id)
 
 
-def _motor_inferencia() -> MotorDeInferencia:
-    """El motor disponible según credenciales del ambiente, degradado al final."""
+def _hosts_controlados() -> frozenset[str]:
+    declarados = os.environ.get(_ENV_HOST_CONTROLADO, "")
+    return frozenset(h.strip() for h in declarados.split(",") if h.strip())
+
+
+def _ollama(
+    modelo: str,
+    url: str,
+    modalidad: ModalidadInferencia,
+    declarados: frozenset[str],
+) -> InferenciaOllama:
+    return InferenciaOllama(
+        modelo,
+        base_url=url,
+        modalidad=modalidad,
+        hosts_controlados=declarados,
+    )
+
+
+def motor_inferencia() -> MotorDeInferencia:
+    """El motor interactivo de la interfaz (ADR-0011): nodo Ollama privado si
+    se declara, modelo local a continuación y modo degradado al final.
+
+    Zen queda reservado al pre-procesado offline de fixtures públicos
+    (`scripts/preprocesar_zen.py`): la interfaz nunca envía evidencia a un
+    endpoint externo aunque `OPENCODE_API_KEY` exista en el ambiente.
+    `OLLAMA_MODELO=""` desactiva la inferencia explícitamente.
+    """
+    declarados = _hosts_controlados()
     motores: list[MotorDeInferencia] = []
-    if os.environ.get("OPENCODE_API_KEY"):
-        motores.append(InferenciaZen(permitir_externo=True))
+    modelo_nodo = os.environ.get(_ENV_OLLAMA_MODELO_NODO, "").strip()
+    url_nodo = os.environ.get(_ENV_OLLAMA_BASE_URL_NODO, "").strip()
+    if modelo_nodo and url_nodo:
+        motores.append(
+            _ollama(modelo_nodo, url_nodo, ModalidadInferencia.NODO_PRIVADO, declarados)
+        )
+    modelo_local = os.environ.get(_ENV_OLLAMA_MODELO, _MODELO_DEFECTO).strip()
+    if modelo_local:
+        url_local = os.environ.get(_ENV_OLLAMA_BASE_URL, _OLLAMA_DEFECTO)
+        modalidad = (
+            ModalidadInferencia.MODELO_LOCAL
+            if es_endpoint_local(url_local)
+            else ModalidadInferencia.NODO_PRIVADO
+        )
+        motores.append(_ollama(modelo_local, url_local, modalidad, declarados))
     motores.append(InferenciaNoDisponibleControlada("sin motor configurado"))
     if len(motores) == 1:
         return motores[0]
@@ -106,7 +156,7 @@ def servicio_persistido(directorio_datos: Path) -> ServicioDeCasos:
     puede_importar = hayabusa.is_file()
     modulo = ModuloDeInvestigacion(
         EvidenciaHayabusa(hayabusa, directorio_datos / "evidencia"),
-        _motor_inferencia(),
+        motor_inferencia(),
         repositorio,
     )
     return ServicioDeCasos(

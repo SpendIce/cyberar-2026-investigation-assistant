@@ -36,9 +36,9 @@ echo "== Catálogo ATT&CK fijado =="
 if .venv/bin/python -c "
 from investigacion.catalogo_attack import cargar_catalogo
 c = cargar_catalogo()
-assert 'v15.1' in c.version and len(c.tecnicas) == 8
+assert 'v15.1' in c.version and len(c.tecnicas) == 30
 " 2>/dev/null; then
-    ok "catálogo ATT&CK v15.1 (subconjunto de 8 técnicas)"
+    ok "catálogo ATT&CK v15.1 (subconjunto de 30 técnicas)"
 else
     mal "catálogo ATT&CK v15.1"
 fi

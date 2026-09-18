@@ -53,8 +53,7 @@ def _transporte_ok(llamadas: list[str]) -> Any:
         "http://172.16.3.9:11434",
         "http://192.168.1.20:11434",
         "http://169.254.10.10:11434",
-        "http://100.64.7.8:11434",  # CGNAT: overlay tipo Tailscale del equipo
-        "http://nodo.tail1234.ts.net:11434",  # nombre de tailnet del equipo
+        "http://100.64.7.8:11434",  # CGNAT: IP de la tailnet del equipo
         "http://host.docker.internal:11434",
         "http://LOCALHOST.:11434",
     ],
@@ -74,6 +73,7 @@ def test_los_endpoints_de_infraestructura_controlada_no_requieren_opt_in(url: st
     "url",
     [
         "https://api.ejemplo-externo.com/v1",
+        "http://nodo.tail1234.ts.net:11434",  # cualquier tailnet usa *.ts.net
         "http://151.101.2.132:11434",  # dirección pública (Fastly)
         "http://8.8.8.8:11434",
         "no-es-una-url",

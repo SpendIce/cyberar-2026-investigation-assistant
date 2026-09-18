@@ -12,10 +12,10 @@ verifica cada pieza; esta tabla es la referencia de versiones y licencias.
 | Reglas Hayabusa | incluidas en la distribución 4.1.0 | mismo paquete | GPL-3.0 |
 | Ollama | 0.34.1 (contenedor `ollama-eval`) | [ollama.com](https://ollama.com) | Apache-2.0 |
 | Modelo local | `qwen2.5:7b-instruct` digest `845dbda0ea48` | biblioteca Ollama | Apache-2.0 |
-| Catálogo ATT&CK | Enterprise v15.1, subconjunto local de 8 técnicas | copia fijada en `src/investigacion/datos/catalogo_attack.json` desde [attack.mitre.org](https://attack.mitre.org/resources/attack-data-and-tools/) | Términos de uso MITRE ATT&CK |
+| Catálogo ATT&CK | Enterprise v15.1, subconjunto local de 30 técnicas | copia fijada en `src/investigacion/datos/catalogo_attack.json` desde [attack.mitre.org](https://attack.mitre.org/resources/attack-data-and-tools/) | Términos de uso MITRE ATT&CK |
 | Fixture EVTX | sha256 `971915aa…8f2cd4` | [hayabusa-sample-evtx](https://github.com/Yamato-Security/hayabusa-sample-evtx/tree/0845333ecb4afcf64c55c6e10946383f168f308c/DeepBlueCLI) `DeepBlueCLI` @ `0845333` | GPL-3.0 (mismo repositorio) |
 | Control legítimo | `eventos_control_legitimo()` | generado en código (`escenarios.py`) | propio |
-| Galería EVTX | dataset completo | [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) | dataset público de muestras |
+| Galería EVTX | dataset completo | [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) | GPL (`LICENSE.GPL` en el repositorio) |
 | Inferencia de la galería | `deepseek-v4-flash` vía opencode Zen | endpoint externo `https://opencode.ai/zen/v1`, requiere `OPENCODE_API_KEY` y opt-in explícito | por proveedor |
 | Mapa ATT&CK de display | 334 técnicas desde 4.287 reglas | generado por `scripts/generar_mapa_attack.py` desde las reglas Hayabusa fijadas | derivado de GPL-3.0 |
 
@@ -61,11 +61,28 @@ El arranque en vivo no depende de ningún servicio cloud: la aplicación,
 Streamlit, SQLite y Ollama corren localmente, y el respaldo no requiere ni
 Ollama. La inferencia externa sólo se usó para preparar la galería.
 
+## Inferencia interactiva de la interfaz
+
+La interfaz infiere contra Ollama exclusivamente; Zen nunca se habilita
+desde la UI aunque `OPENCODE_API_KEY` exista. Cadena de respaldo
+(ADR-0011): nodo privado declarado, modelo local, modo degradado.
+
+| Variable | Defecto | Uso |
+|---|---|---|
+| `OLLAMA_MODELO_NODO` + `OLLAMA_BASE_URL_NODO` | sin nodo | Nodo privado primario; requiere ambas |
+| `OLLAMA_MODELO` | `qwen2.5:7b-instruct` | Modelo local (o endpoint declarado); `""` desactiva la inferencia |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Endpoint del modelo local |
+| `INVESTIGACION_HOST_CONTROLADO` | vacío | Hosts propios adicionales, separados por coma |
+
+Si el endpoint declarado es público y no está en
+`INVESTIGACION_HOST_CONTROLADO`, la inferencia se rechaza y el caso queda
+en modo degradado: la evidencia nunca sale a infraestructura no declarada.
+
 ## Respaldo de presentación
 
-`docs/demo/respaldo/` contiene una corrida guardada del caso sospechoso —
-importación real por Hayabusa + inferencia real del modelo local + cadena
-de custodia— claramente identificada como respaldo (ver su `LEEME.md`).
+`docs/demo/respaldo/` contiene una corrida guardada del caso sospechoso
+(importación real por Hayabusa + inferencia real del modelo local + cadena
+de custodia), claramente identificada como respaldo (ver su `LEEME.md`).
 Para regenerarla:
 
 ```bash
