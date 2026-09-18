@@ -43,11 +43,10 @@ def mostrar(servicio: ServicioDeCasos, caso_id: str) -> None:
         st.rerun()
         return
 
-    navegacion, acciones = st.columns([1, 5])
-    if navegacion.button("← Casos", key="volver"):
-        _volver()
-        st.rerun()
-    with acciones:
+    with st.container(horizontal=True):
+        if st.button("← Casos", key="volver"):
+            _volver()
+            st.rerun()
         vista_exportar.boton_exportar(servicio, caso)
 
     st.title(servicio.titulo_de(caso))
