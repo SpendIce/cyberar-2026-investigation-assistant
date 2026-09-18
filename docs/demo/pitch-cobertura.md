@@ -64,10 +64,10 @@ Cobertura ATT&CK de los tags declarados en las reglas:
 
 Aclaración honesta: que exista una regla con tag `tXXXX` no implica detección
 en un entorno dado — depende de políticas de auditoría, versión de Windows y
-ruido. Y el catálogo ATT&CK que el validador acepta en el MVP es un
-subconjunto local fijado de 8 técnicas (v15.1, escenario PsExec/PowerShell,
-ADR-0014): las reglas traen cobertura amplia, la validación es deliberada y
-acotada.
+ruido. Y el catálogo ATT&CK que el validador acepta es un subconjunto local
+fijado de 30 técnicas (v15.1): las que el escenario del MVP y los casos de la
+galería realmente producen (ADR-0014). Las reglas traen cobertura amplia, la
+validación es deliberada y acotada.
 
 En el caso de la demo, Hayabusa registró 12 correspondencias regla–evento,
 todas en canal System (instalaciones de servicio sospechosas y borrado de
