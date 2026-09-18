@@ -1,11 +1,14 @@
-"""Diálogos modales de la interfaz: alta de caso y confirmación de baja."""
+"""Diálogos modales de la interfaz: alta de caso, baja y detalle de evento."""
 
 from __future__ import annotations
+
+import json
 
 import streamlit as st
 
 from investigacion.errores import CasoNoEncontrado, ErrorDeImportacion
-from investigacion.modelos import Caso
+from investigacion.modelos import Caso, Evento
+from investigacion.ui.presentacion import procedencia_evento
 from investigacion.ui.servicio import ServicioDeCasos
 
 
@@ -75,4 +78,68 @@ def dialogo_baja(servicio: ServicioDeCasos, caso: Caso) -> None:
         st.session_state.pop("caso_abierto", None)
         st.rerun()
     if cancelar.button("Cancelar"):
+        st.rerun()
+
+
+def _campos_evento(evento: Evento) -> tuple[tuple[str, str], ...]:
+    return (
+        ("Timestamp original", evento.timestamp_original or "no declarado"),
+        ("Timestamp normalizado", evento.timestamp_normalizado or "no declarado"),
+        ("Host", evento.host or "no declarado"),
+        ("Usuario", evento.usuario or "no declarado"),
+        ("Canal", evento.canal or "no declarado"),
+        ("Tipo de evento", evento.tipo_evento or "no declarado"),
+        ("Proceso", evento.proceso or "no declarado"),
+        ("Proceso padre", evento.proceso_padre or "no declarado"),
+    )
+
+
+def _contenido_legible(contenido: str | None) -> tuple[str, str]:
+    """(texto, lenguaje) para mostrar `contenido` de forma legible.
+
+    El adaptador Hayabusa persiste JSON compacto en una sola línea (ver
+    `hayabusa.py`); reformatearlo con indentación es sólo presentación, no
+    toca el dato persistido. Si no es JSON (por ejemplo el caso sembrado, con
+    texto plano), se muestra tal cual.
+    """
+    if not contenido:
+        return "sin contenido", "text"
+    try:
+        datos = json.loads(contenido)
+    except json.JSONDecodeError:
+        return contenido, "text"
+    return json.dumps(datos, indent=2, ensure_ascii=False), "json"
+
+
+def _cerrar_evento() -> None:
+    st.session_state.pop("evento_abierto", None)
+
+
+@st.dialog("Evento", width="large", on_dismiss=_cerrar_evento)
+def dialogo_evento(caso: Caso, evento: Evento) -> None:
+    """Detalle de un evento citado, como pantalla modal en vez de panel inline.
+
+    Un panel inline al final de la cronología o de un hallazgo obligaba a
+    hacer scroll para verlo, y sólo existía si la pestaña activa lo dibujaba
+    explícitamente. El modal aparece centrado sin importar el scroll ni la
+    pestaña, y `on_dismiss` limpia `evento_abierto` al cerrarlo con la X, un
+    clic afuera o Esc: si no, la próxima vez que este caso se renderice
+    volvería a abrirse solo.
+    """
+    st.markdown(f"#### Evento {evento.uid}")
+    datos, procedencia = st.columns(2)
+    with datos:
+        st.markdown("**Datos normalizados**")
+        for etiqueta, valor in _campos_evento(evento):
+            st.markdown(f"- **{etiqueta}:** {valor}")
+    with procedencia:
+        st.markdown("**Procedencia**")
+        for etiqueta, valor in procedencia_evento(caso, evento):
+            st.markdown(f"- **{etiqueta}:** {valor}")
+    st.markdown("**Contenido**")
+    texto, lenguaje = _contenido_legible(evento.contenido)
+    # Literal: contiene sintaxis de comandos que no debe interpretarse.
+    st.code(texto, language=lenguaje, wrap_lines=True)
+    if st.button("Cerrar", key="cerrar-evento"):
+        _cerrar_evento()
         st.rerun()

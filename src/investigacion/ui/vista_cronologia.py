@@ -4,31 +4,14 @@ from __future__ import annotations
 
 import streamlit as st
 
-from investigacion.modelos import Caso, Evento
+from investigacion.modelos import Caso
 from investigacion.ui.metricas import detecciones_evento, severidad_evento
-from investigacion.ui.presentacion import cronologia, procedencia_evento
+from investigacion.ui.presentacion import cronologia
 from investigacion.ui.servicio import ServicioDeCasos
-
-
-def _campos_evento(evento: Evento) -> tuple[tuple[str, str], ...]:
-    return (
-        ("Timestamp original", evento.timestamp_original or "no declarado"),
-        ("Timestamp normalizado", evento.timestamp_normalizado or "no declarado"),
-        ("Host", evento.host or "no declarado"),
-        ("Usuario", evento.usuario or "no declarado"),
-        ("Canal", evento.canal or "no declarado"),
-        ("Tipo de evento", evento.tipo_evento or "no declarado"),
-        ("Proceso", evento.proceso or "no declarado"),
-        ("Proceso padre", evento.proceso_padre or "no declarado"),
-    )
 
 
 def _abrir_evento(uid: str) -> None:
     st.session_state["evento_abierto"] = uid
-
-
-def _cerrar_evento() -> None:
-    st.session_state["evento_abierto"] = None
 
 
 _SEVERIDADES = ("critical", "high", "medium", "low", "informational", "sin detección")
@@ -121,37 +104,20 @@ def _mostrar_timeline(caso: Caso) -> None:
         grafico, width="stretch", on_select="rerun", key=f"timeline-{caso.id}"
     )
     uid = _leer_seleccion(estado)
-    if uid:
-        _abrir_evento(uid)
-
-
-def _mostrar_detalle_evento(caso: Caso) -> None:
-    uid = st.session_state.get("evento_abierto")
+    # La selección persiste en el widget entre reruns: se consume una sola
+    # vez por punto para no reabrir el modal después de cerrarlo, y se
+    # fuerza el rerun para que el modal abra en esta misma interacción.
+    clave_visto = f"timeline-visto-{caso.id}"
     if not uid:
-        return
-    evento = next((item for item in caso.eventos if item.uid == uid), None)
-    if evento is None:
-        return
-    st.divider()
-    st.markdown(f"#### Evento {evento.uid}")
-    st.button("Cerrar evento", key="cerrar-evento", on_click=_cerrar_evento)
-    datos, procedencia = st.columns(2)
-    with datos:
-        st.markdown("**Datos normalizados**")
-        for etiqueta, valor in _campos_evento(evento):
-            st.markdown(f"- **{etiqueta}:** {valor}")
-        st.markdown("- **Contenido:**")
-        # Literal: contiene sintaxis de comandos que no debe interpretarse.
-        st.code(evento.contenido or "sin contenido")
-    with procedencia:
-        st.markdown("**Procedencia**")
-        for etiqueta, valor in procedencia_evento(caso, evento):
-            st.markdown(f"- **{etiqueta}:** {valor}")
+        st.session_state.pop(clave_visto, None)
+    elif uid != st.session_state.get(clave_visto):
+        st.session_state[clave_visto] = uid
+        _abrir_evento(uid)
+        st.rerun()
 
 
 def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
     _mostrar_timeline(caso)
-    _mostrar_detalle_evento(caso)
     st.subheader(f"Eventos ({len(caso.eventos)})")
     encabezados = st.columns([1, 2, 2, 2, 2, 1])
     for columna, titulo in zip(

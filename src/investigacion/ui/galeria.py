@@ -182,6 +182,7 @@ export default function (component) {
 
 def _abrir(caso_id: str) -> None:
     st.session_state["caso_abierto"] = caso_id
+    st.session_state.pop("evento_abierto", None)
 
 
 def _badges(servicio: ServicioDeCasos, caso: Caso) -> list[dict[str, str]]:

@@ -7,7 +7,7 @@ from typing import Literal
 import streamlit as st
 
 from investigacion.errores import CasoNoEncontrado
-from investigacion.modelos import ModalidadInferencia
+from investigacion.modelos import Caso, ModalidadInferencia
 from investigacion.ui import (
     vista_cronologia,
     vista_exportar,
@@ -15,6 +15,7 @@ from investigacion.ui import (
     vista_hipotesis,
     vista_resumen,
 )
+from investigacion.ui.dialogos import dialogo_evento
 from investigacion.ui.servicio import ServicioDeCasos
 
 _ColorBadge = Literal[
@@ -32,6 +33,23 @@ _ETIQUETA_MODALIDAD: dict[ModalidadInferencia, tuple[str, _ColorBadge]] = {
 def _volver() -> None:
     st.session_state.pop("caso_abierto", None)
     st.session_state.pop("evento_abierto", None)
+
+
+def _mostrar_evento_abierto(caso: Caso) -> None:
+    """Abre el modal del evento citado desde cualquier pestaña, una sola vez.
+
+    `evento_abierto` es estado compartido por Cronología, Hallazgos e
+    Hipótesis IA: se resuelve acá, en el nivel del caso, en vez de duplicar
+    el diálogo (y su trigger) en cada pestaña.
+    """
+    uid = st.session_state.get("evento_abierto")
+    if not uid:
+        return
+    evento = next((item for item in caso.eventos if item.uid == uid), None)
+    if evento is None:
+        st.session_state.pop("evento_abierto", None)
+        return
+    dialogo_evento(caso, evento)
 
 
 def mostrar(servicio: ServicioDeCasos, caso_id: str) -> None:
@@ -58,6 +76,8 @@ def mostrar(servicio: ServicioDeCasos, caso_id: str) -> None:
     if escenario is not None:
         st.badge(f"Escenario: {escenario.tipo_evidencia}", color="blue")
         st.caption(escenario.descripcion)
+
+    _mostrar_evento_abierto(caso)
 
     tabs = st.tabs(["Resumen", "Cronología", "Hallazgos", "Hipótesis IA"])
     with tabs[0]:
