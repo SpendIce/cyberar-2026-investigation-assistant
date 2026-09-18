@@ -1,39 +1,37 @@
 {
   "version": "ATT&CK Enterprise v15.1 (subconjunto local)",
-  "fecha": "2026-01-01",
-  "procedencia": "Copia local fijada a mano desde https://attack.mitre.org/resources/attack-data-and-tools/ para el escenario PsExec/PowerShell del MVP; ver docs/adr/0014-eleccion-modelo-local-ollama.md.",
+  "fecha": "2026-09-17",
+  "procedencia": "Copia local fijada a mano desde https://attack.mitre.org/resources/attack-data-and-tools/ para el escenario PsExec/PowerShell del MVP (docs/adr/0014) y ampliada con las técnicas que las reglas Hayabusa fijadas etiquetan en los casos de la galería.",
   "tecnicas": [
-    {
-      "id": "T1021.002",
-      "nombre": "Remote Services: SMB/Windows Admin Shares"
-    },
-    {
-      "id": "T1569.002",
-      "nombre": "System Services: Service Execution"
-    },
-    {
-      "id": "T1059.001",
-      "nombre": "Command and Scripting Interpreter: PowerShell"
-    },
-    {
-      "id": "T1078",
-      "nombre": "Valid Accounts"
-    },
-    {
-      "id": "T1003.001",
-      "nombre": "OS Credential Dumping: LSASS Memory"
-    },
-    {
-      "id": "T1543.003",
-      "nombre": "Create or Modify System Process: Windows Service"
-    },
-    {
-      "id": "T1134.001",
-      "nombre": "Access Token Manipulation: Token Impersonation/Theft"
-    },
-    {
-      "id": "T1134.002",
-      "nombre": "Access Token Manipulation: Create Process with Token"
-    }
+    { "id": "T1003", "nombre": "OS Credential Dumping" },
+    { "id": "T1003.001", "nombre": "OS Credential Dumping: LSASS Memory" },
+    { "id": "T1021.002", "nombre": "Remote Services: SMB/Windows Admin Shares" },
+    { "id": "T1021.003", "nombre": "Remote Services: Distributed Component Object Model" },
+    { "id": "T1027", "nombre": "Obfuscated Files or Information" },
+    { "id": "T1033", "nombre": "System Owner/User Discovery" },
+    { "id": "T1039", "nombre": "Data from Network Shared Drive" },
+    { "id": "T1047", "nombre": "Windows Management Instrumentation" },
+    { "id": "T1048", "nombre": "Exfiltration Over Alternative Protocol" },
+    { "id": "T1053.005", "nombre": "Scheduled Task/Job: Scheduled Task" },
+    { "id": "T1055", "nombre": "Process Injection" },
+    { "id": "T1057", "nombre": "Process Discovery" },
+    { "id": "T1059", "nombre": "Command and Scripting Interpreter" },
+    { "id": "T1059.001", "nombre": "Command and Scripting Interpreter: PowerShell" },
+    { "id": "T1069.002", "nombre": "Permission Groups Discovery: Domain Groups" },
+    { "id": "T1070.001", "nombre": "Indicator Removal: Clear Windows Event Logs" },
+    { "id": "T1078", "nombre": "Valid Accounts" },
+    { "id": "T1082", "nombre": "System Information Discovery" },
+    { "id": "T1087.001", "nombre": "Account Discovery: Local Account" },
+    { "id": "T1087.002", "nombre": "Account Discovery: Domain Account" },
+    { "id": "T1132.001", "nombre": "Data Encoding: Standard Encoding" },
+    { "id": "T1134", "nombre": "Access Token Manipulation" },
+    { "id": "T1134.001", "nombre": "Access Token Manipulation: Token Impersonation/Theft" },
+    { "id": "T1134.002", "nombre": "Access Token Manipulation: Create Process with Token" },
+    { "id": "T1140", "nombre": "Deobfuscate/Decode Files or Information" },
+    { "id": "T1201", "nombre": "Password Policy Discovery" },
+    { "id": "T1543.003", "nombre": "Create or Modify System Process: Windows Service" },
+    { "id": "T1548", "nombre": "Abuse Elevation Control Mechanism" },
+    { "id": "T1564.003", "nombre": "Hide Artifacts: Hidden Window" },
+    { "id": "T1569.002", "nombre": "System Services: Service Execution" }
   ]
 }
