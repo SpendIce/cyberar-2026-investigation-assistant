@@ -19,6 +19,7 @@ class RepositorioSQLite:
     def __init__(self, ruta: Path) -> None:
         self.ruta = ruta.resolve()
         self.ruta.parent.mkdir(parents=True, exist_ok=True)
+        # Esquema fijado en la revisión XL5: casos, eventos y custodia.
         with closing(sqlite3.connect(self.ruta)) as db, db:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS casos (
