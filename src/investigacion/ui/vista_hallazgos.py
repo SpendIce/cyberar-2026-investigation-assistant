@@ -153,14 +153,19 @@ def _mostrar_hallazgo(servicio: ServicioDeCasos, caso: Caso, indice: int) -> Non
     st.markdown(f"**Procedencia del mapeo:** {hallazgo.procedencia_mapeo.value}")
     st.markdown("**Evidencia observada:**")
     for evento in eventos_referenciados(caso, hallazgo):
-        columnas = st.columns([3, 3, 3])
-        columnas[0].markdown(f"`{evento.uid}`")
-        columnas[1].markdown(evento.timestamp_normalizado or "sin timestamp")
+        columnas = st.columns([2, 3, 1])
+        uid_corto = (
+            evento.uid if len(evento.uid) <= 16 else f"{evento.uid[:15]}…"
+        )
+        columnas[0].markdown(f"`{uid_corto}`")
+        timestamp = (evento.timestamp_normalizado or "").replace("T", " ")[:19]
+        columnas[1].markdown(timestamp or "sin timestamp")
         columnas[2].button(
-            f"Abrir {evento.uid}",
+            "Abrir",
             key=f"referencia-{indice}-{evento.uid}",
             on_click=_abrir_evento,
             args=(evento.uid,),
+            help=f"Abrir evento {evento.uid}",
         )
     for referencia in referencias_no_resueltas(caso, hallazgo):
         st.error(f"Referencia sin evento asociado: {referencia}")
