@@ -1,11 +1,13 @@
 # Investigación local de eventos
 
-Asistente privado que reconstruye actividad a partir de registros Windows exportados, presenta evidencia consultable y propone hipótesis ATT&CK revisables.
+Asistente privado que reconstruye actividad a partir de registros Windows exportados (EVTX), presenta evidencia consultable y propone hipótesis ATT&CK revisables — nunca veredictos.
 
 ## Requisitos
 
 - Python 3.12 o superior
 - [uv](https://docs.astral.sh/uv/)
+- Para importar EVTX reales: Hayabusa 4.1.0 (`lin-x64-musl`)
+- Para inferencia local: Ollama con `qwen2.5:7b-instruct`
 
 ## Comandos
 
@@ -19,101 +21,99 @@ uv run mypy src         # verifica los tipos
 
 La aplicación mínima recorre crear → investigar → consultar → exportar con adaptadores controlados.
 
-La interfaz Streamlit abre una galería con el caso sembrado (sin servicios
-externos) o los casos persistidos cuando se define `INVESTIGACION_DATOS`.
-Cada caso se explora por pestañas —Resumen, Cronología con línea de tiempo,
-Hallazgos con números Sigma y matriz ATT&CK, Hipótesis IA marcadas como
-generadas por modelo y Exportar— con alta de casos por arrastre de EVTX,
-revisión humana de hallazgos y exportación en Markdown, HTML o JSON junto a
-los artefactos conservados de la importación.
+## Interfaz
 
-## Importación de evidencia real (#3)
+La interfaz Streamlit abre una **galería de casos**: el caso sembrado (sin
+servicios externos) o los persistidos cuando se define `INVESTIGACION_DATOS`.
+Desde la galería se dan de alta casos por arrastre de EVTX —con procedencia y
+contexto del ambiente—, se renombran y se eliminan.
 
-El adaptador Hayabusa y el repositorio SQLite permiten importar un EVTX mediante
-`ModuloDeInvestigacion`, conservar su original y consultar una cronología verificable.
-Ver [preparación, comandos y pruebas](docs/evidencia.md).
+Cada caso se explora por pestañas:
 
-## Tracer real EVTX → hallazgo → evidencia (#6)
+- **Resumen**: métricas, fuente, SHA-256, contexto declarado, topología de
+  hosts observada y verificación de custodia.
+- **Cronología**: línea de tiempo visual por canal y tabla navegable; cada
+  evento muestra campos normalizados y procedencia.
+- **Hallazgos**: números Sigma (detecciones, reglas que activaron), matriz
+  ATT&CK que distingue técnicas heredadas de regla vs sugeridas por el
+  modelo, evidencia citada y revisión humana (aceptar/rechazar).
+- **Hipótesis IA**: la interpretación del modelo, marcada de forma
+  persistente como generada por IA, con explicaciones alternativas,
+  evidencia faltante y limitaciones.
+- **Exportar**: modal con el informe (Markdown, HTML o JSON), los eventos
+  normalizados y los artefactos conservados de la importación (EVTX
+  original, salida Hayabusa JSONL, manifiesto).
 
-Un único comando (`python -m investigacion.importar` con `--modelo`) crea un caso
-real desde el fixture EVTX acordado: Hayabusa, normalización, persistencia SQLite,
-inferencia estructurada contra Ollama y validación. La interfaz Streamlit abre los
-casos persistidos con `INVESTIGACION_DATOS` y permite navegar cada hallazgo hasta
-la evidencia citada. Ver [docs/tracer.md](docs/tracer.md).
+## Pipeline de evidencia
 
-## Sobrevivir a fallas de inferencia remota (#7)
+El adaptador Hayabusa y el repositorio SQLite importan un EVTX mediante
+`ModuloDeInvestigacion`: conservan el original con SHA-256 y manifiesto de
+importación, normalizan cada evento con `uid` estable y guardan la salida de
+reglas completa dentro de cada evento. Ver
+[preparación, comandos y pruebas](docs/evidencia.md) y
+[docs/tracer.md](docs/tracer.md) para el recorrido EVTX → hallazgo →
+evidencia con un único comando (`python -m investigacion.importar`).
 
-`--modelo-respaldo` compone `InferenciaConRespaldo` (ADR-0011): si el nodo
-privado declara inferencia no disponible (caído, timeout, respuesta
-inválida), el caso se reintenta contra el modelo local sin intervención
-manual. La transición queda registrada en `errores` con el motivo de la
-caída — visible en Streamlit junto a la modalidad que produjo el resultado
-— y, si ambos motores fallan, el caso persiste en modo degradado con la
-cronología y la evidencia intactas. Ver [docs/respaldo.md](docs/respaldo.md).
+## Motores de inferencia
 
-## Rechazar hallazgos manipulados o inventados (#9)
+- **Local/privado**: `InferenciaOllama` contra un nodo propio.
+- **Externo declarado**: `InferenciaZen` (endpoint OpenAI-compatible de
+  opencode Zen) para pre-procesado offline; la evidencia externa requiere
+  opt-in explícito y la advertencia queda persistida en el caso.
+- **Respaldo**: `InferenciaConRespaldo` (ADR-0011) reintenta contra el
+  siguiente motor si el primero declara no disponible.
+- **Degradado**: si todo motor falla, el caso persiste con cronología,
+  detecciones y evidencia intactas, sin hipótesis nuevas.
 
-El validador rechaza referencias a eventos inexistentes y técnicas fuera del
-catálogo local, y el adaptador Ollama exige y revalida el esquema JSON
-estructurado — sostenido incluso cuando un modelo obedece una instrucción
-insertada en un campo de evidencia. Ver [docs/rechazo.md](docs/rechazo.md)
-para el mapa completo de criterios de aceptación y evidencia.
+La clasificación del endpoint es código (ADR-0016): loopback, redes privadas,
+overlays Tailscale y `--host-controlado` no requieren opt-in; cualquier otro
+destino se rechaza salvo `--permitir-externo`. Ver
+[docs/inferencia.md](docs/inferencia.md) y [docs/respaldo.md](docs/respaldo.md).
 
-## Informe reproducible (#10)
+## Contexto del operador
 
-`python -m investigacion.informe --datos datos --caso <id> --formato markdown`
-exporta el estado validado y persistido de un caso a Markdown o JSON (`--formato
-json`), hacia `--salida <archivo>` o stdout. Lee únicamente `casos.sqlite`:
-nunca vuelve a ejecutar la inferencia durante la exportación.
+Cada caso admite un **contexto declarado** (rol del host, ventanas de
+mantenimiento, herramientas autorizadas) que se almacena con el caso, viaja
+al prompt como contexto —no como instrucción— y puede editarse y
+re-inferirse. El mismo EVTX con y sin contexto produce narrativas distintas:
+la comparación es visible en la galería. Ver
+[escenarios y verdad de referencia separada](docs/ambiguedad.md).
 
-## Comparar actividad ambigua (#8)
+## Validación y custodia
 
-La interfaz compara el EVTX público del tracer con un control administrativo
-sintético/documentado usando los mismos componentes, sin convertir la
-presencia de PsExec, PowerShell, SMB o ATT&CK en una conclusión de
-compromiso. Ver
-[escenarios, verdad de referencia separada y reproducción](docs/ambiguedad.md).
-
-## Endpoints externos con decisión explícita
-
-`InferenciaOllama` clasifica el endpoint antes de enviar evidencia
-(ADR-0016): la infraestructura controlada —loopback, redes privadas,
-overlays Tailscale y los hosts declarados con `--host-controlado`— no
-requiere opt-in; un endpoint externo se rechaza como nodo no disponible
-salvo `--permitir-externo`, y aun permitido la advertencia queda persistida
-en el caso y visible en el informe. Ver [docs/inferencia.md](docs/inferencia.md).
-
-## Cadena de custodia e integridad del informe
+El validador rechaza referencias a eventos inexistentes, técnicas fuera del
+catálogo local y lenguaje concluyente — sostenido incluso cuando un modelo
+obedece una instrucción insertada en un campo de evidencia. Ver
+[docs/rechazo.md](docs/rechazo.md).
 
 Cada escritura del repositorio encadena un sello nuevo al anterior
 (append-only, ADR-0017); el informe publica el sello de la cabeza y el CLI
-deja un `.sha256` junto al artefacto exportado. `verificar_caso` detecta
-ediciones del estado persistido y reescrituras de la cadena;
-`python -m investigacion.informe --verificar <informe>` detecta un archivo
-alterado. Ver [docs/custodia.md](docs/custodia.md).
+deja un `.sha256` junto al artefacto. `verificar_caso` detecta ediciones del
+estado persistido; `python -m investigacion.informe --verificar <informe>`
+detecta un archivo alterado. Ver [docs/custodia.md](docs/custodia.md).
 
-## Adaptador MCP (P1, ADR-0013)
+## Galería pre-procesada y demo
+
+La galería se pobló con ~19 EVTX del dataset público
+[EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES)
+procesados con `scripts/preprocesar_zen.py` (Hayabusa + `deepseek-v4-flash`,
+modalidad `modelo_externo` declarada en cada caso). Guion de tres minutos,
+inventario fijado con licencias, respaldo identificado y matriz de
+recuperación en [docs/demo/](docs/demo/preparacion.md). Verificación rápida:
+`scripts/preparar_demo.sh`; humo offline: `scripts/prueba_humo_offline.sh`.
+
+## Evaluación
+
+`scripts/evaluar_enfoques.py` corre tres enfoques (Hayabusa solo, evidencia
+enviada directamente al modelo sin esquema ni validación, y el pipeline
+completo) contra la misma verdad de referencia separada. Reporta aciertos,
+omisiones, referencias inválidas y obediencia a instrucciones insertadas como
+numeradores/denominadores. Ver
+[enfoques, casos, criterios y reproducción](docs/evaluacion/enfoques.md).
+
+## Adaptador MCP (ADR-0013)
 
 `uv run investigacion-mcp --datos datos [--modelo ...]` expone las
 operaciones del módulo como herramientas MCP por stdio: `listar_casos`,
 `consultar_caso`, `investigar_caso`, `exportar_caso` y `verificar_caso`.
 Sin `crear_caso`: la superficie no acepta rutas de archivo arbitrarias.
-
-## Empaquetado de la demo (#12)
-
-Guion de tres minutos, inventario fijado con licencias, respaldo de
-presentación identificado, prueba de humo sin red y matriz de recuperación
-con responsables: [docs/demo/](docs/demo/preparacion.md). Verificación
-rápida: `scripts/preparar_demo.sh`; humo offline:
-`scripts/prueba_humo_offline.sh`.
-
-## Medir valor frente a Hayabusa y un LLM directo (#11)
-
-`scripts/evaluar_enfoques.py` corre tres enfoques (Hayabusa solo, la
-evidencia enviada directamente al modelo sin esquema ni validación y el
-pipeline completo) sobre los mismos casos y contra la misma verdad de
-referencia separada. Reporta aciertos, omisiones, referencias inválidas y falsas
-afirmaciones como numeradores/denominadores, la obediencia a la instrucción
-insertada por enfoque y la latencia/memoria de los recorridos local, remoto
-y degradado que correspondan. Ver
-[enfoques, casos, criterios y reproducción](docs/evaluacion/enfoques.md).
