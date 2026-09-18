@@ -17,7 +17,7 @@ import json
 import re
 from pathlib import Path
 
-_TAG = re.compile(r"attack\.(t\d{4}(?:\.\d{3})?|[a-z_]+)", re.IGNORECASE)
+_TAG = re.compile(r"attack\.(t\d{4}(?:\.\d{3})?|[a-z_-]+)", re.IGNORECASE)
 
 _TACTICAS = frozenset(
     {
@@ -51,7 +51,7 @@ def main() -> None:
         texto = archivo.read_text(encoding="utf-8", errors="replace")
         tags = {m.lower() for m in _TAG.findall(texto)}
         tecnicas = {t.upper() for t in tags if re.fullmatch(r"T\d{4}(\.\d{3})?", t.upper())}
-        tacticas = tags & _TACTICAS
+        tacticas = {t.replace("-", "_") for t in tags} & _TACTICAS
         if not tecnicas:
             continue
         reglas += 1

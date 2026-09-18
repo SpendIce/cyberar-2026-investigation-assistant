@@ -1,56 +1,82 @@
 {
   "procedencia": "tags attack.t* y attack.<tactica> de las reglas del release fijado",
   "tecnicas": {
-    "T1001.003": [],
+    "T1001.003": [
+      "command_and_control"
+    ],
     "T1003": [
-      "persistence"
+      "credential_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation",
+      "resource_development"
     ],
     "T1003.001": [
       "collection",
+      "credential_access",
+      "defense_evasion",
       "execution",
-      "impact"
+      "impact",
+      "lateral_movement"
     ],
     "T1003.002": [
       "collection",
-      "execution"
+      "credential_access",
+      "execution",
+      "lateral_movement"
     ],
-    "T1003.003": [],
+    "T1003.003": [
+      "credential_access"
+    ],
     "T1003.004": [
-      "execution"
+      "credential_access",
+      "execution",
+      "lateral_movement"
     ],
     "T1003.005": [
+      "credential_access",
       "execution"
     ],
     "T1003.006": [
-      "execution"
+      "credential_access",
+      "execution",
+      "lateral_movement"
     ],
     "T1005": [
       "collection",
+      "credential_access",
       "execution"
     ],
     "T1006": [],
     "T1007": [
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1008": [
-      "persistence"
+      "command_and_control",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1010": [
       "discovery"
     ],
     "T1012": [
+      "credential_access",
       "discovery",
       "execution",
       "exfiltration",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1016": [
       "discovery"
     ],
     "T1018": [
+      "credential_access",
       "discovery",
       "execution",
+      "lateral_movement",
       "persistence",
       "reconnaissance"
     ],
@@ -60,10 +86,14 @@
     ],
     "T1021": [
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1021.001": [
+      "command_and_control",
       "execution",
+      "initial_access",
+      "lateral_movement",
       "persistence"
     ],
     "T1021.002": [
@@ -71,22 +101,37 @@
       "discovery",
       "execution",
       "exfiltration",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1021.003": [
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1021.004": [
-      "execution"
+      "command_and_control",
+      "execution",
+      "lateral_movement"
     ],
-    "T1021.005": [],
+    "T1021.005": [
+      "lateral_movement"
+    ],
     "T1021.006": [
-      "execution"
+      "credential_access",
+      "execution",
+      "lateral_movement"
     ],
     "T1027": [
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "discovery",
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1027.001": [],
     "T1027.002": [],
@@ -101,114 +146,167 @@
     "T1027.009": [],
     "T1027.010": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1033": [
       "discovery",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1035": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1036": [
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1036.002": [
       "execution"
     ],
     "T1036.003": [
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1036.004": [
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1036.005": [
+      "command_and_control",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1036.007": [],
     "T1037.001": [
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1039": [
       "collection",
-      "exfiltration"
+      "exfiltration",
+      "lateral_movement"
     ],
     "T1040": [
+      "credential_access",
       "discovery"
     ],
     "T1041": [
+      "command_and_control",
       "exfiltration"
     ],
     "T1046": [
+      "credential_access",
       "discovery",
       "execution",
+      "privilege_escalation",
       "reconnaissance"
     ],
     "T1047": [
+      "credential_access",
+      "defense_evasion",
       "discovery",
       "execution",
       "impact",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1048": [
       "collection",
+      "command_and_control",
       "execution",
-      "exfiltration"
+      "exfiltration",
+      "lateral_movement"
     ],
     "T1048.001": [
+      "command_and_control",
       "exfiltration"
     ],
     "T1048.003": [
       "exfiltration"
     ],
     "T1049": [
-      "discovery"
+      "discovery",
+      "lateral_movement"
     ],
     "T1050": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1053": [
+      "credential_access",
+      "defense_evasion",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1053.002": [
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1053.005": [
+      "command_and_control",
       "discovery",
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1055": [
+      "command_and_control",
       "discovery",
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
     "T1055.001": [
-      "execution"
+      "defense_evasion",
+      "execution",
+      "privilege_escalation"
     ],
-    "T1055.002": [],
+    "T1055.002": [
+      "defense_evasion",
+      "privilege_escalation"
+    ],
     "T1055.003": [
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
-    "T1055.011": [],
+    "T1055.011": [
+      "privilege_escalation"
+    ],
     "T1055.012": [
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
     "T1056": [
-      "collection"
+      "collection",
+      "credential_access"
     ],
     "T1056.001": [
-      "collection"
+      "collection",
+      "credential_access"
     ],
     "T1056.002": [
-      "collection"
+      "collection",
+      "credential_access"
     ],
     "T1057": [
       "discovery",
@@ -216,41 +314,70 @@
     ],
     "T1059": [
       "collection",
+      "command_and_control",
       "discovery",
       "execution",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1059.001": [
       "collection",
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "discovery",
       "execution",
       "exfiltration",
       "impact",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1059.003": [
+      "command_and_control",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1059.005": [
+      "command_and_control",
       "discovery",
       "execution",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1059.006": [
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1059.007": [
       "collection",
+      "command_and_control",
+      "credential_access",
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1068": [
+      "credential_access",
       "execution",
       "impact",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1069": [
       "discovery",
@@ -258,132 +385,216 @@
     ],
     "T1069.001": [
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1069.002": [
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1070": [
+      "defense_evasion",
       "impact",
       "persistence"
     ],
-    "T1070.001": [],
+    "T1070.001": [
+      "defense_evasion"
+    ],
     "T1070.003": [],
     "T1070.004": [
+      "defense_evasion",
       "impact"
     ],
     "T1070.005": [],
     "T1070.006": [],
     "T1070.008": [],
     "T1071": [
+      "command_and_control",
+      "credential_access",
       "execution"
     ],
     "T1071.001": [
+      "command_and_control",
       "execution",
-      "exfiltration"
+      "exfiltration",
+      "initial_access",
+      "lateral_movement"
     ],
     "T1071.004": [
+      "command_and_control",
       "execution",
       "exfiltration",
       "impact",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1072": [
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1074.001": [
       "collection"
     ],
     "T1078": [
-      "persistence"
+      "credential_access",
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1078.001": [
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1078.002": [
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1078.003": [
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1082": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1083": [
+      "credential_access",
       "discovery",
       "execution",
-      "impact"
+      "impact",
+      "lateral_movement"
     ],
     "T1086": [
       "execution"
     ],
     "T1087": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1087.001": [
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1087.002": [
       "discovery",
       "execution",
-      "exfiltration"
+      "exfiltration",
+      "lateral_movement"
     ],
     "T1090": [
+      "command_and_control",
       "execution",
-      "exfiltration"
+      "exfiltration",
+      "lateral_movement"
     ],
-    "T1090.001": [],
+    "T1090.001": [
+      "command_and_control",
+      "lateral_movement"
+    ],
     "T1090.002": [
-      "exfiltration"
+      "command_and_control",
+      "exfiltration",
+      "lateral_movement"
     ],
-    "T1090.003": [],
-    "T1090.004": [],
-    "T1091": [],
+    "T1090.003": [
+      "command_and_control"
+    ],
+    "T1090.004": [
+      "command_and_control"
+    ],
+    "T1091": [
+      "initial_access",
+      "lateral_movement"
+    ],
     "T1095": [
+      "command_and_control",
       "execution"
     ],
     "T1098": [
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1102": [
+      "command_and_control",
       "exfiltration"
     ],
-    "T1102.001": [],
-    "T1102.002": [],
+    "T1102.001": [
+      "command_and_control"
+    ],
+    "T1102.002": [
+      "command_and_control"
+    ],
     "T1104": [
+      "command_and_control",
       "execution"
     ],
     "T1105": [
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "execution",
       "exfiltration",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation",
+      "resource_development"
     ],
     "T1106": [
-      "discovery",
-      "execution"
-    ],
-    "T1110": [
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "privilege_escalation"
     ],
-    "T1110.001": [],
-    "T1110.002": [],
-    "T1110.003": [],
+    "T1110": [
+      "credential_access",
+      "discovery",
+      "execution",
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
+    ],
+    "T1110.001": [
+      "credential_access"
+    ],
+    "T1110.002": [
+      "credential_access"
+    ],
+    "T1110.003": [
+      "credential_access",
+      "initial_access",
+      "privilege_escalation"
+    ],
     "T1112": [
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "discovery",
       "execution",
       "impact",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1113": [
       "collection"
@@ -391,7 +602,8 @@
     "T1114": [
       "collection",
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1114.001": [
       "collection"
@@ -404,7 +616,8 @@
       "collection"
     ],
     "T1119": [
-      "collection"
+      "collection",
+      "credential_access"
     ],
     "T1120": [
       "discovery"
@@ -419,47 +632,78 @@
       "collection"
     ],
     "T1127": [
+      "command_and_control",
       "execution",
+      "initial_access",
       "persistence"
     ],
     "T1127.001": [
+      "defense_evasion",
       "execution"
     ],
     "T1129": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1132.001": [
+      "command_and_control",
       "exfiltration"
     ],
     "T1133": [
+      "command_and_control",
+      "credential_access",
       "execution",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
-    "T1134": [],
-    "T1134.001": [],
+    "T1134": [
+      "credential_access",
+      "privilege_escalation"
+    ],
+    "T1134.001": [
+      "credential_access",
+      "privilege_escalation"
+    ],
     "T1134.002": [
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
-    "T1134.003": [],
-    "T1134.004": [],
+    "T1134.003": [
+      "privilege_escalation"
+    ],
+    "T1134.004": [
+      "privilege_escalation"
+    ],
     "T1134.005": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1135": [
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement",
+      "privilege_escalation"
     ],
     "T1136.001": [
       "execution",
+      "initial_access",
+      "lateral_movement",
       "persistence"
     ],
     "T1136.002": [
+      "credential_access",
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1137": [
-      "persistence"
+      "command_and_control",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1137.002": [
       "persistence"
@@ -471,85 +715,138 @@
       "persistence"
     ],
     "T1140": [
+      "command_and_control",
+      "defense_evasion",
       "execution",
       "impact",
       "persistence"
     ],
     "T1176": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1176.001": [
       "persistence"
     ],
     "T1185": [
-      "collection"
+      "collection",
+      "credential_access"
     ],
     "T1187": [
       "collection",
-      "persistence"
+      "credential_access",
+      "persistence",
+      "privilege_escalation"
     ],
-    "T1189": [],
+    "T1189": [
+      "initial_access"
+    ],
     "T1190": [
       "execution",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
-    "T1195": [],
-    "T1195.001": [],
+    "T1195": [
+      "initial_access"
+    ],
+    "T1195.001": [
+      "initial_access"
+    ],
     "T1195.002": [
       "collection",
+      "command_and_control",
+      "credential_access",
       "execution",
+      "initial_access",
       "persistence"
     ],
     "T1197": [
+      "command_and_control",
+      "defense_evasion",
       "execution",
       "exfiltration",
       "persistence"
     ],
-    "T1200": [],
+    "T1200": [
+      "initial_access",
+      "lateral_movement"
+    ],
     "T1201": [
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1202": [
-      "execution"
+      "defense_evasion",
+      "execution",
+      "privilege_escalation"
     ],
     "T1203": [
+      "command_and_control",
+      "credential_access",
       "execution",
       "impact",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1204": [
-      "execution"
+      "command_and_control",
+      "execution",
+      "initial_access"
     ],
     "T1204.001": [
       "execution"
     ],
     "T1204.002": [
+      "defense_evasion",
       "execution",
       "impact",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1204.004": [
       "execution"
     ],
-    "T1207": [],
+    "T1207": [
+      "credential_access"
+    ],
     "T1210": [
+      "command_and_control",
+      "credential_access",
       "discovery",
       "execution",
-      "impact"
+      "impact",
+      "initial_access",
+      "lateral_movement",
+      "privilege_escalation"
     ],
     "T1211": [
+      "credential_access",
       "execution",
       "impact",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1212": [
+      "command_and_control",
+      "credential_access",
       "execution",
-      "impact"
+      "impact",
+      "lateral_movement",
+      "privilege_escalation"
     ],
     "T1216": [
+      "defense_evasion",
       "execution"
     ],
     "T1216.001": [],
@@ -557,44 +854,74 @@
       "discovery"
     ],
     "T1218": [
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "execution",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1218.001": [
-      "execution"
+      "execution",
+      "initial_access"
     ],
     "T1218.002": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1218.003": [
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
-    "T1218.004": [],
+    "T1218.004": [
+      "defense_evasion"
+    ],
     "T1218.005": [
+      "defense_evasion",
       "discovery",
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
     "T1218.007": [
+      "command_and_control",
       "execution"
     ],
-    "T1218.008": [],
-    "T1218.009": [],
+    "T1218.008": [
+      "defense_evasion"
+    ],
+    "T1218.009": [
+      "defense_evasion"
+    ],
     "T1218.010": [
-      "execution"
+      "defense_evasion",
+      "execution",
+      "initial_access"
     ],
     "T1218.011": [
-      "execution"
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
+      "execution",
+      "initial_access",
+      "lateral_movement"
     ],
-    "T1218.013": [],
+    "T1218.013": [
+      "privilege_escalation"
+    ],
     "T1218.014": [
       "execution"
     ],
     "T1219": [
+      "command_and_control",
       "execution",
+      "lateral_movement",
       "persistence"
     ],
     "T1219.002": [
+      "command_and_control",
       "execution",
       "persistence"
     ],
@@ -606,14 +933,16 @@
     "T1222.001": [
       "discovery",
       "execution",
-      "impact"
+      "impact",
+      "lateral_movement"
     ],
     "T1482": [
       "discovery",
       "execution"
     ],
     "T1484.001": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1485": [
       "execution",
@@ -622,7 +951,8 @@
     ],
     "T1486": [
       "discovery",
-      "impact"
+      "impact",
+      "lateral_movement"
     ],
     "T1489": [
       "impact"
@@ -630,7 +960,8 @@
     "T1490": [
       "discovery",
       "execution",
-      "impact"
+      "impact",
+      "lateral_movement"
     ],
     "T1491.001": [
       "impact",
@@ -653,8 +984,11 @@
       "impact"
     ],
     "T1499.004": [
+      "credential_access",
       "execution",
-      "impact"
+      "impact",
+      "lateral_movement",
+      "privilege_escalation"
     ],
     "T1505.001": [
       "persistence"
@@ -665,20 +999,26 @@
     "T1505.003": [
       "discovery",
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1505.004": [
       "persistence"
     ],
     "T1505.005": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1518": [
+      "credential_access",
       "discovery",
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
     "T1518.001": [
       "discovery"
@@ -686,8 +1026,12 @@
     "T1526": [
       "discovery"
     ],
-    "T1528": [],
+    "T1528": [
+      "credential_access",
+      "privilege_escalation"
+    ],
     "T1529": [
+      "command_and_control",
       "execution",
       "impact"
     ],
@@ -695,7 +1039,8 @@
       "impact"
     ],
     "T1539": [
-      "collection"
+      "collection",
+      "credential_access"
     ],
     "T1542.001": [
       "persistence"
@@ -705,197 +1050,291 @@
     ],
     "T1543": [
       "discovery",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1543.003": [
+      "command_and_control",
       "discovery",
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546": [
+      "command_and_control",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.001": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.002": [
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.003": [
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.007": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.008": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.009": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.010": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.011": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.012": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.013": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1546.015": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.001": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.002": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.003": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.004": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.005": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.008": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.009": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.010": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.014": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1547.015": [
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1548": [
-      "persistence"
+      "credential_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1548.002": [
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
-    "T1550": [],
+    "T1550": [
+      "credential_access",
+      "lateral_movement"
+    ],
     "T1550.002": [
       "collection",
       "discovery",
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
-    "T1550.003": [],
+    "T1550.003": [
+      "credential_access",
+      "lateral_movement"
+    ],
     "T1552": [
       "collection",
+      "credential_access",
       "discovery",
       "execution"
     ],
     "T1552.001": [
       "collection",
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "discovery",
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
     "T1552.002": [
+      "credential_access",
       "discovery",
       "persistence"
     ],
     "T1552.004": [
+      "credential_access",
       "execution"
     ],
-    "T1552.006": [],
+    "T1552.006": [
+      "credential_access"
+    ],
     "T1553": [
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
     "T1553.002": [
+      "defense_evasion",
       "impact"
     ],
     "T1553.003": [
       "persistence"
     ],
-    "T1553.004": [],
+    "T1553.004": [
+      "credential_access",
+      "defense_evasion"
+    ],
     "T1553.005": [
       "execution"
     ],
     "T1554": [
       "execution",
+      "initial_access",
       "persistence"
     ],
     "T1555": [
+      "credential_access",
       "discovery",
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
     "T1555.003": [
       "collection",
+      "credential_access",
       "discovery",
-      "execution"
+      "execution",
+      "privilege_escalation"
     ],
-    "T1555.004": [],
-    "T1555.005": [],
+    "T1555.004": [
+      "credential_access"
+    ],
+    "T1555.005": [
+      "credential_access"
+    ],
     "T1556": [
+      "credential_access",
       "persistence"
     ],
     "T1556.002": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1557": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
       "impact",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1557.001": [
       "collection",
+      "credential_access",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1557.003": [
       "collection",
-      "persistence"
+      "credential_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1558": [
+      "credential_access",
       "discovery",
+      "lateral_movement",
       "reconnaissance"
     ],
-    "T1558.001": [],
-    "T1558.002": [],
-    "T1558.003": [],
-    "T1558.004": [],
+    "T1558.001": [
+      "credential_access",
+      "lateral_movement"
+    ],
+    "T1558.002": [
+      "credential_access",
+      "lateral_movement"
+    ],
+    "T1558.003": [
+      "credential_access",
+      "lateral_movement",
+      "privilege_escalation"
+    ],
+    "T1558.004": [
+      "credential_access"
+    ],
     "T1559": [
       "execution"
     ],
@@ -911,36 +1350,56 @@
     ],
     "T1560.001": [
       "collection",
-      "exfiltration"
+      "credential_access",
+      "exfiltration",
+      "lateral_movement"
     ],
     "T1561": [
+      "credential_access",
       "impact"
     ],
     "T1562.001": [
+      "defense_evasion",
       "execution"
     ],
-    "T1562.002": [],
-    "T1562.010": [],
-    "T1563.002": [],
+    "T1562.002": [
+      "defense_evasion"
+    ],
+    "T1562.010": [
+      "defense_evasion"
+    ],
+    "T1563.002": [
+      "lateral_movement"
+    ],
     "T1564": [
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1564.001": [
       "persistence"
     ],
     "T1564.002": [
       "collection",
+      "credential_access",
+      "defense_evasion",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1564.003": [
       "collection",
-      "execution"
+      "command_and_control",
+      "credential_access",
+      "execution",
+      "privilege_escalation"
     ],
     "T1564.004": [
+      "command_and_control",
+      "credential_access",
+      "defense_evasion",
       "execution"
     ],
     "T1564.006": [],
@@ -953,99 +1412,150 @@
     ],
     "T1565.002": [
       "collection",
+      "credential_access",
       "execution",
-      "impact"
+      "impact",
+      "initial_access",
+      "privilege_escalation"
     ],
     "T1566": [
+      "credential_access",
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation",
+      "resource_development"
     ],
     "T1566.001": [
       "execution",
+      "initial_access",
       "persistence",
+      "privilege_escalation",
       "reconnaissance"
     ],
     "T1567": [
+      "command_and_control",
       "exfiltration"
     ],
     "T1567.001": [
+      "command_and_control",
       "exfiltration"
     ],
     "T1567.002": [
+      "command_and_control",
       "exfiltration"
     ],
     "T1568.002": [
+      "command_and_control",
       "exfiltration"
     ],
     "T1569": [
-      "execution"
+      "execution",
+      "lateral_movement"
     ],
     "T1569.002": [
+      "credential_access",
+      "defense_evasion",
       "discovery",
       "execution",
-      "persistence"
+      "initial_access",
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation",
+      "resource_development"
     ],
     "T1570": [
+      "command_and_control",
       "execution",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1571": [
+      "command_and_control",
       "persistence"
     ],
     "T1572": [
+      "command_and_control",
       "execution",
       "exfiltration",
-      "impact"
+      "impact",
+      "lateral_movement"
     ],
     "T1573": [
+      "command_and_control",
       "execution"
     ],
     "T1574": [
+      "defense_evasion",
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1574.001": [
+      "defense_evasion",
       "execution",
-      "persistence"
+      "initial_access",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1574.005": [
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1574.007": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1574.008": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1574.010": [
+      "defense_evasion",
       "persistence"
     ],
     "T1574.011": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1574.012": [
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1584": [
-      "impact"
+      "impact",
+      "initial_access",
+      "resource_development"
     ],
     "T1587": [
-      "execution"
+      "execution",
+      "privilege_escalation",
+      "resource_development"
     ],
     "T1587.001": [
-      "execution"
+      "execution",
+      "resource_development"
     ],
-    "T1588": [],
-    "T1588.002": [],
+    "T1588": [
+      "resource_development"
+    ],
+    "T1588.002": [
+      "credential_access",
+      "resource_development"
+    ],
     "T1589.002": [
+      "credential_access",
       "discovery",
       "reconnaissance"
     ],
@@ -1070,45 +1580,61 @@
       "reconnaissance"
     ],
     "T1598.002": [
+      "initial_access",
       "reconnaissance"
     ],
     "T1599.001": [
-      "collection"
+      "collection",
+      "credential_access"
     ],
-    "T1608": [],
+    "T1608": [
+      "command_and_control",
+      "resource_development"
+    ],
     "T1614.001": [
       "discovery"
     ],
     "T1615": [
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1620": [
       "execution"
     ],
     "T1622": [
       "discovery",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1649": [
+      "credential_access",
       "discovery",
-      "persistence"
+      "lateral_movement",
+      "persistence",
+      "privilege_escalation"
     ],
     "T1685": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
       "impact",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
     "T1685.001": [
       "collection",
+      "credential_access",
       "discovery",
       "execution",
-      "persistence"
+      "persistence",
+      "privilege_escalation"
     ],
-    "T1685.005": [],
+    "T1685.005": [
+      "credential_access"
+    ],
     "T1686.003": [],
     "T1689": []
   },
