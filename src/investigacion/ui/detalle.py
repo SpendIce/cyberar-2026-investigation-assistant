@@ -43,7 +43,7 @@ def mostrar(servicio: ServicioDeCasos, caso_id: str) -> None:
         st.rerun()
         return
 
-    with st.container(horizontal=True):
+    with st.container(horizontal=True, horizontal_alignment="distribute"):
         if st.button("← Casos", key="volver"):
             _volver()
             st.rerun()
