@@ -19,7 +19,9 @@ _CSS = """
 }
 
 [data-testid="stAppViewContainer"] .block-container {
-    padding-top: 2rem;
+    /* El header fijo de Streamlit (toolbar con Deploy) tapa el contenido
+       si el padding superior es menor a su altura (~3.5rem). */
+    padding-top: 4.5rem;
     padding-bottom: 3rem;
     max-width: 1320px;
 }
