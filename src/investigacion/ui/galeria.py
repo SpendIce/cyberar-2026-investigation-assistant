@@ -249,7 +249,9 @@ def _filtrar(servicio: ServicioDeCasos) -> tuple[Caso, ...]:
             or busqueda in " ".join(hosts_del_caso(caso)).casefold()
             or busqueda in caso.id.casefold()
         )
-    return casos
+    # Orden alfabético por título: el id es un uuid sin significado y los
+    # pares de escenario ("con contexto" / "sin contexto") quedan adyacentes.
+    return tuple(sorted(casos, key=lambda c: servicio.titulo_de(c).casefold()))
 
 
 def mostrar(servicio: ServicioDeCasos) -> None:
