@@ -166,14 +166,25 @@ def topologia_hosts(caso: Caso) -> dict[str, set[str]]:
 
 @lru_cache(maxsize=1)
 def _nombres_attack() -> dict[str, str]:
-    """id de técnica -> nombre legible, desde el catálogo local fijado."""
-    ruta = Path(__file__).resolve().parent.parent / "datos" / "catalogo_attack.json"
-    datos = json.loads(ruta.read_text(encoding="utf-8"))
-    return {
-        str(entrada["id"]): str(entrada["nombre"])
-        for entrada in datos.get("tecnicas", [])
-        if entrada.get("id") and entrada.get("nombre")
-    }
+    """id de técnica -> nombre legible.
+
+    Base: el mapa completo generado desde el STIX oficial
+    (`nombres_attack.json`); encima, el catálogo local validado conserva sus
+    nombres curados (es el subconjunto deliberado de ADR-0014 y sólo cambia
+    display, no validación)."""
+    raiz = Path(__file__).resolve().parent.parent / "datos"
+    nombres: dict[str, str] = json.loads(
+        (raiz / "nombres_attack.json").read_text(encoding="utf-8")
+    ).get("nombres", {})
+    catalogo = json.loads((raiz / "catalogo_attack.json").read_text(encoding="utf-8"))
+    nombres.update(
+        {
+            str(entrada["id"]): str(entrada["nombre"])
+            for entrada in catalogo.get("tecnicas", [])
+            if entrada.get("id") and entrada.get("nombre")
+        }
+    )
+    return nombres
 
 
 def nombre_tecnica(tecnica: str) -> str:
