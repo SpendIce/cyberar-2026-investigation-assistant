@@ -33,7 +33,6 @@ def _abrir(caso_id: str) -> None:
 def _tarjeta(servicio: ServicioDeCasos, caso: Caso, columna: DeltaGenerator) -> None:
     escenario = servicio.escenario_de(caso)
     with columna.container(border=True):
-        st.markdown('<span class="card-open"></span>', unsafe_allow_html=True)
         st.markdown(f"**{servicio.titulo_de(caso)}**")
         modalidad = caso.modalidad_inferencia
         if modalidad is not None:
@@ -54,6 +53,7 @@ def _tarjeta(servicio: ServicioDeCasos, caso: Caso, columna: DeltaGenerator) -> 
         st.markdown(
             '<div class="abrir-hint">Abrir caso →</div>', unsafe_allow_html=True
         )
+        st.markdown('<span class="card-open"></span>', unsafe_allow_html=True)
         st.button(
             "Abrir caso",
             key=f"abrir-{caso.id}",

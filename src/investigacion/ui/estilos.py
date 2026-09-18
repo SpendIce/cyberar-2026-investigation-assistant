@@ -4,53 +4,45 @@ from __future__ import annotations
 
 import streamlit as st
 
-# La tarjeta lleva dos marcas: <span class="card-open"> al inicio y
-# <span class="card-del"> antes del botón de borrado. Con :has() ubicamos:
-#   - la tarjeta: cualquier bloque que contiene .card-open
-#   - el botón "Abrir caso": contenedor con botón y un hermano posterior .card-del
-#   - el botón ✕: contenedor con botón sin hermano posterior .card-del
-# Solo el wrapper externo lleva borde: las sombras y el hover van ahí para
-# no duplicar el efecto en el bloque interno.
-_MARCO = '[data-testid="stVerticalBlockBorderWrapper"]:has(.card-open)'
-# Para posicionar los botones sirve cualquier ancestro marcado.
-_CARD = (
-    ':is([data-testid="stVerticalBlockBorderWrapper"],'
-    '[data-testid="stVerticalBlock"]):has(.card-open)'
+# La tarjeta lleva dos marcas ocultas justo antes de cada botón:
+# <span class="card-open"> antes de "Abrir caso" y <span class="card-del">
+# antes del ✕. El contenedor del botón es el hermano adyacente del
+# contenedor de la marca, así no hace falta recorrer siblings con :has(~).
+_CARD = '[data-testid="stVerticalBlockBorderWrapper"]:has(.card-open)'
+_OPEN = (
+    '[data-testid="stElementContainer"]:has(.card-open)'
+    ' + [data-testid="stElementContainer"]'
 )
-_ABIERTO = (
-    '[data-testid="stElementContainer"]:has(button)'
-    ':has(~ [data-testid="stElementContainer"] .card-del)'
-)
-_CERRAR = (
-    '[data-testid="stElementContainer"]:has(button)'
-    ':not(:has(~ [data-testid="stElementContainer"] .card-del))'
+_DEL = (
+    '[data-testid="stElementContainer"]:has(.card-del)'
+    ' + [data-testid="stElementContainer"]'
 )
 
 _CSS = f"""
 <style>
-{_MARCO} {{
+{_CARD} {{
     position: relative;
     cursor: pointer;
     transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }}
-{_MARCO}:hover {{
+{_CARD}:hover {{
     border-color: rgba(120, 170, 255, .55);
     box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
     transform: translateY(-1px);
 }}
-{_MARCO}:focus-within {{
+{_CARD}:focus-within {{
     border-color: rgba(120, 170, 255, .8);
     box-shadow: 0 0 0 2px rgba(120, 170, 255, .35);
 }}
 
-/* Botón "Abrir caso": transparente, estirado a toda la tarjeta. */
-{_CARD} {_ABIERTO} {{
+/* "Abrir caso" transparente estirado a toda la tarjeta. */
+{_CARD} {_OPEN} {{
     position: absolute;
     inset: 0;
     z-index: 3;
     margin: 0 !important;
 }}
-{_CARD} {_ABIERTO} button {{
+{_CARD} {_OPEN} button {{
     position: absolute;
     inset: 0;
     width: 100%;
@@ -63,8 +55,8 @@ _CSS = f"""
     font-size: 0;
 }}
 
-/* Botón ✕: discreto, esquina superior derecha. */
-{_CARD} {_CERRAR} {{
+/* ✕ discreto en la esquina superior derecha. */
+{_CARD} {_DEL} {{
     position: absolute;
     top: .45rem;
     right: .45rem;
@@ -72,7 +64,7 @@ _CSS = f"""
     width: auto;
     margin: 0 !important;
 }}
-{_CARD} {_CERRAR} button {{
+{_CARD} {_DEL} button {{
     width: 1.7rem;
     height: 1.7rem;
     min-height: 0;
@@ -85,7 +77,7 @@ _CSS = f"""
     color: rgba(165, 165, 175, .9);
     transition: color .15s ease, border-color .15s ease;
 }}
-{_CARD} {_CERRAR} button:hover {{
+{_CARD} {_DEL} button:hover {{
     border-color: #ff4d4f;
     color: #ff4d4f;
 }}

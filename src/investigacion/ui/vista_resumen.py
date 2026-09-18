@@ -4,25 +4,33 @@ from __future__ import annotations
 
 import streamlit as st
 
-from investigacion.modelos import Caso
+from investigacion.modelos import Caso, ModalidadInferencia
 from investigacion.ui.metricas import (
     hosts_del_caso,
     numeros_sigma,
+    severidad_caso,
     topologia_hosts,
 )
 from investigacion.ui.presentacion import estado_caso
 from investigacion.ui.servicio import ServicioDeCasos
+from investigacion.validacion import contiene_lenguaje_concluyente, prosa_revisable
 
 
 def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
     estado = dict(estado_caso(caso))
     numeros = numeros_sigma(caso)
-    columnas = st.columns(5)
+    columnas = st.columns(6)
     columnas[0].metric("Eventos", len(caso.eventos))
     columnas[1].metric("Eventos detectados", numeros["eventos_con_deteccion"])
     columnas[2].metric("Hallazgos", estado["Hallazgos"])
     columnas[3].metric("Reglas Sigma que activaron", numeros["reglas_distintas"])
     columnas[4].metric("Técnicas heredadas", numeros["tecnicas_heredadas"])
+    columnas[5].metric(
+        "Señal máxima",
+        severidad_caso(caso),
+        help="La severidad (Level) más alta que marcaron las reglas "
+        "defensivas sobre los eventos del caso.",
+    )
 
     hosts = hosts_del_caso(caso)
     st.caption(
@@ -35,6 +43,30 @@ def mostrar(servicio: ServicioDeCasos, caso: Caso) -> None:
         st.markdown(f"**Contexto declarado por el operador:** {caso.contexto}")
     else:
         st.caption("Sin contexto declarado: la narrativa se apoya sólo en la evidencia.")
+
+    st.subheader("Interpretación del modelo")
+    if caso.hallazgos:
+        st.badge("Generado por IA · pendiente de revisión humana", color="violet")
+        for hallazgo in caso.hallazgos:
+            if contiene_lenguaje_concluyente(prosa_revisable(hallazgo)):
+                st.markdown(
+                    "- *Formulación no mostrada: lenguaje concluyente "
+                    "incompatible con una hipótesis pendiente de revisión.*"
+                )
+            else:
+                st.markdown(f"- {hallazgo.hipotesis}")
+        st.caption(
+            "Son hipótesis sobre la evidencia, no un veredicto: el detalle "
+            "de referencias, alternativas y evidencia faltante está en la "
+            "pestaña Hipótesis IA."
+        )
+    elif caso.modalidad_inferencia == ModalidadInferencia.DEGRADADO:
+        st.caption(
+            "Sin interpretación del modelo: el caso se procesó sólo con "
+            "reglas defensivas (modo degradado)."
+        )
+    else:
+        st.caption("El motor no produjo hipótesis para este caso.")
 
     topologia = topologia_hosts(caso)
     if topologia:

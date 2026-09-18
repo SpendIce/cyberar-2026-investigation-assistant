@@ -98,6 +98,15 @@ def detecciones_evento(evento: Any) -> int:
     return len(detecciones_de(evento))
 
 
+def severidad_caso(caso: Caso) -> str:
+    """La severidad más alta marcada por las reglas en todo el caso."""
+    niveles = {severidad_evento(evento) for evento in caso.eventos}
+    for severidad in _SEVERIDADES:
+        if severidad in niveles:
+            return severidad
+    return "sin detección"
+
+
 _CAMPOS_REMOTOS = (
     "IpAddress",
     "SourceIp",
