@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "escenarios": [
+    {
+      "escenario_id": "galeria-10512874",
+      "caso_id": "10512874e6a24c8ea8adf9101094a4b3",
+      "titulo": "Maldoc → mshta → rundll32 solo Hayabusa (MSEDGEWIN10)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "modo degradado — solo reglas"
+    },
+    {
+      "escenario_id": "galeria-3ef6fdfa",
+      "caso_id": "3ef6fdfa9f154afe8ddb29764d278531",
+      "titulo": "Volcado de LSASS (PC04) — con contexto",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "con contexto del operador"
+    },
+    {
+      "escenario_id": "galeria-534eeb82",
+      "caso_id": "534eeb82149047849d4abb6d3f230612",
+      "titulo": "eventos.evtx",
+      "descripcion": "https://github.com/Yamato-Security/hayabusa-sample-evtx/tree/0845333ecb4afcf64c55c6e10946383f168f308c/DeepBlueCLI",
+      "tipo_evidencia": "escenario de referencia"
+    },
+    {
+      "escenario_id": "galeria-589596a5",
+      "caso_id": "589596a58ee845e39d85afe66a650d64",
+      "titulo": "WMI EventConsumer persistence (IEWIN7)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-647af961",
+      "caso_id": "647af9611f7f446b865ec246739bd1c6",
+      "titulo": "Persistencia vía accessibility features (DC1)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-66e06d9e",
+      "caso_id": "66e06d9eb4bd43e98483fc2fc4deaa5b",
+      "titulo": "rundll32 + mshta + scheduled task (IEWIN7)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-79c688dc",
+      "caso_id": "79c688dc3c5c46749999b23734ae7e68",
+      "titulo": "MalSecLogon — secuestro de logon (MSEDGEWIN10)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-7b94513d",
+      "caso_id": "7b94513deea74a2394acc698eebf8be5",
+      "titulo": "Intrusion ejemplo.corp 3/4 — tarea ATSVC remota",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "kill-chain multi-etapa"
+    },
+    {
+      "escenario_id": "galeria-8d3e50b2",
+      "caso_id": "8d3e50b2d6fa4c0dadac39ddc6067642",
+      "titulo": "wmiexec Impacket (IEWIN7)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-9b3f296c",
+      "caso_id": "9b3f296c2f6d45f49847be352e2b754a",
+      "titulo": "Intrusion ejemplo.corp 4/4 — servicio remoto instalado",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "kill-chain multi-etapa"
+    },
+    {
+      "escenario_id": "galeria-9e530159",
+      "caso_id": "9e53015906354f47938e42fbe5742adc",
+      "titulo": "Intrusion ejemplo.corp 1/4 — logon WMI remoto",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "kill-chain multi-etapa"
+    },
+    {
+      "escenario_id": "galeria-aa3e2482",
+      "caso_id": "aa3e24828bc949d48f286286520584db",
+      "titulo": "RottenPotato desde webshell (IEWIN7)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-c00298b4",
+      "caso_id": "c00298b431e14c97a1716d29b058170b",
+      "titulo": "APT10: sideloading + process hollowing (IEWIN7)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-df295b3f",
+      "caso_id": "df295b3f7beb461883084ca124d6d242",
+      "titulo": "Túnel RDP sobre SSH — plink (PC01)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-e9891576",
+      "caso_id": "e989157657b043579928e75dd590936d",
+      "titulo": "Intrusion ejemplo.corp 3/4 — tarea ATSVC remota",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "kill-chain multi-etapa"
+    },
+    {
+      "escenario_id": "galeria-f0570653",
+      "caso_id": "f057065360ab415b8757ed2d1575461f",
+      "titulo": "Volcado de LSASS (PC04) — sin contexto",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "sin contexto"
+    },
+    {
+      "escenario_id": "galeria-f1b3d4ce",
+      "caso_id": "f1b3d4ce2f33473e9e0fc772c7610a07",
+      "titulo": "Intrusion ejemplo.corp 2/4 — recon + log cleared",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "kill-chain multi-etapa"
+    },
+    {
+      "escenario_id": "galeria-f5d930b3",
+      "caso_id": "f5d930b339f14bc38bd15b5def8d5981",
+      "titulo": "Intrusion ejemplo.corp 4/4 — servicio remoto instalado",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "kill-chain multi-etapa"
+    },
+    {
+      "escenario_id": "galeria-f63d0144",
+      "caso_id": "f63d0144009944a3929d782349c63b41",
+      "titulo": "Reflective PE injection solo Hayabusa (IEWIN7)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "modo degradado — solo reglas"
+    },
+    {
+      "escenario_id": "galeria-f816869c",
+      "caso_id": "f816869cf83e4ca9ac15ac08573aa60e",
+      "titulo": "PsExec + SMB + Meterpreter (IEWIN7)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-fa0e7b79",
+      "caso_id": "fa0e7b79d3ef4020b8a743b17493f5de",
+      "titulo": "Túnel RDP WFP 5156 (PC01)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "EVTX publico real"
+    },
+    {
+      "escenario_id": "galeria-ffd7bd4a",
+      "caso_id": "ffd7bd4a02c4424bb56bdcac6dec388a",
+      "titulo": "Kill-chain completa solo Hayabusa (MSEDGEWIN10)",
+      "descripcion": "EVTX-ATTACK-SAMPLES (dataset público)",
+      "tipo_evidencia": "modo degradado — solo reglas"
+    }
+  ]
+}
