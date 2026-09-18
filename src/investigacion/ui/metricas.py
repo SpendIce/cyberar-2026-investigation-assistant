@@ -166,10 +166,19 @@ def tacticas_orden() -> tuple[str, ...]:
     return _TACTICAS_ORDEN
 
 
-def artefactos_del_caso(caso: Caso) -> dict[str, Path]:
-    """Artefactos conservados en disco junto al EVTX original, si existen."""
+def artefactos_del_caso(caso: Caso, directorio_datos: Path | None = None) -> dict[str, Path]:
+    """Artefactos conservados en disco junto al EVTX original, si existen.
+
+    `origen.ruta` es absoluta en la máquina que importó; cuando el repositorio
+    viaja (clone de un compañero), se re-resuelve bajo `directorio_datos` por
+    el nombre de la carpeta de importación."""
     origen = Path(caso.origen.ruta)
     carpeta = origen.parent
+    if not origen.is_file() and directorio_datos is not None:
+        candidata = directorio_datos / "evidencia" / carpeta.name
+        if (candidata / origen.name).is_file():
+            origen = candidata / origen.name
+            carpeta = origen.parent
     artefactos: dict[str, Path] = {}
     if origen.is_file():
         artefactos["EVTX original"] = origen

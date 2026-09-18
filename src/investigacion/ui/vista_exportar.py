@@ -58,7 +58,7 @@ def _dialogo_exportar(servicio: ServicioDeCasos, caso: Caso) -> None:
     )
 
     st.markdown("**Artefactos conservados de la importación**")
-    artefactos = artefactos_del_caso(caso)
+    artefactos = artefactos_del_caso(caso, servicio.directorio_datos)
     if not artefactos:
         st.caption(
             "Este caso no tiene artefactos en disco (evidencia controlada o "
