@@ -23,7 +23,12 @@ _ETIQUETA_MODALIDAD: dict[ModalidadInferencia, tuple[str, _ColorBadge]] = {
     ModalidadInferencia.DEGRADADO: ("modo degradado", "gray"),
 }
 
-_OPCIONES_MODALIDAD = ("todas", "modelo externo", "modelo local", "modo degradado")
+_OPCIONES_MODALIDAD: dict[str, ModalidadInferencia | None] = {
+    "todas": None,
+    "externo": ModalidadInferencia.MODELO_EXTERNO,
+    "local": ModalidadInferencia.MODELO_LOCAL,
+    "degradado": ModalidadInferencia.DEGRADADO,
+}
 
 _TONO_SEVERIDAD: dict[str, str] = {
     "critical": "red",
@@ -228,16 +233,12 @@ def _tarjeta(
 def _filtrar(servicio: ServicioDeCasos) -> tuple[Caso, ...]:
     casos = servicio.casos()
     busqueda = st.session_state.get("busqueda-casos", "").strip().casefold()
-    modalidad = st.session_state.get("filtro-modalidad", "todas")
-    if modalidad != "todas":
+    modalidad = _OPCIONES_MODALIDAD.get(
+        st.session_state.get("filtro-modalidad", "todas")
+    )
+    if modalidad is not None:
         casos = tuple(
-            caso
-            for caso in casos
-            if caso.modalidad_inferencia is not None
-            and _ETIQUETA_MODALIDAD.get(
-                caso.modalidad_inferencia, (caso.modalidad_inferencia.value, "gray")
-            )[0]
-            == modalidad
+            caso for caso in casos if caso.modalidad_inferencia == modalidad
         )
     if busqueda:
         casos = tuple(
@@ -276,14 +277,14 @@ def mostrar(servicio: ServicioDeCasos) -> None:
         )
         return
 
-    busqueda, filtro, _ = st.columns([3, 2, 3])
+    busqueda, filtro, _ = st.columns([2, 3, 2])
     busqueda.text_input(
         "Buscar", placeholder="título, host o id…", key="busqueda-casos",
         label_visibility="collapsed",
     )
     filtro.segmented_control(
         "Modalidad",
-        options=_OPCIONES_MODALIDAD,
+        options=list(_OPCIONES_MODALIDAD),
         default="todas",
         key="filtro-modalidad",
         label_visibility="collapsed",
