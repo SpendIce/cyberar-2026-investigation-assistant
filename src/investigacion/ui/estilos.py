@@ -7,8 +7,14 @@ import streamlit as st
 # La tarjeta lleva dos marcas ocultas justo antes de cada botón:
 # <span class="card-open"> antes de "Abrir caso" y <span class="card-del">
 # antes del ✕. El contenedor del botón es el hermano adyacente del
-# contenedor de la marca, así no hace falta recorrer siblings con :has(~).
-_CARD = '[data-testid="stVerticalBlockBorderWrapper"]:has(.card-open)'
+# contenedor de la marca. En Streamlit 1.64 el container(border=True) se
+# envuelve en stLayoutWrapper; el :not(:has(stLayoutWrapper .card-open))
+# deja sólo el wrapper más interno por si un bloque ancestro también
+# resultara envuelto.
+_CARD = (
+    '[data-testid="stLayoutWrapper"]:has(.card-open)'
+    ':not(:has([data-testid="stLayoutWrapper"] .card-open))'
+)
 _OPEN = (
     '[data-testid="stElementContainer"]:has(.card-open)'
     ' + [data-testid="stElementContainer"]'
